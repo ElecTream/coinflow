@@ -1,0 +1,1 @@
+{"className":"com.leeam.cryptowidget.widget.Hilt_CryptoWidgetProvider","classAnnotations":[],"interfaces":[],"superClasses":["android.appwidget.AppWidgetProvider","android.content.BroadcastReceiver","java.lang.Object"]}

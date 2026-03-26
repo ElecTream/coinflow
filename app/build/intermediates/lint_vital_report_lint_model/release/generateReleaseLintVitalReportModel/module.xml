@@ -1,0 +1,25 @@
+<lint-module
+    format="1"
+    dir="C:\Users\Leeam\Documents\github\widget_crypto\app"
+    name=":app"
+    type="APP"
+    maven="CryptoWidget:app:unspecified"
+    agpVersion="8.7.3"
+    buildFolder="build"
+    bootClassPath="C:\Android\Sdk\platforms\android-35\android.jar;C:\Android\Sdk\build-tools\34.0.0\core-lambda-stubs.jar"
+    javaSourceLevel="17"
+    compileTarget="android-35">
+  <lintOptions
+      disable="RemoveWorkManagerInitializer"
+      abortOnError="true"
+      absolutePaths="true"
+      checkReleaseBuilds="true"
+      explainIssues="true">
+    <severities>
+      <severity
+        id="RemoveWorkManagerInitializer"
+        severity="IGNORE" />
+    </severities>
+  </lintOptions>
+  <variant name="release"/>
+</lint-module>

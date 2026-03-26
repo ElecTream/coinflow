@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accent_cyan">#00D4FF</color>
+    <color name="accent_purple">#7B2FFF</color>
+    <color name="bg_dark">#0D0D1A</color>
+    <color name="card_border">#1E1E3C</color>
+    <color name="color_down">#FF4466</color>
+    <color name="color_up">#00FF88</color>
+    <color name="surface">#141428</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#8899BB</color>
+    <dimen name="sparkline_height">36dp</dimen>
+    <dimen name="widget_corner_radius">16dp</dimen>
+    <dimen name="widget_padding">12dp</dimen>
+    <string name="app_name">Crypto Widget</string>
+    <string name="notification_channel_desc">Notifications when crypto price hits your thresholds</string>
+    <string name="notification_channel_id">crypto_alerts</string>
+    <string name="notification_channel_name">Price Alerts</string>
+    <string name="widget_name">Crypto Price Widget</string>
+    <style name="Theme.CryptoWidget" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/accent_cyan</item>
+        <item name="colorSecondary">@color/accent_purple</item>
+        <item name="colorOnPrimary">@color/bg_dark</item>
+        <item name="android:windowBackground">@color/bg_dark</item>
+        <item name="android:statusBarColor">@color/bg_dark</item>
+        <item name="android:navigationBarColor">@color/bg_dark</item>
+    </style>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Crypto Widget</string>
+    <string name="widget_name">Crypto Price Widget</string>
+    <string name="notification_channel_id">crypto_alerts</string>
+    <string name="notification_channel_name">Price Alerts</string>
+    <string name="notification_channel_desc">Notifications when crypto price hits your thresholds</string>
+</resources>

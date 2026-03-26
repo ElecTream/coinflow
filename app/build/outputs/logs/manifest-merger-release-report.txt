@@ -1,0 +1,703 @@
+-- Merging decision tree log ---
+manifest
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:2:1-51:12
+INJECTED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:2:1-51:12
+INJECTED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:2:1-51:12
+INJECTED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:2:1-51:12
+MERGED from [androidx.hilt:hilt-work:1.2.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\eb49ff10afd8e250ecccca3f37e191f8\transformed\hilt-work-1.2.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.google.dagger:hilt-android:2.52] C:\Users\Leeam\.gradle\caches\8.9\transforms\c1b51dfe2b8d97de167873eb8a6c2676\transformed\hilt-android-2.52\AndroidManifest.xml:16:1-19:12
+MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\ffa83d86e8d6c8686fcc6ec6a5209816\transformed\room-runtime-2.6.1\AndroidManifest.xml:17:1-31:12
+MERGED from [androidx.work:work-runtime-ktx:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\ad03e6b70485e250ffbd98034bcf2eba\transformed\work-runtime-ktx-2.9.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:17:1-145:12
+MERGED from [androidx.room:room-ktx:2.6.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\eceb8bb9ab8cd43ce03921490aa65c41\transformed\room-ktx-2.6.1\AndroidManifest.xml:17:1-22:12
+MERGED from [com.google.android.material:material:1.12.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\06865d2e872aa38c87916c4a650ff34d\transformed\material-1.12.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\22084d4e692e674e0ea8f22632405673\transformed\constraintlayout-2.0.1\AndroidManifest.xml:2:1-11:12
+MERGED from [androidx.appcompat:appcompat-resources:1.7.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\aa09fa8bdf9a7875cac9a5cc781e34ea\transformed\appcompat-resources-1.7.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.appcompat:appcompat:1.7.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\1fe1471ed02f11bf1a5cecebd27e2086\transformed\appcompat-1.7.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.viewpager2:viewpager2:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\e37049c82227dee8f8dc4551c7caa00b\transformed\viewpager2-1.0.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.fragment:fragment:1.5.4] C:\Users\Leeam\.gradle\caches\8.9\transforms\cd25ae94523dc5f46626eacbccb9e725\transformed\fragment-1.5.4\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.activity:activity:1.9.3] C:\Users\Leeam\.gradle\caches\8.9\transforms\45b0750cdfbba51a9b928137a9e3579d\transformed\activity-1.9.3\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.compose.material3:material3-android:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\47730fd0e54e53cd481a80f3094fc6e5\transformed\material3-release\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.activity:activity-compose:1.9.3] C:\Users\Leeam\.gradle\caches\8.9\transforms\1d11357585131dd58caa785e41cfe0b8\transformed\activity-compose-1.9.3\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\ba99423830e990abfb44651293ba8543\transformed\savedstate-ktx-1.2.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.savedstate:savedstate:1.2.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\675897be2a6e00e14243603e1f088e43\transformed\savedstate-1.2.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\bb7be4e819c7c8d1aadc35e20e9d99d7\transformed\customview-poolingcontainer-1.0.0\AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.core:core-ktx:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\2f1b65909d9ba5c972ea96a82364e7b9\transformed\core-ktx-1.15.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.1.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\dba642fb67e57a2ecf7b55f88bc5b1b2\transformed\coordinatorlayout-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.drawerlayout:drawerlayout:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\e6f7425cf6f057656b61e5b297d54db5\transformed\drawerlayout-1.1.1\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.transition:transition:1.5.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\b87322741d1cc4c1756a4a16ed05c3b3\transformed\transition-1.5.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.dynamicanimation:dynamicanimation:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\22579102eb24c38219258bc8fbf882f3\transformed\dynamicanimation-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\dbac471f3fc306c25782f98ae714d1a8\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\86aa4fd530caac800ff66e4486e1d6b0\transformed\vectordrawable-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.emoji2:emoji2-views-helper:1.3.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\2ff7fe308b6e8b840c938f85c4f6045d\transformed\emoji2-views-helper-1.3.0\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.animation:animation-core-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\22c438a97552ed0e1307565d0be1f2f3\transformed\animation-core-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material:material-ripple-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\53d624758624431791a41039d9b5121a\transformed\material-ripple-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.animation:animation-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\d7931daac811fd16421db7d784fc8e83\transformed\animation-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.foundation:foundation-layout-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\624a4bd4827341945a0283adc25c22ce\transformed\foundation-layout-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.foundation:foundation-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\a2ef29a12fac42d17f59aa94ada6d564\transformed\foundation-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-unit-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\c32eebb4bcfc35fa5e7496e1c725279b\transformed\ui-unit-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-graphics-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\9f3e2b3c0c75457afa0674bdfba55097\transformed\ui-graphics-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-geometry-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\0610d8aa1c4711029afd806c6edf609b\transformed\ui-geometry-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-util-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\c9a0d71c682ab2e4508b8f724b54f987\transformed\ui-util-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\725c65bde8dd361507d64ec3918a22dc\transformed\ui-tooling-preview-release\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.compose.ui:ui-text-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\be7fe7fbdad370feffe4158af1af1403\transformed\ui-text-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\1ae015a39530eadf90ff5208ccafc72a\transformed\emoji2-1.3.0\AndroidManifest.xml:17:1-35:12
+MERGED from [androidx.recyclerview:recyclerview:1.1.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\aa81b16d2691856d2d78653a57ea2ad2\transformed\recyclerview-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\c91a9ab82860fa547d0584763430ec65\transformed\viewpager-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.customview:customview:1.1.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\cadd994db08e17affc1f907a7e5561d8\transformed\customview-1.1.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\271265ccad7ed84331c4a48f30931976\transformed\legacy-support-core-utils-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\9247d6ab8a4ee43037b2414c2f995060\transformed\loader-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.autofill:autofill:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\37e7396d92b7fa515a6b92779bdef020\transformed\autofill-1.0.0\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.graphics:graphics-path:1.0.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\e2ae65e9253ef23cdbdf2fbf2aa3e720\transformed\graphics-path-1.0.1\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.core:core:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5488dcac22d0b780941d01dd10c2b70d\transformed\core-1.15.0\AndroidManifest.xml:17:1-30:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\a87829a8c00f1af1dd6f9d57b3366d9b\transformed\lifecycle-livedata-core-ktx-2.8.7\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\00e4a77b73c3e870e663f6b3c98a6c71\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:17:1-35:12
+MERGED from [androidx.lifecycle:lifecycle-runtime-android:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\c39eec6695e1501a26e7844a0447bb11\transformed\lifecycle-runtime-release\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\16cdf5fa98ce324a12a438689b6cd0d0\transformed\lifecycle-livedata-core-2.8.7\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\d4f22a870a3204608f7bbac5985fdd6f\transformed\lifecycle-viewmodel-2.8.7\AndroidManifest.xml:2:1-5:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-android:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\7ac40ccb94430109ecaed9e8f67e7c61\transformed\lifecycle-viewmodel-release\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-service:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\84896d79ab76ccfe72f3040cfd428f05\transformed\lifecycle-service-2.8.7\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\a360d73266bf0ae43e89d01b6ab8d73c\transformed\lifecycle-livedata-2.8.7\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-runtime-compose-android:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\07d62a26e9599e316a78fbe969ed25ae\transformed\lifecycle-runtime-compose-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose-android:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\8fc7452a9781fb6dc710698dc58d7306\transformed\lifecycle-viewmodel-compose-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material:material-icons-core-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\fda71c268de0eaf18226bbdd7d798c3d\transformed\material-icons-core-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\be3b9353648502bd776119866a06ea43\transformed\ui-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.activity:activity-ktx:1.9.3] C:\Users\Leeam\.gradle\caches\8.9\transforms\8f157a10f6a98148910599ac161744c8\transformed\activity-ktx-1.9.3\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\3afdf77e6d037cca4c3a4286e1a80d93\transformed\lifecycle-runtime-ktx-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\223a6010a5845f7088de753aa7f09fc0\transformed\lifecycle-viewmodel-savedstate-2.8.7\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\e02ec1789fddf429b03d10b7f0c2c111\transformed\lifecycle-viewmodel-ktx-2.8.7\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.datastore:datastore-core-android:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\dd41eb2f10334c41fa587ae052a87357\transformed\datastore-core-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.datastore:datastore-android:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\9ce09c5d01d3e6d22a9b1cf3ce15500d\transformed\datastore-release\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.datastore:datastore-preferences-android:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\13b43b750222090c62a214c273973a92\transformed\datastore-preferences-release\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.compose.runtime:runtime-saveable-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\41befd9fc48c5d66eefd62b7337f215e\transformed\runtime-saveable-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.runtime:runtime-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\07ca837b3eb13301d2067f649a12132f\transformed\runtime-release\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.sqlite:sqlite-framework:2.4.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\133d2dccdbbab29f9971423c88991461\transformed\sqlite-framework-2.4.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.sqlite:sqlite:2.4.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\2c97d3e771230c3e42bf6ef734e71723\transformed\sqlite-2.4.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\59b72f9c1cf1cebcc5abc820308bb433\transformed\core-runtime-2.2.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.cardview:cardview:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\acd9606853283b04108d518347098ad7\transformed\cardview-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\160234d014e4521b0b4c54791d1f572a\transformed\cursoradapter-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:17:1-55:12
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\52e6cee5693990a1f370fbfeb7cd1555\transformed\startup-runtime-1.1.1\AndroidManifest.xml:17:1-33:12
+MERGED from [androidx.tracing:tracing:1.2.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\95c32a11913f0eb5d3a61ae1f2aca632\transformed\tracing-1.2.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5e1a8cb7adb8ccf2c594a643b87ee41a\transformed\interpolator-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\bf169119d972048fac06b10c65c8a187\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:17:1-27:12
+MERGED from [androidx.documentfile:documentfile:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\bf52f496ac0cb50c6498800aac45ddd7\transformed\documentfile-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\d5a34393cbd6033fde82ddaf0159bf36\transformed\localbroadcastmanager-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.print:print:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\f173043541491a18b9476688bc72ae7c\transformed\print-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\864705eec28b4986553f05e21b9780b9\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.dagger:dagger-lint-aar:2.52] C:\Users\Leeam\.gradle\caches\8.9\transforms\2bf5fee5d21ca24d712e1d6a27b42ea7\transformed\dagger-lint-aar-2.52\AndroidManifest.xml:16:1-19:12
+	package
+		INJECTED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml
+	android:versionName
+		INJECTED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml
+	android:versionCode
+		INJECTED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:2:11-69
+uses-permission#android.permission.INTERNET
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:4:5-67
+	android:name
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:4:22-64
+uses-permission#android.permission.RECEIVE_BOOT_COMPLETED
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:5:5-81
+MERGED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:25:5-81
+MERGED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:25:5-81
+	android:name
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:5:22-78
+uses-permission#android.permission.POST_NOTIFICATIONS
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:6:5-77
+	android:name
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:6:22-74
+uses-permission#android.permission.SCHEDULE_EXACT_ALARM
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:7:5-8:38
+	android:maxSdkVersion
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:8:9-35
+	android:name
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:7:22-76
+application
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:10:5-50:19
+INJECTED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:10:5-50:19
+MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\ffa83d86e8d6c8686fcc6ec6a5209816\transformed\room-runtime-2.6.1\AndroidManifest.xml:23:5-29:19
+MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\ffa83d86e8d6c8686fcc6ec6a5209816\transformed\room-runtime-2.6.1\AndroidManifest.xml:23:5-29:19
+MERGED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:28:5-143:19
+MERGED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:28:5-143:19
+MERGED from [com.google.android.material:material:1.12.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\06865d2e872aa38c87916c4a650ff34d\transformed\material-1.12.0\AndroidManifest.xml:22:5-20
+MERGED from [com.google.android.material:material:1.12.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\06865d2e872aa38c87916c4a650ff34d\transformed\material-1.12.0\AndroidManifest.xml:22:5-20
+MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\22084d4e692e674e0ea8f22632405673\transformed\constraintlayout-2.0.1\AndroidManifest.xml:9:5-20
+MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\22084d4e692e674e0ea8f22632405673\transformed\constraintlayout-2.0.1\AndroidManifest.xml:9:5-20
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\1ae015a39530eadf90ff5208ccafc72a\transformed\emoji2-1.3.0\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\1ae015a39530eadf90ff5208ccafc72a\transformed\emoji2-1.3.0\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.core:core:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5488dcac22d0b780941d01dd10c2b70d\transformed\core-1.15.0\AndroidManifest.xml:28:5-89
+MERGED from [androidx.core:core:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5488dcac22d0b780941d01dd10c2b70d\transformed\core-1.15.0\AndroidManifest.xml:28:5-89
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\00e4a77b73c3e870e663f6b3c98a6c71\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\00e4a77b73c3e870e663f6b3c98a6c71\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:23:5-53:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:23:5-53:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\52e6cee5693990a1f370fbfeb7cd1555\transformed\startup-runtime-1.1.1\AndroidManifest.xml:25:5-31:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\52e6cee5693990a1f370fbfeb7cd1555\transformed\startup-runtime-1.1.1\AndroidManifest.xml:25:5-31:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\bf169119d972048fac06b10c65c8a187\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:24:5-25:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\bf169119d972048fac06b10c65c8a187\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:24:5-25:19
+	android:extractNativeLibs
+		INJECTED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml
+	android:appComponentFactory
+		ADDED from [androidx.core:core:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5488dcac22d0b780941d01dd10c2b70d\transformed\core-1.15.0\AndroidManifest.xml:28:18-86
+	android:supportsRtl
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:16:9-35
+	android:label
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:14:9-41
+	android:roundIcon
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:15:9-54
+	android:icon
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:13:9-43
+	android:allowBackup
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:12:9-35
+	android:theme
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:17:9-50
+	android:name
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:11:9-48
+activity#com.leeam.cryptowidget.ui.settings.SettingsActivity
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:19:9-27:20
+	android:windowSoftInputMode
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:22:13-55
+	android:exported
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:21:13-36
+	android:name
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:20:13-57
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:23:13-26:29
+action#android.intent.action.MAIN
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:24:17-69
+	android:name
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:24:25-66
+category#android.intent.category.LAUNCHER
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:25:17-77
+	android:name
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:25:27-74
+activity#com.leeam.cryptowidget.ui.settings.WidgetConfigActivity
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:29:9-35:20
+	android:exported
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:31:13-36
+	android:name
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:30:13-61
+intent-filter#action:name:android.appwidget.action.APPWIDGET_CONFIGURE
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:32:13-34:29
+action#android.appwidget.action.APPWIDGET_CONFIGURE
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:33:17-87
+	android:name
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:33:25-84
+receiver#com.leeam.cryptowidget.widget.CryptoWidgetProvider
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:37:9-48:20
+	android:exported
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:39:13-36
+	android:name
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:38:13-56
+intent-filter#action:name:android.appwidget.action.APPWIDGET_UPDATE+action:name:android.intent.action.BOOT_COMPLETED+action:name:com.leeam.cryptowidget.ACTION_REFRESH
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:40:13-44:29
+action#android.appwidget.action.APPWIDGET_UPDATE
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:41:17-84
+	android:name
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:41:25-81
+action#android.intent.action.BOOT_COMPLETED
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:42:17-79
+	android:name
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:42:25-76
+action#com.leeam.cryptowidget.ACTION_REFRESH
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:43:17-80
+	android:name
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:43:25-77
+meta-data#android.appwidget.provider
+ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:45:13-47:62
+	android:resource
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:47:17-59
+	android:name
+		ADDED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml:46:17-58
+uses-sdk
+INJECTED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml
+INJECTED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml
+MERGED from [androidx.hilt:hilt-work:1.2.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\eb49ff10afd8e250ecccca3f37e191f8\transformed\hilt-work-1.2.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.hilt:hilt-work:1.2.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\eb49ff10afd8e250ecccca3f37e191f8\transformed\hilt-work-1.2.0\AndroidManifest.xml:20:5-44
+MERGED from [com.google.dagger:hilt-android:2.52] C:\Users\Leeam\.gradle\caches\8.9\transforms\c1b51dfe2b8d97de167873eb8a6c2676\transformed\hilt-android-2.52\AndroidManifest.xml:18:3-42
+MERGED from [com.google.dagger:hilt-android:2.52] C:\Users\Leeam\.gradle\caches\8.9\transforms\c1b51dfe2b8d97de167873eb8a6c2676\transformed\hilt-android-2.52\AndroidManifest.xml:18:3-42
+MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\ffa83d86e8d6c8686fcc6ec6a5209816\transformed\room-runtime-2.6.1\AndroidManifest.xml:21:5-44
+MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\ffa83d86e8d6c8686fcc6ec6a5209816\transformed\room-runtime-2.6.1\AndroidManifest.xml:21:5-44
+MERGED from [androidx.work:work-runtime-ktx:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\ad03e6b70485e250ffbd98034bcf2eba\transformed\work-runtime-ktx-2.9.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.work:work-runtime-ktx:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\ad03e6b70485e250ffbd98034bcf2eba\transformed\work-runtime-ktx-2.9.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:21:5-44
+MERGED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:21:5-44
+MERGED from [androidx.room:room-ktx:2.6.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\eceb8bb9ab8cd43ce03921490aa65c41\transformed\room-ktx-2.6.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.room:room-ktx:2.6.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\eceb8bb9ab8cd43ce03921490aa65c41\transformed\room-ktx-2.6.1\AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.material:material:1.12.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\06865d2e872aa38c87916c4a650ff34d\transformed\material-1.12.0\AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.material:material:1.12.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\06865d2e872aa38c87916c4a650ff34d\transformed\material-1.12.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\22084d4e692e674e0ea8f22632405673\transformed\constraintlayout-2.0.1\AndroidManifest.xml:5:5-7:41
+MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\22084d4e692e674e0ea8f22632405673\transformed\constraintlayout-2.0.1\AndroidManifest.xml:5:5-7:41
+MERGED from [androidx.appcompat:appcompat-resources:1.7.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\aa09fa8bdf9a7875cac9a5cc781e34ea\transformed\appcompat-resources-1.7.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.appcompat:appcompat-resources:1.7.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\aa09fa8bdf9a7875cac9a5cc781e34ea\transformed\appcompat-resources-1.7.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.appcompat:appcompat:1.7.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\1fe1471ed02f11bf1a5cecebd27e2086\transformed\appcompat-1.7.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.appcompat:appcompat:1.7.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\1fe1471ed02f11bf1a5cecebd27e2086\transformed\appcompat-1.7.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.viewpager2:viewpager2:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\e37049c82227dee8f8dc4551c7caa00b\transformed\viewpager2-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.viewpager2:viewpager2:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\e37049c82227dee8f8dc4551c7caa00b\transformed\viewpager2-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.fragment:fragment:1.5.4] C:\Users\Leeam\.gradle\caches\8.9\transforms\cd25ae94523dc5f46626eacbccb9e725\transformed\fragment-1.5.4\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.fragment:fragment:1.5.4] C:\Users\Leeam\.gradle\caches\8.9\transforms\cd25ae94523dc5f46626eacbccb9e725\transformed\fragment-1.5.4\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.activity:activity:1.9.3] C:\Users\Leeam\.gradle\caches\8.9\transforms\45b0750cdfbba51a9b928137a9e3579d\transformed\activity-1.9.3\AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity:1.9.3] C:\Users\Leeam\.gradle\caches\8.9\transforms\45b0750cdfbba51a9b928137a9e3579d\transformed\activity-1.9.3\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.material3:material3-android:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\47730fd0e54e53cd481a80f3094fc6e5\transformed\material3-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.material3:material3-android:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\47730fd0e54e53cd481a80f3094fc6e5\transformed\material3-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity-compose:1.9.3] C:\Users\Leeam\.gradle\caches\8.9\transforms\1d11357585131dd58caa785e41cfe0b8\transformed\activity-compose-1.9.3\AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity-compose:1.9.3] C:\Users\Leeam\.gradle\caches\8.9\transforms\1d11357585131dd58caa785e41cfe0b8\transformed\activity-compose-1.9.3\AndroidManifest.xml:5:5-44
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\ba99423830e990abfb44651293ba8543\transformed\savedstate-ktx-1.2.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\ba99423830e990abfb44651293ba8543\transformed\savedstate-ktx-1.2.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate:1.2.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\675897be2a6e00e14243603e1f088e43\transformed\savedstate-1.2.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate:1.2.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\675897be2a6e00e14243603e1f088e43\transformed\savedstate-1.2.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\bb7be4e819c7c8d1aadc35e20e9d99d7\transformed\customview-poolingcontainer-1.0.0\AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\bb7be4e819c7c8d1aadc35e20e9d99d7\transformed\customview-poolingcontainer-1.0.0\AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.core:core-ktx:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\2f1b65909d9ba5c972ea96a82364e7b9\transformed\core-ktx-1.15.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-ktx:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\2f1b65909d9ba5c972ea96a82364e7b9\transformed\core-ktx-1.15.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.1.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\dba642fb67e57a2ecf7b55f88bc5b1b2\transformed\coordinatorlayout-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.1.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\dba642fb67e57a2ecf7b55f88bc5b1b2\transformed\coordinatorlayout-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.drawerlayout:drawerlayout:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\e6f7425cf6f057656b61e5b297d54db5\transformed\drawerlayout-1.1.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.drawerlayout:drawerlayout:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\e6f7425cf6f057656b61e5b297d54db5\transformed\drawerlayout-1.1.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.transition:transition:1.5.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\b87322741d1cc4c1756a4a16ed05c3b3\transformed\transition-1.5.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.transition:transition:1.5.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\b87322741d1cc4c1756a4a16ed05c3b3\transformed\transition-1.5.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.dynamicanimation:dynamicanimation:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\22579102eb24c38219258bc8fbf882f3\transformed\dynamicanimation-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.dynamicanimation:dynamicanimation:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\22579102eb24c38219258bc8fbf882f3\transformed\dynamicanimation-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\dbac471f3fc306c25782f98ae714d1a8\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.1.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\dbac471f3fc306c25782f98ae714d1a8\transformed\vectordrawable-animated-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\86aa4fd530caac800ff66e4486e1d6b0\transformed\vectordrawable-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.vectordrawable:vectordrawable:1.1.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\86aa4fd530caac800ff66e4486e1d6b0\transformed\vectordrawable-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.emoji2:emoji2-views-helper:1.3.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\2ff7fe308b6e8b840c938f85c4f6045d\transformed\emoji2-views-helper-1.3.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.emoji2:emoji2-views-helper:1.3.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\2ff7fe308b6e8b840c938f85c4f6045d\transformed\emoji2-views-helper-1.3.0\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-core-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\22c438a97552ed0e1307565d0be1f2f3\transformed\animation-core-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-core-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\22c438a97552ed0e1307565d0be1f2f3\transformed\animation-core-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-ripple-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\53d624758624431791a41039d9b5121a\transformed\material-ripple-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-ripple-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\53d624758624431791a41039d9b5121a\transformed\material-ripple-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\d7931daac811fd16421db7d784fc8e83\transformed\animation-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\d7931daac811fd16421db7d784fc8e83\transformed\animation-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-layout-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\624a4bd4827341945a0283adc25c22ce\transformed\foundation-layout-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-layout-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\624a4bd4827341945a0283adc25c22ce\transformed\foundation-layout-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\a2ef29a12fac42d17f59aa94ada6d564\transformed\foundation-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\a2ef29a12fac42d17f59aa94ada6d564\transformed\foundation-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-unit-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\c32eebb4bcfc35fa5e7496e1c725279b\transformed\ui-unit-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-unit-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\c32eebb4bcfc35fa5e7496e1c725279b\transformed\ui-unit-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-graphics-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\9f3e2b3c0c75457afa0674bdfba55097\transformed\ui-graphics-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-graphics-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\9f3e2b3c0c75457afa0674bdfba55097\transformed\ui-graphics-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-geometry-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\0610d8aa1c4711029afd806c6edf609b\transformed\ui-geometry-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-geometry-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\0610d8aa1c4711029afd806c6edf609b\transformed\ui-geometry-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-util-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\c9a0d71c682ab2e4508b8f724b54f987\transformed\ui-util-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-util-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\c9a0d71c682ab2e4508b8f724b54f987\transformed\ui-util-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\725c65bde8dd361507d64ec3918a22dc\transformed\ui-tooling-preview-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\725c65bde8dd361507d64ec3918a22dc\transformed\ui-tooling-preview-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.ui:ui-text-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\be7fe7fbdad370feffe4158af1af1403\transformed\ui-text-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-text-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\be7fe7fbdad370feffe4158af1af1403\transformed\ui-text-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\1ae015a39530eadf90ff5208ccafc72a\transformed\emoji2-1.3.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\1ae015a39530eadf90ff5208ccafc72a\transformed\emoji2-1.3.0\AndroidManifest.xml:21:5-44
+MERGED from [androidx.recyclerview:recyclerview:1.1.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\aa81b16d2691856d2d78653a57ea2ad2\transformed\recyclerview-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.recyclerview:recyclerview:1.1.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\aa81b16d2691856d2d78653a57ea2ad2\transformed\recyclerview-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\c91a9ab82860fa547d0584763430ec65\transformed\viewpager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\c91a9ab82860fa547d0584763430ec65\transformed\viewpager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview:1.1.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\cadd994db08e17affc1f907a7e5561d8\transformed\customview-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.customview:customview:1.1.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\cadd994db08e17affc1f907a7e5561d8\transformed\customview-1.1.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\271265ccad7ed84331c4a48f30931976\transformed\legacy-support-core-utils-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\271265ccad7ed84331c4a48f30931976\transformed\legacy-support-core-utils-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\9247d6ab8a4ee43037b2414c2f995060\transformed\loader-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\9247d6ab8a4ee43037b2414c2f995060\transformed\loader-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.autofill:autofill:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\37e7396d92b7fa515a6b92779bdef020\transformed\autofill-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.autofill:autofill:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\37e7396d92b7fa515a6b92779bdef020\transformed\autofill-1.0.0\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.graphics:graphics-path:1.0.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\e2ae65e9253ef23cdbdf2fbf2aa3e720\transformed\graphics-path-1.0.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.graphics:graphics-path:1.0.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\e2ae65e9253ef23cdbdf2fbf2aa3e720\transformed\graphics-path-1.0.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5488dcac22d0b780941d01dd10c2b70d\transformed\core-1.15.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5488dcac22d0b780941d01dd10c2b70d\transformed\core-1.15.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\a87829a8c00f1af1dd6f9d57b3366d9b\transformed\lifecycle-livedata-core-ktx-2.8.7\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\a87829a8c00f1af1dd6f9d57b3366d9b\transformed\lifecycle-livedata-core-ktx-2.8.7\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\00e4a77b73c3e870e663f6b3c98a6c71\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:21:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\00e4a77b73c3e870e663f6b3c98a6c71\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:21:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-android:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\c39eec6695e1501a26e7844a0447bb11\transformed\lifecycle-runtime-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-android:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\c39eec6695e1501a26e7844a0447bb11\transformed\lifecycle-runtime-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\16cdf5fa98ce324a12a438689b6cd0d0\transformed\lifecycle-livedata-core-2.8.7\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\16cdf5fa98ce324a12a438689b6cd0d0\transformed\lifecycle-livedata-core-2.8.7\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\d4f22a870a3204608f7bbac5985fdd6f\transformed\lifecycle-viewmodel-2.8.7\AndroidManifest.xml:4:5-43
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\d4f22a870a3204608f7bbac5985fdd6f\transformed\lifecycle-viewmodel-2.8.7\AndroidManifest.xml:4:5-43
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-android:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\7ac40ccb94430109ecaed9e8f67e7c61\transformed\lifecycle-viewmodel-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-android:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\7ac40ccb94430109ecaed9e8f67e7c61\transformed\lifecycle-viewmodel-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-service:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\84896d79ab76ccfe72f3040cfd428f05\transformed\lifecycle-service-2.8.7\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-service:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\84896d79ab76ccfe72f3040cfd428f05\transformed\lifecycle-service-2.8.7\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\a360d73266bf0ae43e89d01b6ab8d73c\transformed\lifecycle-livedata-2.8.7\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\a360d73266bf0ae43e89d01b6ab8d73c\transformed\lifecycle-livedata-2.8.7\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-compose-android:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\07d62a26e9599e316a78fbe969ed25ae\transformed\lifecycle-runtime-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-compose-android:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\07d62a26e9599e316a78fbe969ed25ae\transformed\lifecycle-runtime-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose-android:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\8fc7452a9781fb6dc710698dc58d7306\transformed\lifecycle-viewmodel-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose-android:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\8fc7452a9781fb6dc710698dc58d7306\transformed\lifecycle-viewmodel-compose-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-core-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\fda71c268de0eaf18226bbdd7d798c3d\transformed\material-icons-core-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-core-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\fda71c268de0eaf18226bbdd7d798c3d\transformed\material-icons-core-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\be3b9353648502bd776119866a06ea43\transformed\ui-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\be3b9353648502bd776119866a06ea43\transformed\ui-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity-ktx:1.9.3] C:\Users\Leeam\.gradle\caches\8.9\transforms\8f157a10f6a98148910599ac161744c8\transformed\activity-ktx-1.9.3\AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity-ktx:1.9.3] C:\Users\Leeam\.gradle\caches\8.9\transforms\8f157a10f6a98148910599ac161744c8\transformed\activity-ktx-1.9.3\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\3afdf77e6d037cca4c3a4286e1a80d93\transformed\lifecycle-runtime-ktx-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\3afdf77e6d037cca4c3a4286e1a80d93\transformed\lifecycle-runtime-ktx-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\223a6010a5845f7088de753aa7f09fc0\transformed\lifecycle-viewmodel-savedstate-2.8.7\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\223a6010a5845f7088de753aa7f09fc0\transformed\lifecycle-viewmodel-savedstate-2.8.7\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\e02ec1789fddf429b03d10b7f0c2c111\transformed\lifecycle-viewmodel-ktx-2.8.7\AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\e02ec1789fddf429b03d10b7f0c2c111\transformed\lifecycle-viewmodel-ktx-2.8.7\AndroidManifest.xml:5:5-44
+MERGED from [androidx.datastore:datastore-core-android:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\dd41eb2f10334c41fa587ae052a87357\transformed\datastore-core-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.datastore:datastore-core-android:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\dd41eb2f10334c41fa587ae052a87357\transformed\datastore-core-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.datastore:datastore-android:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\9ce09c5d01d3e6d22a9b1cf3ce15500d\transformed\datastore-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.datastore:datastore-android:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\9ce09c5d01d3e6d22a9b1cf3ce15500d\transformed\datastore-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.datastore:datastore-preferences-android:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\13b43b750222090c62a214c273973a92\transformed\datastore-preferences-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.datastore:datastore-preferences-android:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\13b43b750222090c62a214c273973a92\transformed\datastore-preferences-release\AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.runtime:runtime-saveable-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\41befd9fc48c5d66eefd62b7337f215e\transformed\runtime-saveable-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-saveable-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\41befd9fc48c5d66eefd62b7337f215e\transformed\runtime-saveable-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\07ca837b3eb13301d2067f649a12132f\transformed\runtime-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-android:1.7.6] C:\Users\Leeam\.gradle\caches\8.9\transforms\07ca837b3eb13301d2067f649a12132f\transformed\runtime-release\AndroidManifest.xml:5:5-44
+MERGED from [androidx.sqlite:sqlite-framework:2.4.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\133d2dccdbbab29f9971423c88991461\transformed\sqlite-framework-2.4.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite-framework:2.4.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\133d2dccdbbab29f9971423c88991461\transformed\sqlite-framework-2.4.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite:2.4.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\2c97d3e771230c3e42bf6ef734e71723\transformed\sqlite-2.4.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.sqlite:sqlite:2.4.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\2c97d3e771230c3e42bf6ef734e71723\transformed\sqlite-2.4.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\59b72f9c1cf1cebcc5abc820308bb433\transformed\core-runtime-2.2.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\59b72f9c1cf1cebcc5abc820308bb433\transformed\core-runtime-2.2.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.cardview:cardview:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\acd9606853283b04108d518347098ad7\transformed\cardview-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.cardview:cardview:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\acd9606853283b04108d518347098ad7\transformed\cardview-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\160234d014e4521b0b4c54791d1f572a\transformed\cursoradapter-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\160234d014e4521b0b4c54791d1f572a\transformed\cursoradapter-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:21:5-44
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:21:5-44
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\52e6cee5693990a1f370fbfeb7cd1555\transformed\startup-runtime-1.1.1\AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\52e6cee5693990a1f370fbfeb7cd1555\transformed\startup-runtime-1.1.1\AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.tracing:tracing:1.2.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\95c32a11913f0eb5d3a61ae1f2aca632\transformed\tracing-1.2.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.tracing:tracing:1.2.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\95c32a11913f0eb5d3a61ae1f2aca632\transformed\tracing-1.2.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5e1a8cb7adb8ccf2c594a643b87ee41a\transformed\interpolator-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5e1a8cb7adb8ccf2c594a643b87ee41a\transformed\interpolator-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\bf169119d972048fac06b10c65c8a187\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\bf169119d972048fac06b10c65c8a187\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.documentfile:documentfile:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\bf52f496ac0cb50c6498800aac45ddd7\transformed\documentfile-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.documentfile:documentfile:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\bf52f496ac0cb50c6498800aac45ddd7\transformed\documentfile-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\d5a34393cbd6033fde82ddaf0159bf36\transformed\localbroadcastmanager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\d5a34393cbd6033fde82ddaf0159bf36\transformed\localbroadcastmanager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.print:print:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\f173043541491a18b9476688bc72ae7c\transformed\print-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.print:print:1.0.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\f173043541491a18b9476688bc72ae7c\transformed\print-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\864705eec28b4986553f05e21b9780b9\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\864705eec28b4986553f05e21b9780b9\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:5:5-44
+MERGED from [com.google.dagger:dagger-lint-aar:2.52] C:\Users\Leeam\.gradle\caches\8.9\transforms\2bf5fee5d21ca24d712e1d6a27b42ea7\transformed\dagger-lint-aar-2.52\AndroidManifest.xml:18:3-42
+MERGED from [com.google.dagger:dagger-lint-aar:2.52] C:\Users\Leeam\.gradle\caches\8.9\transforms\2bf5fee5d21ca24d712e1d6a27b42ea7\transformed\dagger-lint-aar-2.52\AndroidManifest.xml:18:3-42
+	android:targetSdkVersion
+		INJECTED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from C:\Users\Leeam\Documents\github\widget_crypto\app\src\main\AndroidManifest.xml
+service#androidx.room.MultiInstanceInvalidationService
+ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\ffa83d86e8d6c8686fcc6ec6a5209816\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
+	android:exported
+		ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\ffa83d86e8d6c8686fcc6ec6a5209816\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
+	tools:ignore
+		ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\ffa83d86e8d6c8686fcc6ec6a5209816\transformed\room-runtime-2.6.1\AndroidManifest.xml:28:13-60
+	android:directBootAware
+		ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\ffa83d86e8d6c8686fcc6ec6a5209816\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
+	android:name
+		ADDED from [androidx.room:room-runtime:2.6.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\ffa83d86e8d6c8686fcc6ec6a5209816\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
+uses-permission#android.permission.WAKE_LOCK
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:23:5-68
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:23:22-65
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:24:5-79
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:24:22-76
+uses-permission#android.permission.FOREGROUND_SERVICE
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:26:5-77
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:26:22-74
+provider#androidx.startup.InitializationProvider
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:29:9-37:20
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\1ae015a39530eadf90ff5208ccafc72a\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\1ae015a39530eadf90ff5208ccafc72a\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\00e4a77b73c3e870e663f6b3c98a6c71\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\00e4a77b73c3e870e663f6b3c98a6c71\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\52e6cee5693990a1f370fbfeb7cd1555\transformed\startup-runtime-1.1.1\AndroidManifest.xml:26:9-30:34
+MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\52e6cee5693990a1f370fbfeb7cd1555\transformed\startup-runtime-1.1.1\AndroidManifest.xml:26:9-30:34
+	tools:node
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:33:13-31
+	android:authorities
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:31:13-68
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:32:13-37
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:30:13-67
+meta-data#androidx.work.WorkManagerInitializer
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:34:13-36:52
+	android:value
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:36:17-49
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:35:17-68
+service#androidx.work.impl.background.systemalarm.SystemAlarmService
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:39:9-45:35
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:42:13-72
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:43:13-37
+	tools:ignore
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:44:13-60
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:45:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:41:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:40:13-88
+service#androidx.work.impl.background.systemjob.SystemJobService
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:46:9-52:35
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:49:13-70
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:50:13-36
+	android:permission
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:51:13-69
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:52:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:48:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:47:13-84
+service#androidx.work.impl.foreground.SystemForegroundService
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:53:9-59:35
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:56:13-77
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:57:13-37
+	tools:ignore
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:58:13-60
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:59:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:55:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:54:13-81
+receiver#androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:61:9-66:35
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:64:13-35
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:65:13-37
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:66:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:63:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:62:13-88
+receiver#androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:67:9-77:20
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:70:13-36
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:71:13-37
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:72:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:69:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:68:13-106
+intent-filter#action:name:android.intent.action.ACTION_POWER_CONNECTED+action:name:android.intent.action.ACTION_POWER_DISCONNECTED
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:73:13-76:29
+action#android.intent.action.ACTION_POWER_CONNECTED
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:74:17-87
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:74:25-84
+action#android.intent.action.ACTION_POWER_DISCONNECTED
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:75:17-90
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:75:25-87
+receiver#androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:78:9-88:20
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:81:13-36
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:82:13-37
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:83:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:80:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:79:13-104
+intent-filter#action:name:android.intent.action.BATTERY_LOW+action:name:android.intent.action.BATTERY_OKAY
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:84:13-87:29
+action#android.intent.action.BATTERY_OKAY
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:85:17-77
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:85:25-74
+action#android.intent.action.BATTERY_LOW
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:86:17-76
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:86:25-73
+receiver#androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:89:9-99:20
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:92:13-36
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:93:13-37
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:94:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:91:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:90:13-104
+intent-filter#action:name:android.intent.action.DEVICE_STORAGE_LOW+action:name:android.intent.action.DEVICE_STORAGE_OK
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:95:13-98:29
+action#android.intent.action.DEVICE_STORAGE_LOW
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:96:17-83
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:96:25-80
+action#android.intent.action.DEVICE_STORAGE_OK
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:97:17-82
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:97:25-79
+receiver#androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:100:9-109:20
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:103:13-36
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:104:13-37
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:105:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:102:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:101:13-103
+intent-filter#action:name:android.net.conn.CONNECTIVITY_CHANGE
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:106:13-108:29
+action#android.net.conn.CONNECTIVITY_CHANGE
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:107:17-79
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:107:25-76
+receiver#androidx.work.impl.background.systemalarm.RescheduleReceiver
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:110:9-121:20
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:113:13-36
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:114:13-37
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:115:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:112:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:111:13-88
+intent-filter#action:name:android.intent.action.BOOT_COMPLETED+action:name:android.intent.action.TIMEZONE_CHANGED+action:name:android.intent.action.TIME_SET
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:116:13-120:29
+action#android.intent.action.TIME_SET
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:118:17-73
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:118:25-70
+action#android.intent.action.TIMEZONE_CHANGED
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:119:17-81
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:119:25-78
+receiver#androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:122:9-131:20
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:125:13-72
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:126:13-37
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:127:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:124:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:123:13-99
+intent-filter#action:name:androidx.work.impl.background.systemalarm.UpdateProxies
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:128:13-130:29
+action#androidx.work.impl.background.systemalarm.UpdateProxies
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:129:17-98
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:129:25-95
+receiver#androidx.work.impl.diagnostics.DiagnosticsReceiver
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:132:9-142:20
+	android:enabled
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:135:13-35
+	android:exported
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:136:13-36
+	android:permission
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:137:13-57
+	tools:targetApi
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:138:13-32
+	android:directBootAware
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:134:13-44
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:133:13-78
+intent-filter#action:name:androidx.work.diagnostics.REQUEST_DIAGNOSTICS
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:139:13-141:29
+action#androidx.work.diagnostics.REQUEST_DIAGNOSTICS
+ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:140:17-88
+	android:name
+		ADDED from [androidx.work:work-runtime:2.9.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\19443b122f3ef9ab77f2bba7fafd293d\transformed\work-runtime-2.9.1\AndroidManifest.xml:140:25-85
+meta-data#androidx.emoji2.text.EmojiCompatInitializer
+ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\1ae015a39530eadf90ff5208ccafc72a\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\1ae015a39530eadf90ff5208ccafc72a\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.emoji2:emoji2:1.3.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\1ae015a39530eadf90ff5208ccafc72a\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
+permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5488dcac22d0b780941d01dd10c2b70d\transformed\core-1.15.0\AndroidManifest.xml:22:5-24:47
+	android:protectionLevel
+		ADDED from [androidx.core:core:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5488dcac22d0b780941d01dd10c2b70d\transformed\core-1.15.0\AndroidManifest.xml:24:9-44
+	android:name
+		ADDED from [androidx.core:core:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5488dcac22d0b780941d01dd10c2b70d\transformed\core-1.15.0\AndroidManifest.xml:23:9-81
+permission#com.leeam.cryptowidget.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5488dcac22d0b780941d01dd10c2b70d\transformed\core-1.15.0\AndroidManifest.xml:22:5-24:47
+	android:protectionLevel
+		ADDED from [androidx.core:core:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5488dcac22d0b780941d01dd10c2b70d\transformed\core-1.15.0\AndroidManifest.xml:24:9-44
+	android:name
+		ADDED from [androidx.core:core:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5488dcac22d0b780941d01dd10c2b70d\transformed\core-1.15.0\AndroidManifest.xml:23:9-81
+uses-permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5488dcac22d0b780941d01dd10c2b70d\transformed\core-1.15.0\AndroidManifest.xml:26:5-97
+	android:name
+		ADDED from [androidx.core:core:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5488dcac22d0b780941d01dd10c2b70d\transformed\core-1.15.0\AndroidManifest.xml:26:22-94
+uses-permission#com.leeam.cryptowidget.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5488dcac22d0b780941d01dd10c2b70d\transformed\core-1.15.0\AndroidManifest.xml:26:5-97
+	android:name
+		ADDED from [androidx.core:core:1.15.0] C:\Users\Leeam\.gradle\caches\8.9\transforms\5488dcac22d0b780941d01dd10c2b70d\transformed\core-1.15.0\AndroidManifest.xml:26:22-94
+meta-data#androidx.lifecycle.ProcessLifecycleInitializer
+ADDED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\00e4a77b73c3e870e663f6b3c98a6c71\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\00e4a77b73c3e870e663f6b3c98a6c71\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\Leeam\.gradle\caches\8.9\transforms\00e4a77b73c3e870e663f6b3c98a6c71\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:30:17-78
+meta-data#androidx.profileinstaller.ProfileInstallerInitializer
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+receiver#androidx.profileinstaller.ProfileInstallReceiver
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+	android:enabled
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+	android:exported
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+	android:permission
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+	android:directBootAware
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+intent-filter#action:name:androidx.profileinstaller.action.INSTALL_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+action#androidx.profileinstaller.action.INSTALL_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+intent-filter#action:name:androidx.profileinstaller.action.SKIP_FILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+action#androidx.profileinstaller.action.SKIP_FILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+intent-filter#action:name:androidx.profileinstaller.action.SAVE_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+action#androidx.profileinstaller.action.SAVE_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+intent-filter#action:name:androidx.profileinstaller.action.BENCHMARK_OPERATION
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+action#androidx.profileinstaller.action.BENCHMARK_OPERATION
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Leeam\.gradle\caches\8.9\transforms\539ea5565f57e899f0e4a1ef4fc3aa12\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:25-92

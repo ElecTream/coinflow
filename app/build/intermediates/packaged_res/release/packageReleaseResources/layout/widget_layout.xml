@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background"
+    android:padding="12dp"
+    android:clipToPadding="false">
+
+    <!-- TOP ROW: coin symbol + 24h change + refresh button -->
+    <LinearLayout
+        android:id="@+id/top_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_alignParentTop="true">
+
+        <TextView
+            android:id="@+id/tv_coin_symbol"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="XRP"
+            android:textColor="#8899BB"
+            android:textSize="11sp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.1" />
+
+        <TextView
+            android:id="@+id/tv_change"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="#00FF88"
+            android:layout_marginEnd="8dp"
+            android:text="▲ 0.00%" />
+
+        <ImageView
+            android:id="@+id/btn_refresh"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/widget_refresh_icon"
+            android:contentDescription="Refresh"
+            android:tint="#8899BB" />
+    </LinearLayout>
+
+    <!-- BOTTOM ROW: last-updated timestamp + settings icon -->
+    <LinearLayout
+        android:id="@+id/bottom_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_alignParentBottom="true">
+
+        <TextView
+            android:id="@+id/tv_last_updated"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="#444466"
+            android:textSize="9sp"
+            android:fontFamily="sans-serif-light"
+            android:text="Updating..." />
+
+        <ImageView
+            android:id="@+id/btn_settings"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:src="@android:drawable/ic_menu_preferences"
+            android:contentDescription="Settings"
+            android:tint="#444466" />
+    </LinearLayout>
+
+    <!-- SPARKLINE: above bottom row -->
+    <FrameLayout
+        android:id="@+id/sparkline_container"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:layout_above="@id/bottom_row"
+        android:layout_marginBottom="2dp">
+
+        <ImageView
+            android:id="@+id/iv_sparkline"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:contentDescription="Price chart" />
+    </FrameLayout>
+
+    <!-- WALLET ROW: above sparkline -->
+    <LinearLayout
+        android:id="@+id/wallet_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_above="@id/sparkline_container"
+        android:layout_marginBottom="2dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tv_balance"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="#00D4FF"
+            android:textSize="10sp"
+            android:fontFamily="sans-serif-light"
+            android:text="0.0000 XRP" />
+
+        <TextView
+            android:id="@+id/tv_portfolio_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#8899BB"
+            android:textSize="10sp"
+            android:fontFamily="sans-serif-light"
+            android:text="≈ $0.00" />
+    </LinearLayout>
+
+    <!-- PRICE: between top row and sparkline -->
+    <TextView
+        android:id="@+id/tv_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/top_row"
+        android:layout_above="@id/sparkline_container"
+        android:gravity="center_vertical"
+        android:textColor="#FFFFFF"
+        android:textSize="28sp"
+        android:fontFamily="sans-serif-medium"
+        android:text="$0.0000"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp" />
+
+</RelativeLayout>

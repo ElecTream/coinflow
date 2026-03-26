@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \":*)",
+      "Bash(python -c \":*)",
+      "Bash(mkdir -p \"C:/Users/Leeam/Documents/github/widget_crypto/gradle/wrapper\")",
+      "Bash(mkdir -p \"C:/Users/Leeam/Documents/github/widget_crypto/app/src/main/java/com/leeam/cryptowidget/di\")",
+      "Bash(mkdir -p \"C:/Users/Leeam/Documents/github/widget_crypto/app/src/main/java/com/leeam/cryptowidget/ui/settings\")",
+      "Bash(mkdir -p \"C:/Users/Leeam/Documents/github/widget_crypto/app/src/main/java/com/leeam/cryptowidget/widget\")",
+      "Bash(mkdir -p \"C:/Users/Leeam/Documents/github/widget_crypto/app/src/main/java/com/leeam/cryptowidget/worker\")",
+      "Bash(mkdir -p \"C:/Users/Leeam/Documents/github/widget_crypto/app/src/main/res/values\")",
+      "Bash(mkdir -p \"C:/Users/Leeam/Documents/github/widget_crypto/app/src/main/res/drawable\")",
+      "Bash(mkdir -p \"C:/Users/Leeam/Documents/github/widget_crypto/app/src/main/res/xml\")",
+      "Bash(mkdir -p \"C:/Users/Leeam/Documents/github/widget_crypto/app/src/main/res/mipmap-anydpi-v26\")",
+      "Bash(chmod +x \"/c/Users/Leeam/Documents/github/widget_crypto/gradlew\")",
+      "Bash(cmd //c gradlew.bat assembleDebug --no-daemon)",
+      "Bash(\"./gradlew\" assembleDebug --no-daemon)",
+      "Bash(./gradlew assembleDebug --no-daemon)",
+      "Bash(python -c \"import sys; print\\(sys.version\\)\")",
+      "Bash(./gradlew assembleRelease --no-daemon)",
+      "Bash(adb install:*)"
+    ]
+  }
+}

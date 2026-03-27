@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Border breathing glow: a rounded-rect stroke that pulses opacity 0.35 → 0.9 → 0.35 over 3s.
+  Authored in white — WidgetUpdater applies a color filter for the active theme.
+-->
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+
+    <aapt:attr name="android:drawable">
+        <vector
+            android:width="360dp"
+            android:height="180dp"
+            android:viewportWidth="360"
+            android:viewportHeight="180">
+
+            <group android:name="glow_group">
+                <!-- Rounded-rect stroke, 3px wide, matching widget corner radius -->
+                <path
+                    android:name="glow_path"
+                    android:fillColor="@android:color/transparent"
+                    android:strokeColor="#59FFFFFF"
+                    android:strokeWidth="3"
+                    android:pathData="M16,2 L344,2 Q358,2 358,16 L358,164 Q358,178 344,178 L16,178 Q2,178 2,164 L2,16 Q2,2 16,2 Z"/>
+            </group>
+
+        </vector>
+    </aapt:attr>
+
+    <target android:name="glow_group">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="alpha"
+                android:valueFrom="0.35" android:valueTo="0.9"
+                android:duration="3000" android:startOffset="0"
+                android:repeatCount="infinite" android:repeatMode="reverse"
+                android:interpolator="@android:interpolator/fast_out_slow_in"/>
+        </aapt:attr>
+    </target>
+
+</animated-vector>

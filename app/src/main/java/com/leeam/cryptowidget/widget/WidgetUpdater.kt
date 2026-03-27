@@ -8,14 +8,26 @@ import android.content.Intent
 import android.view.View
 import android.widget.RemoteViews
 import com.leeam.cryptowidget.R
+import com.leeam.cryptowidget.data.local.ChartStyle
 import com.leeam.cryptowidget.data.model.CryptoWidgetData
 import com.leeam.cryptowidget.ui.settings.SettingsActivity
+import com.leeam.cryptowidget.ui.theme.CyberColors
+import com.leeam.cryptowidget.ui.theme.ThemeColors
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.math.abs
 
 object WidgetUpdater {
 
-    fun updateAllWidgets(context: Context, data: CryptoWidgetData) {
+    fun updateAllWidgets(
+        context: Context,
+        data: CryptoWidgetData,
+        chartStyle: ChartStyle = ChartStyle.LINE,
+        themeColors: ThemeColors = CyberColors
+    ) {
         val manager = AppWidgetManager.getInstance(context)
         val ids = manager.getAppWidgetIds(
             ComponentName(context, CryptoWidgetProvider::class.java)
@@ -30,8 +42,24 @@ object WidgetUpdater {
             val widthPx  = (minW  * density).toInt().coerceAtLeast(200)
             val heightPx = ((minH * density) * 0.30f).toInt().coerceAtLeast(40)
 
-            val views = buildRemoteViews(context, data, widthPx, heightPx)
+            val views = buildRemoteViews(context, data, widthPx, heightPx, chartStyle, themeColors)
             manager.updateAppWidget(widgetId, views)
+        }
+
+        // Price flash: set price to direction color, reset to white after 400ms
+        if (data.errorMessage == null) {
+            val isUp = data.change24hPct >= 0
+            val flashColor = if (isUp) 0xFF00FF88.toInt() else 0xFFFF4466.toInt()
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(400)
+                val resetViews = RemoteViews(context.packageName, R.layout.widget_layout)
+                resetViews.setTextColor(R.id.tv_price, 0xFFFFFFFF.toInt())
+                ids.forEach { manager.partiallyUpdateAppWidget(it, resetViews) }
+            }
+            // Apply flash color immediately via partial update
+            val flashViews = RemoteViews(context.packageName, R.layout.widget_layout)
+            flashViews.setTextColor(R.id.tv_price, flashColor)
+            ids.forEach { manager.partiallyUpdateAppWidget(it, flashViews) }
         }
     }
 
@@ -39,12 +67,15 @@ object WidgetUpdater {
         context: Context,
         data: CryptoWidgetData,
         sparklineWidthPx: Int,
-        sparklineHeightPx: Int
+        sparklineHeightPx: Int,
+        chartStyle: ChartStyle = ChartStyle.LINE,
+        themeColors: ThemeColors = CyberColors
     ): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget_layout)
 
         // Coin symbol
         views.setTextViewText(R.id.tv_coin_symbol, data.symbol)
+        views.setTextColor(R.id.tv_coin_symbol, themeColors.accentArgb)
 
         // Price
         if (data.errorMessage != null) {
@@ -68,7 +99,7 @@ object WidgetUpdater {
         // Sparkline
         if (data.sparklinePrices.size >= 2) {
             val bitmap = SparklineRenderer.render(
-                data.sparklinePrices, sparklineWidthPx, sparklineHeightPx, isUp
+                data.sparklinePrices, sparklineWidthPx, sparklineHeightPx, isUp, chartStyle
             )
             if (bitmap != null) {
                 views.setImageViewBitmap(R.id.iv_sparkline, bitmap)
@@ -82,6 +113,7 @@ object WidgetUpdater {
                 R.id.tv_balance,
                 String.format(Locale.US, "%.4f XRP", data.walletBalanceXrp)
             )
+            views.setTextColor(R.id.tv_balance, themeColors.accentArgb)
             views.setTextViewText(
                 R.id.tv_portfolio_value,
                 "≈ $${String.format(Locale.US, "%.2f", data.walletValueUsd)}"
@@ -101,6 +133,14 @@ object WidgetUpdater {
             else        -> "${ageMin / 60}h ago"
         }
         views.setTextViewText(R.id.tv_last_updated, ageText)
+
+        // Restore static refresh icon (replaces any spinning AVD from a previous refresh tap)
+        views.setImageViewResource(R.id.btn_refresh, R.drawable.widget_refresh_icon)
+
+        // Theme color filter on AVD layers — tints the white-authored vectors to the active theme
+        views.setInt(R.id.iv_particle_bg,     "setColorFilter", themeColors.accentArgb)
+        views.setInt(R.id.iv_border_glow,     "setColorFilter", themeColors.accentArgb)
+        views.setInt(R.id.iv_sparkline_pulse, "setColorFilter", themeColors.accentArgb)
 
         // Refresh button PendingIntent
         val refreshIntent = Intent(context, CryptoWidgetProvider::class.java).apply {

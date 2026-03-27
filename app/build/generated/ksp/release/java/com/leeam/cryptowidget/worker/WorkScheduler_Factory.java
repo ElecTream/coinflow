@@ -3,10 +3,10 @@ package com.leeam.cryptowidget.worker;
 import android.content.Context;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @ScopeMetadata("javax.inject.Singleton")
 @QualifierMetadata("dagger.hilt.android.qualifiers.ApplicationContext")
@@ -21,12 +21,13 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class WorkScheduler_Factory implements Factory<WorkScheduler> {
   private final Provider<Context> contextProvider;
 
-  public WorkScheduler_Factory(Provider<Context> contextProvider) {
+  private WorkScheduler_Factory(Provider<Context> contextProvider) {
     this.contextProvider = contextProvider;
   }
 

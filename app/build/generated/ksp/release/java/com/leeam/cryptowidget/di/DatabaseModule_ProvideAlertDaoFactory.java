@@ -5,10 +5,10 @@ import com.leeam.cryptowidget.data.local.AlertDatabase;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.Preconditions;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -23,12 +23,13 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class DatabaseModule_ProvideAlertDaoFactory implements Factory<AlertDao> {
   private final Provider<AlertDatabase> dbProvider;
 
-  public DatabaseModule_ProvideAlertDaoFactory(Provider<AlertDatabase> dbProvider) {
+  private DatabaseModule_ProvideAlertDaoFactory(Provider<AlertDatabase> dbProvider) {
     this.dbProvider = dbProvider;
   }
 

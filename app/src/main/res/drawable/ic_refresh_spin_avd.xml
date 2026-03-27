@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Spinning refresh icon AVD — same path as widget_refresh_icon.xml, rotating 0→360 infinitely.
+  Set on btn_refresh via RemoteViews when a refresh is in flight; swapped back to the static
+  widget_refresh_icon when WidgetUpdater completes the update.
+-->
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+
+    <aapt:attr name="android:drawable">
+        <vector
+            android:width="24dp"
+            android:height="24dp"
+            android:viewportWidth="24"
+            android:viewportHeight="24">
+
+            <group
+                android:name="spin_group"
+                android:pivotX="12"
+                android:pivotY="12">
+                <path
+                    android:fillColor="@android:color/transparent"
+                    android:strokeColor="#FFFFFF"
+                    android:strokeWidth="1.2"
+                    android:pathData="M12,4 C8.13,4 5,7.13 5,11 L2,11 L5.89,14.89 L9.78,11 L7,11 C7,8.24 9.24,6 12,6 C14.76,6 17,8.24 17,11 C17,13.76 14.76,16 12,16 C10.29,16 8.79,15.13 7.88,13.82 L6.41,15.29 C7.73,16.97 9.74,18 12,18 C15.87,18 19,14.87 19,11 C19,7.13 15.87,4 12,4 Z"/>
+            </group>
+
+        </vector>
+    </aapt:attr>
+
+    <target android:name="spin_group">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="rotation"
+                android:valueFrom="0" android:valueTo="360"
+                android:duration="800" android:startOffset="0"
+                android:repeatCount="infinite" android:repeatMode="restart"
+                android:interpolator="@android:interpolator/linear"/>
+        </aapt:attr>
+    </target>
+
+</animated-vector>

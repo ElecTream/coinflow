@@ -18,7 +18,21 @@
       "Bash(./gradlew assembleDebug --no-daemon)",
       "Bash(python -c \"import sys; print\\(sys.version\\)\")",
       "Bash(./gradlew assembleRelease --no-daemon)",
-      "Bash(adb install:*)"
+      "Bash(adb install:*)",
+      "Bash(git -C /c/Users/lsweeney/Documents/GitHub/widget_crypto log --oneline -10)",
+      "Bash(find /c/Users/lsweeney/Documents/GitHub/widget_crypto -name *Test*.kt -o -name *test*.kt)",
+      "Bash(./gradlew --stop)",
+      "Bash(./gradlew clean:*)",
+      "WebSearch",
+      "WebFetch(domain:mvnrepository.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:docs.coincap.io)",
+      "WebFetch(domain:api.coincap.io)",
+      "WebFetch(domain:api.kraken.com)",
+      "Bash(python -c \"from PIL import Image; print\\(''Pillow available''\\)\")",
+      "Bash(pip install:*)",
+      "Bash(./gradlew assembleRelease)",
+      "Bash(./gradlew assembleDebug)"
     ]
   }
 }

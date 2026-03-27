@@ -1,0 +1,15 @@
+package com.leeam.cryptowidget.data.local
+
+enum class AppTheme {
+    /** Cyan + purple on near-black. The default. */
+    CYBER,
+
+    /** Gold + orange. Bullish energy. */
+    AMBER,
+
+    /** Neon green on black. Classic hacker. */
+    MATRIX,
+
+    /** Violet + pink. Dreamcore. */
+    MIDNIGHT
+}

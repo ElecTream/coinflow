@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.leeam.cryptowidget.app-mergeReleaseResources-67:/values-v23/values-v23.xml",
+            "outputFile": "com.leeam.cryptowidget.app-mergeReleaseResources-64:/values-v23/values-v23.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Leeam\\.gradle\\caches\\8.9\\transforms\\19443b122f3ef9ab77f2bba7fafd293d\\transformed\\work-runtime-2.9.1\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\lsweeney\\.gradle\\caches\\9.3.1\\transforms\\ac0eac3183d86c1b43d14e58c941c0d0\\workspace\\transformed\\work-runtime-2.9.1\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2,3",
                         "startColumns": "4,4",
@@ -14,7 +14,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Leeam\\.gradle\\caches\\8.9\\transforms\\1fe1471ed02f11bf1a5cecebd27e2086\\transformed\\appcompat-1.7.0\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\lsweeney\\.gradle\\caches\\9.3.1\\transforms\\f44c50c4be28cbb0b0f3d1212b5d23fb\\workspace\\transformed\\appcompat-1.7.0\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,20,34,35,36,39,43,44,45,46",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -33,7 +33,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Leeam\\.gradle\\caches\\8.9\\transforms\\06865d2e872aa38c87916c4a650ff34d\\transformed\\material-1.12.0\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\lsweeney\\.gradle\\caches\\9.3.1\\transforms\\c0dae444825675c9bf11cdbcc06920e6\\workspace\\transformed\\material-1.12.0\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2,5,9,13,16,19,22,25,28,32",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4",
@@ -52,7 +52,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Leeam\\.gradle\\caches\\8.9\\transforms\\acd9606853283b04108d518347098ad7\\transformed\\cardview-1.0.0\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\lsweeney\\.gradle\\caches\\9.3.1\\transforms\\2eee424fa162124a48854712acc7d5d0\\workspace\\transformed\\cardview-1.0.0\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

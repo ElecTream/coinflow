@@ -1,8 +1,8 @@
 package com.leeam.cryptowidget.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.leeam.cryptowidget.data.remote.CoinGeckoService
-import com.leeam.cryptowidget.data.remote.XrpScanService
+import com.leeam.cryptowidget.data.remote.KrakenService
+import com.leeam.cryptowidget.data.remote.XrplService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,6 +24,7 @@ object NetworkModule {
         ignoreUnknownKeys = true
         isLenient = true
         coerceInputValues = true
+        encodeDefaults = true   // required: ensures default fields like XrplRequest.method are serialized
     }
 
     @Provides
@@ -31,12 +32,12 @@ object NetworkModule {
     fun provideOkHttpClient(): OkHttpClient =
         OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BASIC
+                level = HttpLoggingInterceptor.Level.BODY
             })
             .addInterceptor { chain ->
                 chain.proceed(
                     chain.request().newBuilder()
-                        .header("User-Agent", "CryptoWidget/1.0 Android")
+                        .header("User-Agent", "Coinflow/1.0 Android")
                         .header("Accept", "application/json")
                         .build()
                 )
@@ -47,31 +48,31 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    @Named("coingecko")
-    fun provideCoinGeckoRetrofit(client: OkHttpClient): Retrofit =
+    @Named("kraken")
+    fun provideKrakenRetrofit(client: OkHttpClient): Retrofit =
         Retrofit.Builder()
-            .baseUrl("https://api.coingecko.com/")
+            .baseUrl("https://api.kraken.com/")
             .client(client)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
 
     @Provides
     @Singleton
-    @Named("xrpscan")
-    fun provideXrpScanRetrofit(client: OkHttpClient): Retrofit =
+    @Named("xrpl")
+    fun provideXrplRetrofit(client: OkHttpClient): Retrofit =
         Retrofit.Builder()
-            .baseUrl("https://api.xrpscan.com/")
+            .baseUrl("https://xrplcluster.com/")
             .client(client)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
 
     @Provides
     @Singleton
-    fun provideCoinGeckoService(@Named("coingecko") retrofit: Retrofit): CoinGeckoService =
-        retrofit.create(CoinGeckoService::class.java)
+    fun provideKrakenService(@Named("kraken") retrofit: Retrofit): KrakenService =
+        retrofit.create(KrakenService::class.java)
 
     @Provides
     @Singleton
-    fun provideXrpScanService(@Named("xrpscan") retrofit: Retrofit): XrpScanService =
-        retrofit.create(XrpScanService::class.java)
+    fun provideXrplService(@Named("xrpl") retrofit: Retrofit): XrplService =
+        retrofit.create(XrplService::class.java)
 }

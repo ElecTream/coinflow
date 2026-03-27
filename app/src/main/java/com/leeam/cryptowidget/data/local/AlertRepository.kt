@@ -16,13 +16,17 @@ class AlertRepository @Inject constructor(private val dao: AlertDao) {
         coinId: String,
         symbol: String,
         direction: AlertDirection,
-        thresholdUsd: Double
+        thresholdUsd: Double,
+        alertMode: AlertMode = AlertMode.CROSSING,
+        cooldownMin: Int = 60
     ): Long = dao.insertAlert(
         AlertEntity(
             coinId = coinId,
             symbol = symbol,
             direction = direction,
-            thresholdUsd = thresholdUsd
+            thresholdUsd = thresholdUsd,
+            alertMode = alertMode,
+            cooldownMin = cooldownMin
         )
     )
 
@@ -37,15 +41,44 @@ class AlertRepository @Inject constructor(private val dao: AlertDao) {
         onFire: suspend (AlertEntity) -> Unit
     ) {
         val enabled = getEnabledAlertsForCoin(coinId)
+        val now = System.currentTimeMillis()
+
         for (alert in enabled) {
-            val triggered = when (alert.direction) {
-                AlertDirection.ABOVE -> currentPriceUsd >= alert.thresholdUsd
-                AlertDirection.BELOW -> currentPriceUsd <= alert.thresholdUsd
-            }
-            if (triggered) {
-                onFire(alert)
-                dao.setAlertEnabled(alert.id, false)
-                dao.markAlertFired(alert.id, System.currentTimeMillis())
+            // Which side of the threshold is the current price on?
+            val currentSide = if (currentPriceUsd >= alert.thresholdUsd) "ABOVE" else "BELOW"
+            val targetSide = alert.direction.name // "ABOVE" or "BELOW"
+
+            when (alert.alertMode) {
+                AlertMode.ONE_SHOT -> {
+                    if (currentSide == targetSide) {
+                        onFire(alert)
+                        dao.setAlertEnabled(alert.id, false)
+                        dao.markAlertFired(alert.id, now)
+                    }
+                }
+
+                AlertMode.REPEATING -> {
+                    if (currentSide == targetSide) {
+                        val lastFired = alert.firedAtMs
+                        val cooldownMs = alert.cooldownMin * 60_000L
+                        if (lastFired == null || (now - lastFired) >= cooldownMs) {
+                            onFire(alert)
+                            dao.markAlertFired(alert.id, now)
+                        }
+                    }
+                }
+
+                AlertMode.CROSSING -> {
+                    val lastSide = alert.lastKnownSide
+                    // Fire only when price transitions from the opposite side into the target side.
+                    // On the very first check (lastSide == null) we just record the side — no fire.
+                    if (lastSide != null && lastSide != currentSide && currentSide == targetSide) {
+                        onFire(alert)
+                        dao.markAlertFired(alert.id, now)
+                    }
+                    // Always update last known side so the next crossing can be detected.
+                    dao.updateLastKnownSide(alert.id, currentSide)
+                }
             }
         }
     }

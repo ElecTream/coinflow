@@ -12,5 +12,14 @@ data class AlertEntity(
     val thresholdUsd: Double,
     val isEnabled: Boolean = true,
     val createdAtMs: Long = System.currentTimeMillis(),
-    val firedAtMs: Long? = null
+    val firedAtMs: Long? = null,
+    /** How this alert behaves after firing. Defaults to CROSSING. */
+    val alertMode: AlertMode = AlertMode.CROSSING,
+    /**
+     * CROSSING mode: last observed price side relative to threshold ("ABOVE" / "BELOW").
+     * Null on first check — alert won't fire until a second check establishes a crossing.
+     */
+    val lastKnownSide: String? = null,
+    /** REPEATING mode only: minimum minutes between successive fires. */
+    val cooldownMin: Int = 60
 )

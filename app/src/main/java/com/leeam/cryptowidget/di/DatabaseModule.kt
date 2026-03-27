@@ -19,7 +19,7 @@ object DatabaseModule {
     @Singleton
     fun provideAlertDatabase(@ApplicationContext context: Context): AlertDatabase =
         Room.databaseBuilder(context, AlertDatabase::class.java, "crypto_alerts.db")
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(true)
             .build()
 
     @Provides

@@ -21,7 +21,8 @@ import okhttp3.OkHttpClient;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class NetworkModule_ProvideOkHttpClientFactory implements Factory<OkHttpClient> {
   @Override
@@ -38,6 +39,6 @@ public final class NetworkModule_ProvideOkHttpClientFactory implements Factory<O
   }
 
   private static final class InstanceHolder {
-    private static final NetworkModule_ProvideOkHttpClientFactory INSTANCE = new NetworkModule_ProvideOkHttpClientFactory();
+    static final NetworkModule_ProvideOkHttpClientFactory INSTANCE = new NetworkModule_ProvideOkHttpClientFactory();
   }
 }

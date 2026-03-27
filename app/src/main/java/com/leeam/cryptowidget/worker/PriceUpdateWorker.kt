@@ -6,6 +6,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.leeam.cryptowidget.data.local.AlertRepository
 import com.leeam.cryptowidget.data.local.WidgetPreferences
+import com.leeam.cryptowidget.ui.theme.toThemeColors
 import com.leeam.cryptowidget.data.model.CryptoWidgetData
 import com.leeam.cryptowidget.data.repository.CryptoRepository
 import com.leeam.cryptowidget.notifications.AlertNotifier
@@ -27,12 +28,14 @@ class PriceUpdateWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         val coinId = widgetPreferences.coinId.first()
         val wallet = widgetPreferences.walletAddress.first()
+        val chartStyle = widgetPreferences.chartStyle.first()
+        val themeColors = widgetPreferences.appTheme.first().toThemeColors()
 
         return try {
             val result = cryptoRepository.fetchWidgetData(coinId, wallet)
             val data = result.getOrThrow()
 
-            WidgetUpdater.updateAllWidgets(applicationContext, data)
+            WidgetUpdater.updateAllWidgets(applicationContext, data, chartStyle, themeColors)
 
             widgetPreferences.cacheWidgetData(
                 priceUsd   = data.priceUsd,

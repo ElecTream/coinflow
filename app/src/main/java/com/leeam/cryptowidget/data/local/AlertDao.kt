@@ -26,4 +26,7 @@ interface AlertDao {
 
     @Query("UPDATE price_alerts SET isEnabled = :enabled WHERE id = :id")
     suspend fun setAlertEnabled(id: Int, enabled: Boolean)
+
+    @Query("UPDATE price_alerts SET lastKnownSide = :side WHERE id = :id")
+    suspend fun updateLastKnownSide(id: Int, side: String)
 }

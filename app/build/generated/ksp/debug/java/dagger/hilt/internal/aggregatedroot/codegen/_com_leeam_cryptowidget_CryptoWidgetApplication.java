@@ -13,8 +13,10 @@ import javax.annotation.processing.Generated;
     originatingRoot = "com.leeam.cryptowidget.CryptoWidgetApplication",
     originatingRootPackage = "com.leeam.cryptowidget",
     rootAnnotation = HiltAndroidApp.class,
+    rootComponentPackage = "dagger.hilt.components",
     rootSimpleNames = "CryptoWidgetApplication",
-    originatingRootSimpleNames = "CryptoWidgetApplication"
+    originatingRootSimpleNames = "CryptoWidgetApplication",
+    rootComponentSimpleNames = "SingletonComponent"
 )
 @Generated("dagger.hilt.processor.internal.root.AggregatedRootGenerator")
 public class _com_leeam_cryptowidget_CryptoWidgetApplication {

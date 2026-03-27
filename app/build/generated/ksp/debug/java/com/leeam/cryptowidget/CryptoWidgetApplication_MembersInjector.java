@@ -5,9 +5,9 @@ import com.leeam.cryptowidget.worker.WorkScheduler;
 import dagger.MembersInjector;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.InjectedFieldSignature;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @QualifierMetadata
 @DaggerGenerated
@@ -21,29 +21,30 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class CryptoWidgetApplication_MembersInjector implements MembersInjector<CryptoWidgetApplication> {
   private final Provider<HiltWorkerFactory> workerFactoryProvider;
 
   private final Provider<WorkScheduler> workSchedulerProvider;
 
-  public CryptoWidgetApplication_MembersInjector(Provider<HiltWorkerFactory> workerFactoryProvider,
+  private CryptoWidgetApplication_MembersInjector(Provider<HiltWorkerFactory> workerFactoryProvider,
       Provider<WorkScheduler> workSchedulerProvider) {
     this.workerFactoryProvider = workerFactoryProvider;
     this.workSchedulerProvider = workSchedulerProvider;
-  }
-
-  public static MembersInjector<CryptoWidgetApplication> create(
-      Provider<HiltWorkerFactory> workerFactoryProvider,
-      Provider<WorkScheduler> workSchedulerProvider) {
-    return new CryptoWidgetApplication_MembersInjector(workerFactoryProvider, workSchedulerProvider);
   }
 
   @Override
   public void injectMembers(CryptoWidgetApplication instance) {
     injectWorkerFactory(instance, workerFactoryProvider.get());
     injectWorkScheduler(instance, workSchedulerProvider.get());
+  }
+
+  public static MembersInjector<CryptoWidgetApplication> create(
+      Provider<HiltWorkerFactory> workerFactoryProvider,
+      Provider<WorkScheduler> workSchedulerProvider) {
+    return new CryptoWidgetApplication_MembersInjector(workerFactoryProvider, workSchedulerProvider);
   }
 
   @InjectedFieldSignature("com.leeam.cryptowidget.CryptoWidgetApplication.workerFactory")

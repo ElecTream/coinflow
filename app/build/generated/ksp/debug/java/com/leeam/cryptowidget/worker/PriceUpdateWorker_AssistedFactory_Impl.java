@@ -18,7 +18,8 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class PriceUpdateWorker_AssistedFactory_Impl implements PriceUpdateWorker_AssistedFactory {
   private final PriceUpdateWorker_Factory delegateFactory;

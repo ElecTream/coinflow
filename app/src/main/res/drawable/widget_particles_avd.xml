@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Particle field: 16 soft circles drifting upward, looping forever.
+  Authored in white — WidgetUpdater applies a color filter for the active theme.
+  Each particle has a unique duration + startOffset for organic, non-synchronised movement.
+-->
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+
+    <aapt:attr name="android:drawable">
+        <vector
+            android:width="360dp"
+            android:height="220dp"
+            android:viewportWidth="360"
+            android:viewportHeight="220">
+
+            <!-- p1  x=30  y=180 r=2.0 -->
+            <group android:name="p1">
+                <path android:fillColor="#47FFFFFF"
+                      android:pathData="M30,180 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0"/>
+            </group>
+            <!-- p2  x=80  y=50  r=3.0 -->
+            <group android:name="p2">
+                <path android:fillColor="#33FFFFFF"
+                      android:pathData="M80,50 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0"/>
+            </group>
+            <!-- p3  x=130 y=130 r=2.0 -->
+            <group android:name="p3">
+                <path android:fillColor="#40FFFFFF"
+                      android:pathData="M130,130 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0"/>
+            </group>
+            <!-- p4  x=170 y=80  r=3.5 -->
+            <group android:name="p4">
+                <path android:fillColor="#2EFFFFFF"
+                      android:pathData="M170,80 m-3.5,0 a3.5,3.5 0 1,0 7,0 a3.5,3.5 0 1,0 -7,0"/>
+            </group>
+            <!-- p5  x=220 y=200 r=2.0 -->
+            <group android:name="p5">
+                <path android:fillColor="#47FFFFFF"
+                      android:pathData="M220,200 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0"/>
+            </group>
+            <!-- p6  x=270 y=30  r=3.0 -->
+            <group android:name="p6">
+                <path android:fillColor="#33FFFFFF"
+                      android:pathData="M270,30 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0"/>
+            </group>
+            <!-- p7  x=310 y=160 r=2.0 -->
+            <group android:name="p7">
+                <path android:fillColor="#40FFFFFF"
+                      android:pathData="M310,160 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0"/>
+            </group>
+            <!-- p8  x=50  y=100 r=3.5 -->
+            <group android:name="p8">
+                <path android:fillColor="#2EFFFFFF"
+                      android:pathData="M50,100 m-3.5,0 a3.5,3.5 0 1,0 7,0 a3.5,3.5 0 1,0 -7,0"/>
+            </group>
+            <!-- p9  x=100 y=20  r=2.0 -->
+            <group android:name="p9">
+                <path android:fillColor="#47FFFFFF"
+                      android:pathData="M100,20 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0"/>
+            </group>
+            <!-- p10 x=160 y=140 r=3.0 -->
+            <group android:name="p10">
+                <path android:fillColor="#33FFFFFF"
+                      android:pathData="M160,140 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0"/>
+            </group>
+            <!-- p11 x=200 y=70  r=2.0 -->
+            <group android:name="p11">
+                <path android:fillColor="#40FFFFFF"
+                      android:pathData="M200,70 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0"/>
+            </group>
+            <!-- p12 x=240 y=190 r=3.5 -->
+            <group android:name="p12">
+                <path android:fillColor="#2EFFFFFF"
+                      android:pathData="M240,190 m-3.5,0 a3.5,3.5 0 1,0 7,0 a3.5,3.5 0 1,0 -7,0"/>
+            </group>
+            <!-- p13 x=290 y=40  r=2.0 -->
+            <group android:name="p13">
+                <path android:fillColor="#47FFFFFF"
+                      android:pathData="M290,40 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0"/>
+            </group>
+            <!-- p14 x=340 y=120 r=3.0 -->
+            <group android:name="p14">
+                <path android:fillColor="#33FFFFFF"
+                      android:pathData="M340,120 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0"/>
+            </group>
+            <!-- p15 x=70  y=170 r=2.0 -->
+            <group android:name="p15">
+                <path android:fillColor="#40FFFFFF"
+                      android:pathData="M70,170 m-2,0 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0"/>
+            </group>
+            <!-- p16 x=350 y=60  r=2.5 -->
+            <group android:name="p16">
+                <path android:fillColor="#33FFFFFF"
+                      android:pathData="M350,60 m-2.5,0 a2.5,2.5 0 1,0 5,0 a2.5,2.5 0 1,0 -5,0"/>
+            </group>
+
+        </vector>
+    </aapt:attr>
+
+    <!-- Each particle translates upward by 230 units (clears the 220-unit viewport).
+         Staggered startOffsets ensure particles are always spread at different heights. -->
+
+    <target android:name="p1">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY"
+                android:valueFrom="0" android:valueTo="-230"
+                android:duration="7200" android:startOffset="0"
+                android:repeatCount="infinite" android:repeatMode="restart"
+                android:interpolator="@android:interpolator/linear"/>
+        </aapt:attr>
+    </target>
+    <target android:name="p2">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY"
+                android:valueFrom="0" android:valueTo="-230"
+                android:duration="9000" android:startOffset="450"
+                android:repeatCount="infinite" android:repeatMode="restart"
+                android:interpolator="@android:interpolator/linear"/>
+        </aapt:attr>
+    </target>
+    <target android:name="p3">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY"
+                android:valueFrom="0" android:valueTo="-230"
+                android:duration="7800" android:startOffset="900"
+                android:repeatCount="infinite" android:repeatMode="restart"
+                android:interpolator="@android:interpolator/linear"/>
+        </aapt:attr>
+    </target>
+    <target android:name="p4">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY"
+                android:valueFrom="0" android:valueTo="-230"
+                android:duration="8400" android:startOffset="1350"
+                android:repeatCount="infinite" android:repeatMode="restart"
+                android:interpolator="@android:interpolator/linear"/>
+        </aapt:attr>
+    </target>
+    <target android:name="p5">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY"
+                android:valueFrom="0" android:valueTo="-230"
+                android:duration="7200" android:startOffset="1800"
+                android:repeatCount="infinite" android:repeatMode="restart"
+                android:interpolator="@android:interpolator/linear"/>
+        </aapt:attr>
+    </target>
+    <target android:name="p6">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY"
+                android:valueFrom="0" android:valueTo="-230"
+                android:duration="9600" android:startOffset="2250"
+                android:repeatCount="infinite" android:repeatMode="restart"
+                android:interpolator="@android:interpolator/linear"/>
+        </aapt:attr>
+    </target>
+    <target android:name="p7">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY"
+                android:valueFrom="0" android:valueTo="-230"
+                android:duration="8000" android:startOffset="2700"
+                android:repeatCount="infinite" android:repeatMode="restart"
+                android:interpolator="@android:interpolator/linear"/>
+        </aapt:attr>
+    </target>
+    <target android:name="p8">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY"
+                android:valueFrom="0" android:valueTo="-230"
+                android:duration="7600" android:startOffset="3150"
+                android:repeatCount="infinite" android:repeatMode="restart"
+                android:interpolator="@android:interpolator/linear"/>
+        </aapt:attr>
+    </target>
+    <target android:name="p9">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY"
+                android:valueFrom="0" android:valueTo="-230"
+                android:duration="8800" android:startOffset="3600"
+                android:repeatCount="infinite" android:repeatMode="restart"
+                android:interpolator="@android:interpolator/linear"/>
+        </aapt:attr>
+    </target>
+    <target android:name="p10">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY"
+                android:valueFrom="0" android:valueTo="-230"
+                android:duration="7400" android:startOffset="4050"
+                android:repeatCount="infinite" android:repeatMode="restart"
+                android:interpolator="@android:interpolator/linear"/>
+        </aapt:attr>
+    </target>
+    <target android:name="p11">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY"
+                android:valueFrom="0" android:valueTo="-230"
+                android:duration="9200" android:startOffset="4500"
+                android:repeatCount="infinite" android:repeatMode="restart"
+                android:interpolator="@android:interpolator/linear"/>
+        </aapt:attr>
+    </target>
+    <target android:name="p12">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY"
+                android:valueFrom="0" android:valueTo="-230"
+                android:duration="8200" android:startOffset="4950"
+                android:repeatCount="infinite" android:repeatMode="restart"
+                android:interpolator="@android:interpolator/linear"/>
+        </aapt:attr>
+    </target>
+    <target android:name="p13">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY"
+                android:valueFrom="0" android:valueTo="-230"
+                android:duration="7800" android:startOffset="5400"
+                android:repeatCount="infinite" android:repeatMode="restart"
+                android:interpolator="@android:interpolator/linear"/>
+        </aapt:attr>
+    </target>
+    <target android:name="p14">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY"
+                android:valueFrom="0" android:valueTo="-230"
+                android:duration="9000" android:startOffset="5850"
+                android:repeatCount="infinite" android:repeatMode="restart"
+                android:interpolator="@android:interpolator/linear"/>
+        </aapt:attr>
+    </target>
+    <target android:name="p15">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY"
+                android:valueFrom="0" android:valueTo="-230"
+                android:duration="8600" android:startOffset="6300"
+                android:repeatCount="infinite" android:repeatMode="restart"
+                android:interpolator="@android:interpolator/linear"/>
+        </aapt:attr>
+    </target>
+    <target android:name="p16">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY"
+                android:valueFrom="0" android:valueTo="-230"
+                android:duration="7200" android:startOffset="6750"
+                android:repeatCount="infinite" android:repeatMode="restart"
+                android:interpolator="@android:interpolator/linear"/>
+        </aapt:attr>
+    </target>
+
+</animated-vector>

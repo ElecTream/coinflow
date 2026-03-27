@@ -17,22 +17,23 @@ import com.leeam.cryptowidget.data.local.AlertDao;
 import com.leeam.cryptowidget.data.local.AlertDatabase;
 import com.leeam.cryptowidget.data.local.AlertRepository;
 import com.leeam.cryptowidget.data.local.WidgetPreferences;
-import com.leeam.cryptowidget.data.remote.CoinGeckoService;
-import com.leeam.cryptowidget.data.remote.XrpScanService;
+import com.leeam.cryptowidget.data.remote.KrakenService;
+import com.leeam.cryptowidget.data.remote.XrplService;
 import com.leeam.cryptowidget.data.repository.CryptoRepositoryImpl;
 import com.leeam.cryptowidget.di.DatabaseModule_ProvideAlertDaoFactory;
 import com.leeam.cryptowidget.di.DatabaseModule_ProvideAlertDatabaseFactory;
-import com.leeam.cryptowidget.di.NetworkModule_ProvideCoinGeckoRetrofitFactory;
-import com.leeam.cryptowidget.di.NetworkModule_ProvideCoinGeckoServiceFactory;
+import com.leeam.cryptowidget.di.NetworkModule_ProvideKrakenRetrofitFactory;
+import com.leeam.cryptowidget.di.NetworkModule_ProvideKrakenServiceFactory;
 import com.leeam.cryptowidget.di.NetworkModule_ProvideOkHttpClientFactory;
-import com.leeam.cryptowidget.di.NetworkModule_ProvideXrpScanRetrofitFactory;
-import com.leeam.cryptowidget.di.NetworkModule_ProvideXrpScanServiceFactory;
+import com.leeam.cryptowidget.di.NetworkModule_ProvideXrplRetrofitFactory;
+import com.leeam.cryptowidget.di.NetworkModule_ProvideXrplServiceFactory;
 import com.leeam.cryptowidget.notifications.AlertNotifier;
 import com.leeam.cryptowidget.ui.settings.SettingsActivity;
 import com.leeam.cryptowidget.ui.settings.SettingsViewModel;
 import com.leeam.cryptowidget.ui.settings.SettingsViewModel_HiltModules;
+import com.leeam.cryptowidget.ui.settings.SettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey;
+import com.leeam.cryptowidget.ui.settings.SettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey;
 import com.leeam.cryptowidget.ui.settings.WidgetConfigActivity;
-import com.leeam.cryptowidget.widget.CryptoWidgetProvider;
 import com.leeam.cryptowidget.worker.PriceUpdateWorker;
 import com.leeam.cryptowidget.worker.PriceUpdateWorker_AssistedFactory;
 import com.leeam.cryptowidget.worker.WorkScheduler;
@@ -53,8 +54,6 @@ import dagger.hilt.android.internal.modules.ApplicationContextModule;
 import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideContextFactory;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.DoubleCheck;
-import dagger.internal.IdentifierNameString;
-import dagger.internal.KeepFieldType;
 import dagger.internal.LazyClassKeyMap;
 import dagger.internal.Preconditions;
 import dagger.internal.Provider;
@@ -77,7 +76,8 @@ import retrofit2.Retrofit;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
   private DaggerCryptoWidgetApplication_HiltComponents_SingletonC() {
@@ -312,7 +312,7 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
 
     private final ViewWithFragmentCImpl viewWithFragmentCImpl = this;
 
-    private ViewWithFragmentCImpl(SingletonCImpl singletonCImpl,
+    ViewWithFragmentCImpl(SingletonCImpl singletonCImpl,
         ActivityRetainedCImpl activityRetainedCImpl, ActivityCImpl activityCImpl,
         FragmentCImpl fragmentCImpl, View viewParam) {
       this.singletonCImpl = singletonCImpl;
@@ -333,9 +333,8 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
 
     private final FragmentCImpl fragmentCImpl = this;
 
-    private FragmentCImpl(SingletonCImpl singletonCImpl,
-        ActivityRetainedCImpl activityRetainedCImpl, ActivityCImpl activityCImpl,
-        Fragment fragmentParam) {
+    FragmentCImpl(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+        ActivityCImpl activityCImpl, Fragment fragmentParam) {
       this.singletonCImpl = singletonCImpl;
       this.activityRetainedCImpl = activityRetainedCImpl;
       this.activityCImpl = activityCImpl;
@@ -363,7 +362,7 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
 
     private final ViewCImpl viewCImpl = this;
 
-    private ViewCImpl(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+    ViewCImpl(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
         ActivityCImpl activityCImpl, View viewParam) {
       this.singletonCImpl = singletonCImpl;
       this.activityRetainedCImpl = activityRetainedCImpl;
@@ -380,8 +379,8 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
 
     private final ActivityCImpl activityCImpl = this;
 
-    private ActivityCImpl(SingletonCImpl singletonCImpl,
-        ActivityRetainedCImpl activityRetainedCImpl, Activity activityParam) {
+    ActivityCImpl(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+        Activity activityParam) {
       this.singletonCImpl = singletonCImpl;
       this.activityRetainedCImpl = activityRetainedCImpl;
 
@@ -403,7 +402,7 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
 
     @Override
     public Map<Class<?>, Boolean> getViewModelKeys() {
-      return LazyClassKeyMap.<Boolean>of(Collections.<String, Boolean>singletonMap(LazyClassKeyProvider.com_leeam_cryptowidget_ui_settings_SettingsViewModel, SettingsViewModel_HiltModules.KeyModule.provide()));
+      return LazyClassKeyMap.<Boolean>of(Collections.<String, Boolean>singletonMap(SettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.lazyClassKeyName, SettingsViewModel_HiltModules.KeyModule.provide()));
     }
 
     @Override
@@ -420,14 +419,6 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
     public ViewComponentBuilder viewComponentBuilder() {
       return new ViewCBuilder(singletonCImpl, activityRetainedCImpl, activityCImpl);
     }
-
-    @IdentifierNameString
-    private static final class LazyClassKeyProvider {
-      static String com_leeam_cryptowidget_ui_settings_SettingsViewModel = "com.leeam.cryptowidget.ui.settings.SettingsViewModel";
-
-      @KeepFieldType
-      SettingsViewModel com_leeam_cryptowidget_ui_settings_SettingsViewModel2;
-    }
   }
 
   private static final class ViewModelCImpl extends CryptoWidgetApplication_HiltComponents.ViewModelC {
@@ -437,11 +428,10 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
 
     private final ViewModelCImpl viewModelCImpl = this;
 
-    private Provider<SettingsViewModel> settingsViewModelProvider;
+    Provider<SettingsViewModel> settingsViewModelProvider;
 
-    private ViewModelCImpl(SingletonCImpl singletonCImpl,
-        ActivityRetainedCImpl activityRetainedCImpl, SavedStateHandle savedStateHandleParam,
-        ViewModelLifecycle viewModelLifecycleParam) {
+    ViewModelCImpl(SingletonCImpl singletonCImpl, ActivityRetainedCImpl activityRetainedCImpl,
+        SavedStateHandle savedStateHandleParam, ViewModelLifecycle viewModelLifecycleParam) {
       this.singletonCImpl = singletonCImpl;
       this.activityRetainedCImpl = activityRetainedCImpl;
 
@@ -457,20 +447,12 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
 
     @Override
     public Map<Class<?>, javax.inject.Provider<ViewModel>> getHiltViewModelMap() {
-      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(Collections.<String, javax.inject.Provider<ViewModel>>singletonMap(LazyClassKeyProvider.com_leeam_cryptowidget_ui_settings_SettingsViewModel, ((Provider) settingsViewModelProvider)));
+      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(Collections.<String, javax.inject.Provider<ViewModel>>singletonMap(SettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.lazyClassKeyName, ((Provider) (settingsViewModelProvider))));
     }
 
     @Override
     public Map<Class<?>, Object> getHiltViewModelAssistedMap() {
       return Collections.<Class<?>, Object>emptyMap();
-    }
-
-    @IdentifierNameString
-    private static final class LazyClassKeyProvider {
-      static String com_leeam_cryptowidget_ui_settings_SettingsViewModel = "com.leeam.cryptowidget.ui.settings.SettingsViewModel";
-
-      @KeepFieldType
-      SettingsViewModel com_leeam_cryptowidget_ui_settings_SettingsViewModel2;
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -490,11 +472,11 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
         this.id = id;
       }
 
-      @SuppressWarnings("unchecked")
       @Override
+      @SuppressWarnings("unchecked")
       public T get() {
         switch (id) {
-          case 0: // com.leeam.cryptowidget.ui.settings.SettingsViewModel 
+          case 0: // com.leeam.cryptowidget.ui.settings.SettingsViewModel
           return (T) new SettingsViewModel(singletonCImpl.widgetPreferencesProvider.get(), singletonCImpl.cryptoRepositoryImplProvider.get(), singletonCImpl.alertRepositoryProvider.get(), singletonCImpl.workSchedulerProvider.get());
 
           default: throw new AssertionError(id);
@@ -508,9 +490,9 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
 
     private final ActivityRetainedCImpl activityRetainedCImpl = this;
 
-    private Provider<ActivityRetainedLifecycle> provideActivityRetainedLifecycleProvider;
+    Provider<ActivityRetainedLifecycle> provideActivityRetainedLifecycleProvider;
 
-    private ActivityRetainedCImpl(SingletonCImpl singletonCImpl,
+    ActivityRetainedCImpl(SingletonCImpl singletonCImpl,
         SavedStateHandleHolder savedStateHandleHolderParam) {
       this.singletonCImpl = singletonCImpl;
 
@@ -547,11 +529,11 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
         this.id = id;
       }
 
-      @SuppressWarnings("unchecked")
       @Override
+      @SuppressWarnings("unchecked")
       public T get() {
         switch (id) {
-          case 0: // dagger.hilt.android.ActivityRetainedLifecycle 
+          case 0: // dagger.hilt.android.ActivityRetainedLifecycle
           return (T) ActivityRetainedComponentManager_LifecycleModule_ProvideActivityRetainedLifecycleFactory.provideActivityRetainedLifecycle();
 
           default: throw new AssertionError(id);
@@ -565,7 +547,7 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
 
     private final ServiceCImpl serviceCImpl = this;
 
-    private ServiceCImpl(SingletonCImpl singletonCImpl, Service serviceParam) {
+    ServiceCImpl(SingletonCImpl singletonCImpl, Service serviceParam) {
       this.singletonCImpl = singletonCImpl;
 
 
@@ -577,56 +559,56 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
 
     private final SingletonCImpl singletonCImpl = this;
 
-    private Provider<OkHttpClient> provideOkHttpClientProvider;
+    Provider<OkHttpClient> provideOkHttpClientProvider;
 
-    private Provider<Retrofit> provideCoinGeckoRetrofitProvider;
+    Provider<Retrofit> provideKrakenRetrofitProvider;
 
-    private Provider<CoinGeckoService> provideCoinGeckoServiceProvider;
+    Provider<KrakenService> provideKrakenServiceProvider;
 
-    private Provider<Retrofit> provideXrpScanRetrofitProvider;
+    Provider<Retrofit> provideXrplRetrofitProvider;
 
-    private Provider<XrpScanService> provideXrpScanServiceProvider;
+    Provider<XrplService> provideXrplServiceProvider;
 
-    private Provider<CryptoRepositoryImpl> cryptoRepositoryImplProvider;
+    Provider<CryptoRepositoryImpl> cryptoRepositoryImplProvider;
 
-    private Provider<WidgetPreferences> widgetPreferencesProvider;
+    Provider<WidgetPreferences> widgetPreferencesProvider;
 
-    private Provider<AlertDatabase> provideAlertDatabaseProvider;
+    Provider<AlertDatabase> provideAlertDatabaseProvider;
 
-    private Provider<AlertRepository> alertRepositoryProvider;
+    Provider<AlertRepository> alertRepositoryProvider;
 
-    private Provider<AlertNotifier> alertNotifierProvider;
+    Provider<AlertNotifier> alertNotifierProvider;
 
-    private Provider<PriceUpdateWorker_AssistedFactory> priceUpdateWorker_AssistedFactoryProvider;
+    Provider<PriceUpdateWorker_AssistedFactory> priceUpdateWorker_AssistedFactoryProvider;
 
-    private Provider<WorkScheduler> workSchedulerProvider;
+    Provider<WorkScheduler> workSchedulerProvider;
 
-    private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
+    SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
       this.applicationContextModule = applicationContextModuleParam;
       initialize(applicationContextModuleParam);
 
     }
 
-    private AlertDao alertDao() {
+    AlertDao alertDao() {
       return DatabaseModule_ProvideAlertDaoFactory.provideAlertDao(provideAlertDatabaseProvider.get());
     }
 
-    private Map<String, javax.inject.Provider<WorkerAssistedFactory<? extends ListenableWorker>>> mapOfStringAndProviderOfWorkerAssistedFactoryOf(
+    Map<String, javax.inject.Provider<WorkerAssistedFactory<? extends ListenableWorker>>> mapOfStringAndProviderOfWorkerAssistedFactoryOf(
         ) {
-      return Collections.<String, javax.inject.Provider<WorkerAssistedFactory<? extends ListenableWorker>>>singletonMap("com.leeam.cryptowidget.worker.PriceUpdateWorker", ((Provider) priceUpdateWorker_AssistedFactoryProvider));
+      return Collections.<String, javax.inject.Provider<WorkerAssistedFactory<? extends ListenableWorker>>>singletonMap("com.leeam.cryptowidget.worker.PriceUpdateWorker", ((Provider) (priceUpdateWorker_AssistedFactoryProvider)));
     }
 
-    private HiltWorkerFactory hiltWorkerFactory() {
+    HiltWorkerFactory hiltWorkerFactory() {
       return WorkerFactoryModule_ProvideFactoryFactory.provideFactory(mapOfStringAndProviderOfWorkerAssistedFactoryOf());
     }
 
     @SuppressWarnings("unchecked")
     private void initialize(final ApplicationContextModule applicationContextModuleParam) {
       this.provideOkHttpClientProvider = DoubleCheck.provider(new SwitchingProvider<OkHttpClient>(singletonCImpl, 4));
-      this.provideCoinGeckoRetrofitProvider = DoubleCheck.provider(new SwitchingProvider<Retrofit>(singletonCImpl, 3));
-      this.provideCoinGeckoServiceProvider = DoubleCheck.provider(new SwitchingProvider<CoinGeckoService>(singletonCImpl, 2));
-      this.provideXrpScanRetrofitProvider = DoubleCheck.provider(new SwitchingProvider<Retrofit>(singletonCImpl, 6));
-      this.provideXrpScanServiceProvider = DoubleCheck.provider(new SwitchingProvider<XrpScanService>(singletonCImpl, 5));
+      this.provideKrakenRetrofitProvider = DoubleCheck.provider(new SwitchingProvider<Retrofit>(singletonCImpl, 3));
+      this.provideKrakenServiceProvider = DoubleCheck.provider(new SwitchingProvider<KrakenService>(singletonCImpl, 2));
+      this.provideXrplRetrofitProvider = DoubleCheck.provider(new SwitchingProvider<Retrofit>(singletonCImpl, 6));
+      this.provideXrplServiceProvider = DoubleCheck.provider(new SwitchingProvider<XrplService>(singletonCImpl, 5));
       this.cryptoRepositoryImplProvider = DoubleCheck.provider(new SwitchingProvider<CryptoRepositoryImpl>(singletonCImpl, 1));
       this.widgetPreferencesProvider = DoubleCheck.provider(new SwitchingProvider<WidgetPreferences>(singletonCImpl, 7));
       this.provideAlertDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<AlertDatabase>(singletonCImpl, 9));
@@ -639,10 +621,6 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
     @Override
     public void injectCryptoWidgetApplication(CryptoWidgetApplication cryptoWidgetApplication) {
       injectCryptoWidgetApplication2(cryptoWidgetApplication);
-    }
-
-    @Override
-    public void injectCryptoWidgetProvider(CryptoWidgetProvider cryptoWidgetProvider) {
     }
 
     @Override
@@ -678,11 +656,11 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
         this.id = id;
       }
 
-      @SuppressWarnings("unchecked")
       @Override
+      @SuppressWarnings("unchecked")
       public T get() {
         switch (id) {
-          case 0: // com.leeam.cryptowidget.worker.PriceUpdateWorker_AssistedFactory 
+          case 0: // com.leeam.cryptowidget.worker.PriceUpdateWorker_AssistedFactory
           return (T) new PriceUpdateWorker_AssistedFactory() {
             @Override
             public PriceUpdateWorker create(Context context, WorkerParameters workerParams) {
@@ -690,37 +668,37 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
             }
           };
 
-          case 1: // com.leeam.cryptowidget.data.repository.CryptoRepositoryImpl 
-          return (T) new CryptoRepositoryImpl(singletonCImpl.provideCoinGeckoServiceProvider.get(), singletonCImpl.provideXrpScanServiceProvider.get());
+          case 1: // com.leeam.cryptowidget.data.repository.CryptoRepositoryImpl
+          return (T) new CryptoRepositoryImpl(singletonCImpl.provideKrakenServiceProvider.get(), singletonCImpl.provideXrplServiceProvider.get());
 
-          case 2: // com.leeam.cryptowidget.data.remote.CoinGeckoService 
-          return (T) NetworkModule_ProvideCoinGeckoServiceFactory.provideCoinGeckoService(singletonCImpl.provideCoinGeckoRetrofitProvider.get());
+          case 2: // com.leeam.cryptowidget.data.remote.KrakenService
+          return (T) NetworkModule_ProvideKrakenServiceFactory.provideKrakenService(singletonCImpl.provideKrakenRetrofitProvider.get());
 
-          case 3: // @javax.inject.Named("coingecko") retrofit2.Retrofit 
-          return (T) NetworkModule_ProvideCoinGeckoRetrofitFactory.provideCoinGeckoRetrofit(singletonCImpl.provideOkHttpClientProvider.get());
+          case 3: // @javax.inject.Named("kraken") retrofit2.Retrofit
+          return (T) NetworkModule_ProvideKrakenRetrofitFactory.provideKrakenRetrofit(singletonCImpl.provideOkHttpClientProvider.get());
 
-          case 4: // okhttp3.OkHttpClient 
+          case 4: // okhttp3.OkHttpClient
           return (T) NetworkModule_ProvideOkHttpClientFactory.provideOkHttpClient();
 
-          case 5: // com.leeam.cryptowidget.data.remote.XrpScanService 
-          return (T) NetworkModule_ProvideXrpScanServiceFactory.provideXrpScanService(singletonCImpl.provideXrpScanRetrofitProvider.get());
+          case 5: // com.leeam.cryptowidget.data.remote.XrplService
+          return (T) NetworkModule_ProvideXrplServiceFactory.provideXrplService(singletonCImpl.provideXrplRetrofitProvider.get());
 
-          case 6: // @javax.inject.Named("xrpscan") retrofit2.Retrofit 
-          return (T) NetworkModule_ProvideXrpScanRetrofitFactory.provideXrpScanRetrofit(singletonCImpl.provideOkHttpClientProvider.get());
+          case 6: // @javax.inject.Named("xrpl") retrofit2.Retrofit
+          return (T) NetworkModule_ProvideXrplRetrofitFactory.provideXrplRetrofit(singletonCImpl.provideOkHttpClientProvider.get());
 
-          case 7: // com.leeam.cryptowidget.data.local.WidgetPreferences 
+          case 7: // com.leeam.cryptowidget.data.local.WidgetPreferences
           return (T) new WidgetPreferences(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
-          case 8: // com.leeam.cryptowidget.data.local.AlertRepository 
+          case 8: // com.leeam.cryptowidget.data.local.AlertRepository
           return (T) new AlertRepository(singletonCImpl.alertDao());
 
-          case 9: // com.leeam.cryptowidget.data.local.AlertDatabase 
+          case 9: // com.leeam.cryptowidget.data.local.AlertDatabase
           return (T) DatabaseModule_ProvideAlertDatabaseFactory.provideAlertDatabase(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
-          case 10: // com.leeam.cryptowidget.notifications.AlertNotifier 
+          case 10: // com.leeam.cryptowidget.notifications.AlertNotifier
           return (T) new AlertNotifier(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
-          case 11: // com.leeam.cryptowidget.worker.WorkScheduler 
+          case 11: // com.leeam.cryptowidget.worker.WorkScheduler
           return (T) new WorkScheduler(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
           default: throw new AssertionError(id);

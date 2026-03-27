@@ -7,6 +7,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import com.leeam.cryptowidget.data.local.AppTheme
+import com.leeam.cryptowidget.data.local.ChartStyle
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,6 +27,8 @@ class WidgetPreferences @Inject constructor(
         val REFRESH_INTERVAL_MIN  = intPreferencesKey("refresh_interval_min")
         val SHOW_SPARKLINE        = booleanPreferencesKey("show_sparkline")
         val SPARKLINE_DAYS        = intPreferencesKey("sparkline_days")
+        val CHART_STYLE           = stringPreferencesKey("chart_style")
+        val APP_THEME             = stringPreferencesKey("app_theme")
         val LAST_WORKER_RUN_MS    = longPreferencesKey("last_worker_run_ms")
         val LAST_ERROR_MSG        = stringPreferencesKey("last_error_msg")
         val CACHED_PRICE_USD      = doublePreferencesKey("cached_price_usd")
@@ -53,6 +57,20 @@ class WidgetPreferences @Inject constructor(
         .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
         .map { it[Keys.SPARKLINE_DAYS] ?: 1 }
 
+    val chartStyle: Flow<ChartStyle> = ds.data
+        .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
+        .map {
+            try { ChartStyle.valueOf(it[Keys.CHART_STYLE] ?: "LINE") }
+            catch (_: Exception) { ChartStyle.LINE }
+        }
+
+    val appTheme: Flow<AppTheme> = ds.data
+        .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
+        .map {
+            try { AppTheme.valueOf(it[Keys.APP_THEME] ?: "CYBER") }
+            catch (_: Exception) { AppTheme.CYBER }
+        }
+
     val cachedPriceUsd: Flow<Double> = ds.data
         .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
         .map { it[Keys.CACHED_PRICE_USD] ?: 0.0 }
@@ -74,11 +92,13 @@ class WidgetPreferences @Inject constructor(
         .map { it[Keys.LAST_ERROR_MSG] }
 
     suspend fun setCoinId(id: String) = ds.edit { it[Keys.COIN_ID] = id }
-    suspend fun setWalletAddress(addr: String) = ds.edit { it[Keys.WALLET_ADDRESS] = addr }
+    suspend fun setWalletAddress(addr: String) = ds.edit { it[Keys.WALLET_ADDRESS] = addr.trim() }
     suspend fun setRefreshInterval(minutes: Int) =
         ds.edit { it[Keys.REFRESH_INTERVAL_MIN] = minutes.coerceAtLeast(15) }
     suspend fun setShowSparkline(show: Boolean) = ds.edit { it[Keys.SHOW_SPARKLINE] = show }
     suspend fun setSparklineDays(days: Int) = ds.edit { it[Keys.SPARKLINE_DAYS] = days }
+    suspend fun setChartStyle(style: ChartStyle) = ds.edit { it[Keys.CHART_STYLE] = style.name }
+    suspend fun setAppTheme(theme: AppTheme) = ds.edit { it[Keys.APP_THEME] = theme.name }
 
     suspend fun cacheWidgetData(priceUsd: Double, changePct: Double, balanceXrp: Double) =
         ds.edit {

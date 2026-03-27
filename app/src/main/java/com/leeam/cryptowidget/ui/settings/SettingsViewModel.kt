@@ -4,7 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leeam.cryptowidget.data.local.AlertDirection
 import com.leeam.cryptowidget.data.local.AlertEntity
+import com.leeam.cryptowidget.data.local.AlertMode
 import com.leeam.cryptowidget.data.local.AlertRepository
+import com.leeam.cryptowidget.data.local.AppTheme
+import com.leeam.cryptowidget.data.local.ChartStyle
 import com.leeam.cryptowidget.data.local.WidgetPreferences
 import com.leeam.cryptowidget.data.repository.CryptoRepository
 import com.leeam.cryptowidget.worker.WorkScheduler
@@ -25,9 +28,13 @@ data class SettingsUiState(
     val walletTestLoading: Boolean = false,
     val refreshIntervalMin: Int = 15,
     val showSparkline: Boolean = true,
+    val chartStyle: ChartStyle = ChartStyle.LINE,
     val alerts: List<AlertEntity> = emptyList(),
     val newAlertDirection: AlertDirection = AlertDirection.ABOVE,
     val newAlertThreshold: String = "",
+    val newAlertMode: AlertMode = AlertMode.CROSSING,
+    val newAlertCooldownMin: Int = 60,
+    val appTheme: AppTheme = AppTheme.CYBER,
     val saveSuccess: Boolean = false,
     val saveError: String? = null,
     val lastWorkerRunMs: Long = 0L,
@@ -47,6 +54,7 @@ class SettingsViewModel @Inject constructor(
 
     init {
         loadPreferences()
+        loadTheme()
         fetchLivePrice()
         collectAlerts()
         collectDiagnostics()
@@ -57,17 +65,25 @@ class SettingsViewModel @Inject constructor(
             widgetPrefs.coinId,
             widgetPrefs.walletAddress,
             widgetPrefs.refreshIntervalMin,
-            widgetPrefs.showSparkline
-        ) { coinId, wallet, interval, sparkline ->
+            widgetPrefs.showSparkline,
+            widgetPrefs.chartStyle
+        ) { coinId, wallet, interval, sparkline, chart ->
             _state.update {
                 it.copy(
                     coinId = coinId,
                     walletAddress = wallet,
                     refreshIntervalMin = interval,
-                    showSparkline = sparkline
+                    showSparkline = sparkline,
+                    chartStyle = chart
                 )
             }
         }.collect()
+    }
+
+    private fun loadTheme() = viewModelScope.launch {
+        widgetPrefs.appTheme.collect { theme ->
+            _state.update { it.copy(appTheme = theme) }
+        }
     }
 
     fun fetchLivePrice() = viewModelScope.launch {
@@ -90,10 +106,26 @@ class SettingsViewModel @Inject constructor(
         )
     }
 
+    /** Returns a human-readable error if the address is structurally invalid, null if it looks OK. */
+    private fun validateXrpAddress(address: String): String? {
+        if (!address.startsWith("r")) return "Must start with 'r'"
+        if (address.length < 25 || address.length > 34)
+            return "Length must be 25–34 chars (yours: ${address.length})"
+        // Base58Check alphabet — excludes 0, O, I, l
+        val invalidChars = address.filter { it !in "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" }
+        if (invalidChars.isNotEmpty()) return "Invalid character(s): $invalidChars"
+        return null
+    }
+
     fun testWallet() {
         val address = _state.value.walletAddress.trim()
         if (address.isBlank()) {
             _state.update { it.copy(walletTestResult = "Enter a wallet address first") }
+            return
+        }
+        val formatError = validateXrpAddress(address)
+        if (formatError != null) {
+            _state.update { it.copy(walletTestResult = "Bad address: $formatError") }
             return
         }
         viewModelScope.launch {
@@ -152,7 +184,9 @@ class SettingsViewModel @Inject constructor(
                 coinId = _state.value.coinId,
                 symbol = "XRP",
                 direction = _state.value.newAlertDirection,
-                thresholdUsd = threshold
+                thresholdUsd = threshold,
+                alertMode = _state.value.newAlertMode,
+                cooldownMin = _state.value.newAlertCooldownMin
             )
             _state.update { it.copy(newAlertThreshold = "") }
         }
@@ -169,8 +203,15 @@ class SettingsViewModel @Inject constructor(
     fun onWalletChange(v: String) = _state.update { it.copy(walletAddress = v, walletTestResult = null) }
     fun onIntervalChange(v: Int) = _state.update { it.copy(refreshIntervalMin = v) }
     fun onShowSparklineChange(v: Boolean) = _state.update { it.copy(showSparkline = v) }
+    fun onChartStyleChange(v: ChartStyle) = _state.update { it.copy(chartStyle = v) }
     fun onNewAlertDirection(d: AlertDirection) = _state.update { it.copy(newAlertDirection = d) }
     fun onNewAlertThreshold(v: String) = _state.update { it.copy(newAlertThreshold = v) }
+    fun onNewAlertMode(m: AlertMode) = _state.update { it.copy(newAlertMode = m) }
+    fun onNewAlertCooldown(min: Int) = _state.update { it.copy(newAlertCooldownMin = min) }
+    fun onThemeChange(theme: AppTheme) {
+        _state.update { it.copy(appTheme = theme) }
+        viewModelScope.launch { widgetPrefs.setAppTheme(theme) }
+    }
 
     fun save() = viewModelScope.launch {
         try {
@@ -178,6 +219,7 @@ class SettingsViewModel @Inject constructor(
             widgetPrefs.setWalletAddress(s.walletAddress.trim())
             widgetPrefs.setRefreshInterval(s.refreshIntervalMin)
             widgetPrefs.setShowSparkline(s.showSparkline)
+            widgetPrefs.setChartStyle(s.chartStyle)
             workScheduler.schedulePeriodicRefresh(s.refreshIntervalMin)
             workScheduler.triggerImmediateRefresh()
             _state.update { it.copy(saveSuccess = true, saveError = null) }

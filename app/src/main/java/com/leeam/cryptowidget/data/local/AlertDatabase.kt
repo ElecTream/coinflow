@@ -7,7 +7,7 @@ import androidx.room.TypeConverters
 
 @Database(
     entities = [AlertEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(AlertDatabase.Converters::class)
@@ -21,5 +21,11 @@ abstract class AlertDatabase : RoomDatabase() {
 
         @TypeConverter
         fun toDirection(s: String): AlertDirection = AlertDirection.valueOf(s)
+
+        @TypeConverter
+        fun fromMode(m: AlertMode): String = m.name
+
+        @TypeConverter
+        fun toMode(s: String): AlertMode = AlertMode.valueOf(s)
     }
 }

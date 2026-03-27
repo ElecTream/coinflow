@@ -1,0 +1,23 @@
+# Gradle
+.gradle/
+build/
+**/build/
+
+# Local config
+local.properties
+
+# Android Studio / IntelliJ
+.idea/*
+!.idea/vcs.xml
+!.idea/codeStyles/
+*.iml
+*.iws
+*.ipr
+
+# Keystore (never commit real keys)
+*.jks
+*.keystore
+
+# OS
+.DS_Store
+Thumbs.db

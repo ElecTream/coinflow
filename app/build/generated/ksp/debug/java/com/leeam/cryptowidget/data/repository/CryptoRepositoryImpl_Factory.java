@@ -1,13 +1,13 @@
 package com.leeam.cryptowidget.data.repository;
 
-import com.leeam.cryptowidget.data.remote.CoinGeckoService;
-import com.leeam.cryptowidget.data.remote.XrpScanService;
+import com.leeam.cryptowidget.data.remote.KrakenService;
+import com.leeam.cryptowidget.data.remote.XrplService;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @ScopeMetadata("javax.inject.Singleton")
 @QualifierMetadata
@@ -22,32 +22,32 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class CryptoRepositoryImpl_Factory implements Factory<CryptoRepositoryImpl> {
-  private final Provider<CoinGeckoService> coinGeckoServiceProvider;
+  private final Provider<KrakenService> krakenServiceProvider;
 
-  private final Provider<XrpScanService> xrpScanServiceProvider;
+  private final Provider<XrplService> xrplServiceProvider;
 
-  public CryptoRepositoryImpl_Factory(Provider<CoinGeckoService> coinGeckoServiceProvider,
-      Provider<XrpScanService> xrpScanServiceProvider) {
-    this.coinGeckoServiceProvider = coinGeckoServiceProvider;
-    this.xrpScanServiceProvider = xrpScanServiceProvider;
+  private CryptoRepositoryImpl_Factory(Provider<KrakenService> krakenServiceProvider,
+      Provider<XrplService> xrplServiceProvider) {
+    this.krakenServiceProvider = krakenServiceProvider;
+    this.xrplServiceProvider = xrplServiceProvider;
   }
 
   @Override
   public CryptoRepositoryImpl get() {
-    return newInstance(coinGeckoServiceProvider.get(), xrpScanServiceProvider.get());
+    return newInstance(krakenServiceProvider.get(), xrplServiceProvider.get());
   }
 
-  public static CryptoRepositoryImpl_Factory create(
-      Provider<CoinGeckoService> coinGeckoServiceProvider,
-      Provider<XrpScanService> xrpScanServiceProvider) {
-    return new CryptoRepositoryImpl_Factory(coinGeckoServiceProvider, xrpScanServiceProvider);
+  public static CryptoRepositoryImpl_Factory create(Provider<KrakenService> krakenServiceProvider,
+      Provider<XrplService> xrplServiceProvider) {
+    return new CryptoRepositoryImpl_Factory(krakenServiceProvider, xrplServiceProvider);
   }
 
-  public static CryptoRepositoryImpl newInstance(CoinGeckoService coinGeckoService,
-      XrpScanService xrpScanService) {
-    return new CryptoRepositoryImpl(coinGeckoService, xrpScanService);
+  public static CryptoRepositoryImpl newInstance(KrakenService krakenService,
+      XrplService xrplService) {
+    return new CryptoRepositoryImpl(krakenService, xrplService);
   }
 }

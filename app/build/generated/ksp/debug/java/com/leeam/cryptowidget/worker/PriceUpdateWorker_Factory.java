@@ -7,10 +7,10 @@ import com.leeam.cryptowidget.data.local.WidgetPreferences;
 import com.leeam.cryptowidget.data.repository.CryptoRepository;
 import com.leeam.cryptowidget.notifications.AlertNotifier;
 import dagger.internal.DaggerGenerated;
+import dagger.internal.Provider;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -25,7 +25,8 @@ import javax.inject.Provider;
     "KotlinInternal",
     "KotlinInternalInJava",
     "cast",
-    "deprecation"
+    "deprecation",
+    "nullness:initialization.field.uninitialized"
 })
 public final class PriceUpdateWorker_Factory {
   private final Provider<CryptoRepository> cryptoRepositoryProvider;
@@ -36,7 +37,7 @@ public final class PriceUpdateWorker_Factory {
 
   private final Provider<AlertNotifier> alertNotifierProvider;
 
-  public PriceUpdateWorker_Factory(Provider<CryptoRepository> cryptoRepositoryProvider,
+  private PriceUpdateWorker_Factory(Provider<CryptoRepository> cryptoRepositoryProvider,
       Provider<WidgetPreferences> widgetPreferencesProvider,
       Provider<AlertRepository> alertRepositoryProvider,
       Provider<AlertNotifier> alertNotifierProvider) {

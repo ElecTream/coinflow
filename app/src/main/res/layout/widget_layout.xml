@@ -4,7 +4,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_background"
-    android:padding="12dp">
+    android:padding="10dp">
+
+    <!-- Z=0 (back): drifting particle field — AVD, loops forever, theme-tinted at runtime -->
+    <ImageView
+        android:id="@+id/iv_particle_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/widget_particles_avd"
+        android:contentDescription="@null" />
+
+    <!-- Z=1: breathing border glow — AVD, loops forever, theme-tinted at runtime -->
+    <ImageView
+        android:id="@+id/iv_border_glow"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/widget_glow_avd"
+        android:contentDescription="@null" />
 
     <!-- TOP ROW: coin symbol + 24h change + refresh button -->
     <LinearLayout
@@ -21,25 +43,26 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="XRP"
-            android:textColor="#8899BB"
-            android:textSize="11sp"
+            android:textColor="#AABBCC"
+            android:textSize="14sp"
             android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.1" />
+            android:letterSpacing="0.12" />
 
         <TextView
             android:id="@+id/tv_change"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="10sp"
+            android:textSize="13sp"
             android:fontFamily="sans-serif-medium"
             android:textColor="#00FF88"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="4dp"
             android:text="▲ 0.00%" />
 
         <ImageView
             android:id="@+id/btn_refresh"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="4dp"
             android:src="@drawable/widget_refresh_icon"
             android:contentDescription="Refresh" />
     </LinearLayout>
@@ -58,20 +81,21 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="#444466"
-            android:textSize="9sp"
+            android:textColor="#5A5A88"
+            android:textSize="10sp"
             android:fontFamily="sans-serif-light"
             android:text="Updating..." />
 
         <ImageView
             android:id="@+id/btn_settings"
-            android:layout_width="14dp"
-            android:layout_height="14dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="4dp"
             android:src="@drawable/widget_settings_icon"
             android:contentDescription="Settings" />
     </LinearLayout>
 
-    <!-- SPARKLINE: above bottom row -->
+    <!-- SPARKLINE: above bottom row, with pulse overlay -->
     <FrameLayout
         android:id="@+id/sparkline_container"
         android:layout_width="match_parent"
@@ -85,51 +109,67 @@
             android:layout_height="match_parent"
             android:scaleType="fitXY"
             android:contentDescription="Price chart" />
+
+        <!-- Z=top: expanding pulse ring at the sparkline endpoint — theme-tinted at runtime -->
+        <ImageView
+            android:id="@+id/iv_sparkline_pulse"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:src="@drawable/sparkline_pulse_avd"
+            android:contentDescription="@null" />
     </FrameLayout>
 
-    <!-- WALLET ROW: above sparkline -->
+    <!-- PRICE ROW: price on the left, wallet balance stacked on the right -->
     <LinearLayout
-        android:id="@+id/wallet_row"
+        android:id="@+id/price_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_below="@id/top_row"
         android:layout_above="@id/sparkline_container"
-        android:layout_marginBottom="2dp"
-        android:visibility="gone">
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp">
 
         <TextView
-            android:id="@+id/tv_balance"
+            android:id="@+id/tv_price"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="#00D4FF"
-            android:textSize="10sp"
-            android:fontFamily="sans-serif-light"
-            android:text="0.0000 XRP" />
+            android:textColor="#FFFFFF"
+            android:textSize="30sp"
+            android:fontFamily="sans-serif-medium"
+            android:text="$0.0000" />
 
-        <TextView
-            android:id="@+id/tv_portfolio_value"
+        <!-- Wallet: stacked column, right-aligned, hidden until balance is set -->
+        <LinearLayout
+            android:id="@+id/wallet_row"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#8899BB"
-            android:textSize="10sp"
-            android:fontFamily="sans-serif-light"
-            android:text="≈ $0.00" />
-    </LinearLayout>
+            android:orientation="vertical"
+            android:gravity="end"
+            android:visibility="gone">
 
-    <!-- PRICE: between top row and sparkline -->
-    <TextView
-        android:id="@+id/tv_price"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/top_row"
-        android:layout_above="@id/sparkline_container"
-        android:gravity="center_vertical"
-        android:textColor="#FFFFFF"
-        android:textSize="28sp"
-        android:fontFamily="sans-serif-medium"
-        android:text="$0.0000"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp" />
+            <TextView
+                android:id="@+id/tv_balance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#00D4FF"
+                android:textSize="14sp"
+                android:fontFamily="sans-serif-medium"
+                android:text="0.0000 XRP" />
+
+            <TextView
+                android:id="@+id/tv_portfolio_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#8899BB"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-light"
+                android:text="≈ $0.00" />
+        </LinearLayout>
+
+    </LinearLayout>
 
 </RelativeLayout>

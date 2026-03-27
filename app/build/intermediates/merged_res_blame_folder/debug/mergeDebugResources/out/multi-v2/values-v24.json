@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.leeam.cryptowidget.app-mergeDebugResources-70:/values-v24/values-v24.xml",
+            "outputFile": "com.leeam.cryptowidget.app-mergeDebugResources-67:/values-v24/values-v24.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Leeam\\.gradle\\caches\\8.9\\transforms\\1fe1471ed02f11bf1a5cecebd27e2086\\transformed\\appcompat-1.7.0\\res\\values-v24\\values-v24.xml",
+                    "source": "C:\\Users\\lsweeney\\.gradle\\caches\\9.3.1\\transforms\\f44c50c4be28cbb0b0f3d1212b5d23fb\\workspace\\transformed\\appcompat-1.7.0\\res\\values-v24\\values-v24.xml",
                     "from": {
                         "startLines": "2,3",
                         "startColumns": "4,4",
@@ -14,7 +14,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Leeam\\.gradle\\caches\\8.9\\transforms\\06865d2e872aa38c87916c4a650ff34d\\transformed\\material-1.12.0\\res\\values-v24\\values-v24.xml",
+                    "source": "C:\\Users\\lsweeney\\.gradle\\caches\\9.3.1\\transforms\\c0dae444825675c9bf11cdbcc06920e6\\workspace\\transformed\\material-1.12.0\\res\\values-v24\\values-v24.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,9,12,15",
                         "startColumns": "4,4,4,4,4,4,4,4",

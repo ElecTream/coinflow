@@ -1,9 +1,13 @@
 package com.leeam.cryptowidget.worker
 
 import android.content.Context
+import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import com.leeam.cryptowidget.CryptoWidgetApplication.Companion.ALERT_CHANNEL_ID
+import com.leeam.cryptowidget.R
 import com.leeam.cryptowidget.data.local.AlertRepository
 import com.leeam.cryptowidget.data.local.WidgetPreferences
 import com.leeam.cryptowidget.ui.theme.toThemeColors
@@ -25,9 +29,24 @@ class PriceUpdateWorker @AssistedInject constructor(
     private val alertNotifier: AlertNotifier
 ) : CoroutineWorker(context, workerParams) {
 
+    companion object {
+        private const val NOTIFICATION_ID_REFRESH = 9001
+    }
+
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        val notification = NotificationCompat.Builder(applicationContext, ALERT_CHANNEL_ID)
+            .setContentTitle(applicationContext.getString(R.string.app_name))
+            .setContentText("Updating price…")
+            .setSmallIcon(R.drawable.ic_notification)
+            .setOngoing(true)
+            .setSilent(true)
+            .build()
+        return ForegroundInfo(NOTIFICATION_ID_REFRESH, notification)
+    }
+
     override suspend fun doWork(): Result {
         val coinId = widgetPreferences.coinId.first()
-        val wallet = widgetPreferences.walletAddress.first()
+        val wallet = widgetPreferences.walletAddressFor(coinId).first()
         val chartStyle = widgetPreferences.chartStyle.first()
         val themeColors = widgetPreferences.appTheme.first().toThemeColors()
 
@@ -38,9 +57,11 @@ class PriceUpdateWorker @AssistedInject constructor(
             WidgetUpdater.updateAllWidgets(applicationContext, data, chartStyle, themeColors)
 
             widgetPreferences.cacheWidgetData(
-                priceUsd   = data.priceUsd,
-                changePct  = data.change24hPct,
-                balanceXrp = data.walletBalanceXrp
+                priceUsd            = data.priceUsd,
+                changePct           = data.change24hPct,
+                balance             = data.walletBalance,
+                sparkline           = data.sparklinePrices,
+                sparklineTimestamps = data.sparklineTimestamps
             )
 
             alertRepository.checkAndFireAlerts(coinId, data.priceUsd) { alert ->

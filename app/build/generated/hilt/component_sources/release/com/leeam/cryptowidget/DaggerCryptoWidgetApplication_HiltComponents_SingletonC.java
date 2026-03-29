@@ -19,6 +19,7 @@ import com.leeam.cryptowidget.data.local.AlertRepository;
 import com.leeam.cryptowidget.data.local.WidgetPreferences;
 import com.leeam.cryptowidget.data.remote.KrakenService;
 import com.leeam.cryptowidget.data.remote.XrplService;
+import com.leeam.cryptowidget.data.repository.CryptoRepository;
 import com.leeam.cryptowidget.data.repository.CryptoRepositoryImpl;
 import com.leeam.cryptowidget.di.DatabaseModule_ProvideAlertDaoFactory;
 import com.leeam.cryptowidget.di.DatabaseModule_ProvideAlertDatabaseFactory;
@@ -28,6 +29,12 @@ import com.leeam.cryptowidget.di.NetworkModule_ProvideOkHttpClientFactory;
 import com.leeam.cryptowidget.di.NetworkModule_ProvideXrplRetrofitFactory;
 import com.leeam.cryptowidget.di.NetworkModule_ProvideXrplServiceFactory;
 import com.leeam.cryptowidget.notifications.AlertNotifier;
+import com.leeam.cryptowidget.ui.chart.ChartDetailActivity;
+import com.leeam.cryptowidget.ui.chart.ChartDetailActivity_MembersInjector;
+import com.leeam.cryptowidget.ui.chart.ChartDetailViewModel;
+import com.leeam.cryptowidget.ui.chart.ChartDetailViewModel_HiltModules;
+import com.leeam.cryptowidget.ui.chart.ChartDetailViewModel_HiltModules_BindsModule_Binds_LazyMapKey;
+import com.leeam.cryptowidget.ui.chart.ChartDetailViewModel_HiltModules_KeyModule_Provide_LazyMapKey;
 import com.leeam.cryptowidget.ui.settings.SettingsActivity;
 import com.leeam.cryptowidget.ui.settings.SettingsViewModel;
 import com.leeam.cryptowidget.ui.settings.SettingsViewModel_HiltModules;
@@ -55,6 +62,7 @@ import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideCont
 import dagger.internal.DaggerGenerated;
 import dagger.internal.DoubleCheck;
 import dagger.internal.LazyClassKeyMap;
+import dagger.internal.MapBuilder;
 import dagger.internal.Preconditions;
 import dagger.internal.Provider;
 import dagger.internal.SingleCheck;
@@ -387,6 +395,18 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
 
     }
 
+    Map keySetMapOfClassOfAndBooleanBuilder() {
+      MapBuilder mapBuilder = MapBuilder.<String, Boolean>newMapBuilder(2);
+      mapBuilder.put(ChartDetailViewModel_HiltModules_KeyModule_Provide_LazyMapKey.lazyClassKeyName, ChartDetailViewModel_HiltModules.KeyModule.provide());
+      mapBuilder.put(SettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.lazyClassKeyName, SettingsViewModel_HiltModules.KeyModule.provide());
+      return mapBuilder.build();
+    }
+
+    @Override
+    public void injectChartDetailActivity(ChartDetailActivity chartDetailActivity) {
+      injectChartDetailActivity2(chartDetailActivity);
+    }
+
     @Override
     public void injectSettingsActivity(SettingsActivity settingsActivity) {
     }
@@ -402,7 +422,7 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
 
     @Override
     public Map<Class<?>, Boolean> getViewModelKeys() {
-      return LazyClassKeyMap.<Boolean>of(Collections.<String, Boolean>singletonMap(SettingsViewModel_HiltModules_KeyModule_Provide_LazyMapKey.lazyClassKeyName, SettingsViewModel_HiltModules.KeyModule.provide()));
+      return LazyClassKeyMap.<Boolean>of(keySetMapOfClassOfAndBooleanBuilder());
     }
 
     @Override
@@ -419,6 +439,12 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
     public ViewComponentBuilder viewComponentBuilder() {
       return new ViewCBuilder(singletonCImpl, activityRetainedCImpl, activityCImpl);
     }
+
+    @CanIgnoreReturnValue
+    private ChartDetailActivity injectChartDetailActivity2(ChartDetailActivity instance) {
+      ChartDetailActivity_MembersInjector.injectPrefs(instance, singletonCImpl.widgetPreferencesProvider.get());
+      return instance;
+    }
   }
 
   private static final class ViewModelCImpl extends CryptoWidgetApplication_HiltComponents.ViewModelC {
@@ -427,6 +453,8 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
     private final ActivityRetainedCImpl activityRetainedCImpl;
 
     private final ViewModelCImpl viewModelCImpl = this;
+
+    Provider<ChartDetailViewModel> chartDetailViewModelProvider;
 
     Provider<SettingsViewModel> settingsViewModelProvider;
 
@@ -439,15 +467,23 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
 
     }
 
+    Map hiltViewModelMapMapOfClassOfAndProviderOfViewModelBuilder() {
+      MapBuilder mapBuilder = MapBuilder.<String, javax.inject.Provider<ViewModel>>newMapBuilder(2);
+      mapBuilder.put(ChartDetailViewModel_HiltModules_BindsModule_Binds_LazyMapKey.lazyClassKeyName, ((Provider) (chartDetailViewModelProvider)));
+      mapBuilder.put(SettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.lazyClassKeyName, ((Provider) (settingsViewModelProvider)));
+      return mapBuilder.build();
+    }
+
     @SuppressWarnings("unchecked")
     private void initialize(final SavedStateHandle savedStateHandleParam,
         final ViewModelLifecycle viewModelLifecycleParam) {
-      this.settingsViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
+      this.chartDetailViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
+      this.settingsViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
     }
 
     @Override
     public Map<Class<?>, javax.inject.Provider<ViewModel>> getHiltViewModelMap() {
-      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(Collections.<String, javax.inject.Provider<ViewModel>>singletonMap(SettingsViewModel_HiltModules_BindsModule_Binds_LazyMapKey.lazyClassKeyName, ((Provider) (settingsViewModelProvider))));
+      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(hiltViewModelMapMapOfClassOfAndProviderOfViewModelBuilder());
     }
 
     @Override
@@ -476,8 +512,11 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
       @SuppressWarnings("unchecked")
       public T get() {
         switch (id) {
-          case 0: // com.leeam.cryptowidget.ui.settings.SettingsViewModel
-          return (T) new SettingsViewModel(singletonCImpl.widgetPreferencesProvider.get(), singletonCImpl.cryptoRepositoryImplProvider.get(), singletonCImpl.alertRepositoryProvider.get(), singletonCImpl.workSchedulerProvider.get());
+          case 0: // com.leeam.cryptowidget.ui.chart.ChartDetailViewModel
+          return (T) new ChartDetailViewModel(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.widgetPreferencesProvider.get());
+
+          case 1: // com.leeam.cryptowidget.ui.settings.SettingsViewModel
+          return (T) new SettingsViewModel(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.widgetPreferencesProvider.get(), singletonCImpl.cryptoRepositoryImplProvider.get(), singletonCImpl.alertRepositoryProvider.get(), singletonCImpl.workSchedulerProvider.get());
 
           default: throw new AssertionError(id);
         }
@@ -621,6 +660,26 @@ public final class DaggerCryptoWidgetApplication_HiltComponents_SingletonC {
     @Override
     public void injectCryptoWidgetApplication(CryptoWidgetApplication cryptoWidgetApplication) {
       injectCryptoWidgetApplication2(cryptoWidgetApplication);
+    }
+
+    @Override
+    public WidgetPreferences widgetPreferences() {
+      return widgetPreferencesProvider.get();
+    }
+
+    @Override
+    public CryptoRepository cryptoRepository() {
+      return cryptoRepositoryImplProvider.get();
+    }
+
+    @Override
+    public AlertRepository alertRepository() {
+      return alertRepositoryProvider.get();
+    }
+
+    @Override
+    public AlertNotifier alertNotifier() {
+      return alertNotifierProvider.get();
     }
 
     @Override

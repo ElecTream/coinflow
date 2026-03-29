@@ -1,5 +1,6 @@
 package com.leeam.cryptowidget.ui.settings;
 
+import android.content.Context;
 import com.leeam.cryptowidget.data.local.AlertRepository;
 import com.leeam.cryptowidget.data.local.WidgetPreferences;
 import com.leeam.cryptowidget.data.repository.CryptoRepository;
@@ -12,7 +13,7 @@ import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
 
 @ScopeMetadata
-@QualifierMetadata
+@QualifierMetadata("dagger.hilt.android.qualifiers.ApplicationContext")
 @DaggerGenerated
 @Generated(
     value = "dagger.internal.codegen.ComponentProcessor",
@@ -28,6 +29,8 @@ import javax.annotation.processing.Generated;
     "nullness:initialization.field.uninitialized"
 })
 public final class SettingsViewModel_Factory implements Factory<SettingsViewModel> {
+  private final Provider<Context> contextProvider;
+
   private final Provider<WidgetPreferences> widgetPrefsProvider;
 
   private final Provider<CryptoRepository> cryptoRepositoryProvider;
@@ -36,10 +39,12 @@ public final class SettingsViewModel_Factory implements Factory<SettingsViewMode
 
   private final Provider<WorkScheduler> workSchedulerProvider;
 
-  private SettingsViewModel_Factory(Provider<WidgetPreferences> widgetPrefsProvider,
+  private SettingsViewModel_Factory(Provider<Context> contextProvider,
+      Provider<WidgetPreferences> widgetPrefsProvider,
       Provider<CryptoRepository> cryptoRepositoryProvider,
       Provider<AlertRepository> alertRepositoryProvider,
       Provider<WorkScheduler> workSchedulerProvider) {
+    this.contextProvider = contextProvider;
     this.widgetPrefsProvider = widgetPrefsProvider;
     this.cryptoRepositoryProvider = cryptoRepositoryProvider;
     this.alertRepositoryProvider = alertRepositoryProvider;
@@ -48,19 +53,20 @@ public final class SettingsViewModel_Factory implements Factory<SettingsViewMode
 
   @Override
   public SettingsViewModel get() {
-    return newInstance(widgetPrefsProvider.get(), cryptoRepositoryProvider.get(), alertRepositoryProvider.get(), workSchedulerProvider.get());
+    return newInstance(contextProvider.get(), widgetPrefsProvider.get(), cryptoRepositoryProvider.get(), alertRepositoryProvider.get(), workSchedulerProvider.get());
   }
 
-  public static SettingsViewModel_Factory create(Provider<WidgetPreferences> widgetPrefsProvider,
+  public static SettingsViewModel_Factory create(Provider<Context> contextProvider,
+      Provider<WidgetPreferences> widgetPrefsProvider,
       Provider<CryptoRepository> cryptoRepositoryProvider,
       Provider<AlertRepository> alertRepositoryProvider,
       Provider<WorkScheduler> workSchedulerProvider) {
-    return new SettingsViewModel_Factory(widgetPrefsProvider, cryptoRepositoryProvider, alertRepositoryProvider, workSchedulerProvider);
+    return new SettingsViewModel_Factory(contextProvider, widgetPrefsProvider, cryptoRepositoryProvider, alertRepositoryProvider, workSchedulerProvider);
   }
 
-  public static SettingsViewModel newInstance(WidgetPreferences widgetPrefs,
+  public static SettingsViewModel newInstance(Context context, WidgetPreferences widgetPrefs,
       CryptoRepository cryptoRepository, AlertRepository alertRepository,
       WorkScheduler workScheduler) {
-    return new SettingsViewModel(widgetPrefs, cryptoRepository, alertRepository, workScheduler);
+    return new SettingsViewModel(context, widgetPrefs, cryptoRepository, alertRepository, workScheduler);
   }
 }

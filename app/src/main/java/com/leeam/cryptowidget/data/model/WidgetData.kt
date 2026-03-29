@@ -2,12 +2,13 @@ package com.leeam.cryptowidget.data.model
 
 data class CryptoWidgetData(
     val coinId: String = "ripple",
-    val symbol: String = "XRP",
+    val symbol: String = "",
     val priceUsd: Double = 0.0,
     val change24hPct: Double = 0.0,
     val sparklinePrices: List<Double> = emptyList(),
+    val sparklineTimestamps: List<Long> = emptyList(),
     val walletAddress: String = "",
-    val walletBalanceXrp: Double = 0.0,
+    val walletBalance: Double = 0.0,
     val walletValueUsd: Double = 0.0,
     val lastUpdatedMs: Long = 0L,
     val errorMessage: String? = null

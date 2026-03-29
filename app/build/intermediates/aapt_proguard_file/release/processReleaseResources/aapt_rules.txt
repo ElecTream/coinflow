@@ -14,6 +14,7 @@
 -keep class androidx.work.impl.foreground.SystemForegroundService { <init>(); }
 -keep class androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver { <init>(); }
 -keep class com.leeam.cryptowidget.CryptoWidgetApplication { <init>(); }
+-keep class com.leeam.cryptowidget.ui.chart.ChartDetailActivity { <init>(); }
 -keep class com.leeam.cryptowidget.ui.settings.SettingsActivity { <init>(); }
 -keep class com.leeam.cryptowidget.ui.settings.WidgetConfigActivity { <init>(); }
 -keep class com.leeam.cryptowidget.widget.CryptoWidgetProvider { <init>(); }

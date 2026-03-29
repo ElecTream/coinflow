@@ -6,9 +6,12 @@ import com.leeam.cryptowidget.di.DataStoreModule;
 import com.leeam.cryptowidget.di.DatabaseModule;
 import com.leeam.cryptowidget.di.NetworkModule;
 import com.leeam.cryptowidget.di.RepositoryModule;
+import com.leeam.cryptowidget.ui.chart.ChartDetailActivity_GeneratedInjector;
+import com.leeam.cryptowidget.ui.chart.ChartDetailViewModel_HiltModules;
 import com.leeam.cryptowidget.ui.settings.SettingsActivity_GeneratedInjector;
 import com.leeam.cryptowidget.ui.settings.SettingsViewModel_HiltModules;
 import com.leeam.cryptowidget.ui.settings.WidgetConfigActivity_GeneratedInjector;
+import com.leeam.cryptowidget.widget.CryptoWidgetEntryPoint;
 import com.leeam.cryptowidget.worker.PriceUpdateWorker_HiltModule;
 import dagger.Binds;
 import dagger.Component;
@@ -150,6 +153,7 @@ public final class CryptoWidgetApplication_HiltComponents {
   @Singleton
   @jakarta.inject.Singleton
   public abstract static class SingletonC implements CryptoWidgetApplication_GeneratedInjector,
+      CryptoWidgetEntryPoint,
       FragmentGetContextFix.FragmentGetContextFixEntryPoint,
       HiltWrapper_ActivityRetainedComponentManager_ActivityRetainedComponentBuilderEntryPoint,
       ServiceComponentManager.ServiceComponentBuilderEntryPoint,
@@ -168,6 +172,7 @@ public final class CryptoWidgetApplication_HiltComponents {
 
   @Subcomponent(
       modules = {
+          ChartDetailViewModel_HiltModules.KeyModule.class,
           ActivityCBuilderModule.class,
           ViewModelCBuilderModule.class,
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
@@ -194,7 +199,8 @@ public final class CryptoWidgetApplication_HiltComponents {
       }
   )
   @ActivityScoped
-  public abstract static class ActivityC implements SettingsActivity_GeneratedInjector,
+  public abstract static class ActivityC implements ChartDetailActivity_GeneratedInjector,
+      SettingsActivity_GeneratedInjector,
       WidgetConfigActivity_GeneratedInjector,
       ActivityComponent,
       DefaultViewModelFactories.ActivityEntryPoint,
@@ -209,6 +215,7 @@ public final class CryptoWidgetApplication_HiltComponents {
 
   @Subcomponent(
       modules = {
+          ChartDetailViewModel_HiltModules.BindsModule.class,
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
           SettingsViewModel_HiltModules.BindsModule.class
       }

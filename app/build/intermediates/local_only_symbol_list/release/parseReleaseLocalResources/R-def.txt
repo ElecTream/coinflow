@@ -17,6 +17,14 @@ drawable ic_arrow_up
 drawable ic_launcher_background
 drawable ic_launcher_foreground
 drawable ic_notification
+drawable ic_refresh
+drawable ic_refresh_frame_135
+drawable ic_refresh_frame_180
+drawable ic_refresh_frame_225
+drawable ic_refresh_frame_270
+drawable ic_refresh_frame_315
+drawable ic_refresh_frame_45
+drawable ic_refresh_frame_90
 drawable ic_refresh_spin_avd
 drawable sparkline_pulse_avd
 drawable widget_background
@@ -29,10 +37,7 @@ drawable widget_settings_icon
 id bottom_row
 id btn_refresh
 id btn_settings
-id iv_border_glow
-id iv_particle_bg
 id iv_sparkline
-id iv_sparkline_pulse
 id price_row
 id sparkline_container
 id top_row

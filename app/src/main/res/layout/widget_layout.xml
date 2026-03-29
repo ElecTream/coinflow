@@ -6,28 +6,6 @@
     android:background="@drawable/widget_background"
     android:padding="10dp">
 
-    <!-- Z=0 (back): drifting particle field — AVD, loops forever, theme-tinted at runtime -->
-    <ImageView
-        android:id="@+id/iv_particle_bg"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="true"
-        android:scaleType="fitXY"
-        android:src="@drawable/widget_particles_avd"
-        android:contentDescription="@null" />
-
-    <!-- Z=1: breathing border glow — AVD, loops forever, theme-tinted at runtime -->
-    <ImageView
-        android:id="@+id/iv_border_glow"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="true"
-        android:scaleType="fitXY"
-        android:src="@drawable/widget_glow_avd"
-        android:contentDescription="@null" />
-
     <!-- TOP ROW: coin symbol + 24h change + refresh button -->
     <LinearLayout
         android:id="@+id/top_row"
@@ -42,7 +20,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="XRP"
+            android:text=""
             android:textColor="#AABBCC"
             android:textSize="14sp"
             android:fontFamily="sans-serif-medium"
@@ -63,7 +41,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:padding="4dp"
-            android:src="@drawable/widget_refresh_icon"
+            android:src="@drawable/ic_refresh"
             android:contentDescription="Refresh" />
     </LinearLayout>
 
@@ -110,14 +88,6 @@
             android:scaleType="fitXY"
             android:contentDescription="Price chart" />
 
-        <!-- Z=top: expanding pulse ring at the sparkline endpoint — theme-tinted at runtime -->
-        <ImageView
-            android:id="@+id/iv_sparkline_pulse"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="fitXY"
-            android:src="@drawable/sparkline_pulse_avd"
-            android:contentDescription="@null" />
     </FrameLayout>
 
     <!-- PRICE ROW: price on the left, wallet balance stacked on the right -->
@@ -158,7 +128,7 @@
                 android:textColor="#00D4FF"
                 android:textSize="14sp"
                 android:fontFamily="sans-serif-medium"
-                android:text="0.0000 XRP" />
+                android:text="" />
 
             <TextView
                 android:id="@+id/tv_portfolio_value"

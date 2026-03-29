@@ -22,24 +22,24 @@ val CyberColors = ThemeColors(
 )
 
 val AmberColors = ThemeColors(
-    accent       = Color(0xFFFFB300),
-    secondary    = Color(0xFFFF6B00),
-    accentArgb   = 0xFFFFB300.toInt(),
-    secondaryArgb = 0xFFFF6B00.toInt()
+    accent        = Color(0xFFFFB300),
+    secondary     = Color(0xFFFF1744),
+    accentArgb    = 0xFFFFB300.toInt(),
+    secondaryArgb = 0xFFFF1744.toInt()
 )
 
 val MatrixColors = ThemeColors(
-    accent       = Color(0xFF00FF41),
-    secondary    = Color(0xFF00CC33),
-    accentArgb   = 0xFF00FF41.toInt(),
-    secondaryArgb = 0xFF00CC33.toInt()
+    accent        = Color(0xFF00FF41),
+    secondary     = Color(0xFFFF6D00),
+    accentArgb    = 0xFF00FF41.toInt(),
+    secondaryArgb = 0xFFFF6D00.toInt()
 )
 
 val MidnightColors = ThemeColors(
-    accent       = Color(0xFFC77DFF),
-    secondary    = Color(0xFFE040FB),
-    accentArgb   = 0xFFC77DFF.toInt(),
-    secondaryArgb = 0xFFE040FB.toInt()
+    accent        = Color(0xFFC77DFF),
+    secondary     = Color(0xFF00E5FF),
+    accentArgb    = 0xFFC77DFF.toInt(),
+    secondaryArgb = 0xFF00E5FF.toInt()
 )
 
 fun AppTheme.toThemeColors(): ThemeColors = when (this) {

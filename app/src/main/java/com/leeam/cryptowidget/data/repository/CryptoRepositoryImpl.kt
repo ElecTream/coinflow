@@ -1,11 +1,12 @@
 package com.leeam.cryptowidget.data.repository
 
+import com.leeam.cryptowidget.data.model.CoinRegistry
 import com.leeam.cryptowidget.data.model.CryptoWidgetData
+import com.leeam.cryptowidget.data.model.WalletType
 import com.leeam.cryptowidget.data.model.XrplAccountParam
 import com.leeam.cryptowidget.data.model.XrplRequest
 import com.leeam.cryptowidget.data.remote.KrakenService
 import com.leeam.cryptowidget.data.remote.XrplService
-import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 import retrofit2.HttpException
@@ -18,49 +19,33 @@ class CryptoRepositoryImpl @Inject constructor(
     private val xrplService: XrplService
 ) : CryptoRepository {
 
-    /** Map internal coin IDs to Kraken trading pair symbols */
-    private fun toKrakenPair(coinId: String): String = when (coinId.lowercase()) {
-        "ripple", "xrp" -> "XRPUSD"
-        "bitcoin", "btc" -> "XBTUSD"
-        "ethereum", "eth" -> "ETHUSD"
-        else -> "${coinId.uppercase()}USD"
-    }
-
-    /** Map internal coin IDs to display symbols */
-    private fun toDisplaySymbol(coinId: String): String = when (coinId.lowercase()) {
-        "ripple" -> "XRP"
-        "bitcoin" -> "BTC"
-        "ethereum" -> "ETH"
-        else -> coinId.uppercase()
-    }
-
     override suspend fun fetchWidgetData(
         coinId: String,
         walletAddress: String
     ): Result<CryptoWidgetData> = runCatching {
-        val pair = toKrakenPair(coinId)
+        val coin = CoinRegistry.byId(coinId)
 
         // 1. Price + 24h change from Kraken
-        val tickerResp = krakenService.getTicker(pair)
+        val tickerResp = krakenService.getTicker(coin.krakenPair)
         if (tickerResp.error.isNotEmpty()) {
             throw RuntimeException("Kraken error: ${tickerResp.error.joinToString()}")
         }
         val tickerData = tickerResp.result.values.firstOrNull()
-            ?: throw RuntimeException("No ticker data for $pair")
+            ?: throw RuntimeException("No ticker data for ${coin.krakenPair}")
 
         val priceUsd = tickerData.c.firstOrNull()?.toDoubleOrNull() ?: 0.0
         val openPrice = tickerData.o.toDoubleOrNull() ?: 0.0
         val change = if (openPrice > 0.0) ((priceUsd - openPrice) / openPrice) * 100.0 else 0.0
 
         // 2. Sparkline — failure is isolated; doesn't block price display
-        val sparkline = runCatching {
-            fetchSparklineInternal(pair)
-        }.getOrDefault(emptyList())
+        val (sparkline, sparklineTs) = runCatching {
+            fetchSparklineInternal(coin.krakenPair)
+        }.getOrDefault(Pair(emptyList(), emptyList()))
 
-        // 3. Wallet balance via XRPL — skip if address is blank
-        val (balance, valueUsd) = if (walletAddress.isNotBlank()) {
+        // 3. Wallet balance — only fetched if the coin supports it and address is provided
+        val (balance, valueUsd) = if (coin.walletType != WalletType.NONE && walletAddress.isNotBlank()) {
             runCatching {
-                val bal = fetchWalletBalanceInternal(walletAddress)
+                val bal = fetchWalletBalanceInternal(coin.walletType, walletAddress)
                 Pair(bal, bal * priceUsd)
             }.getOrDefault(Pair(0.0, 0.0))
         } else {
@@ -69,12 +54,13 @@ class CryptoRepositoryImpl @Inject constructor(
 
         CryptoWidgetData(
             coinId = coinId,
-            symbol = toDisplaySymbol(coinId),
+            symbol = coin.symbol,
             priceUsd = priceUsd,
             change24hPct = change,
             sparklinePrices = sparkline,
+            sparklineTimestamps = sparklineTs,
             walletAddress = walletAddress,
-            walletBalanceXrp = balance,
+            walletBalance = balance,
             walletValueUsd = valueUsd,
             lastUpdatedMs = System.currentTimeMillis(),
             errorMessage = null
@@ -82,11 +68,11 @@ class CryptoRepositoryImpl @Inject constructor(
     }
 
     override suspend fun fetchSparkline(coinId: String): Result<List<Double>> = runCatching {
-        fetchSparklineInternal(toKrakenPair(coinId))
+        fetchSparklineInternal(CoinRegistry.byId(coinId).krakenPair).first
     }
 
-    private suspend fun fetchSparklineInternal(pair: String): List<Double> {
-        val ohlcResp = krakenService.getOhlc(pair, interval = 60)
+    private suspend fun fetchSparklineInternal(krakenPair: String): Pair<List<Double>, List<Long>> {
+        val ohlcResp = krakenService.getOhlc(krakenPair, interval = 60)
         if (ohlcResp.error.isNotEmpty()) {
             throw RuntimeException("Kraken OHLC error: ${ohlcResp.error.joinToString()}")
         }
@@ -94,23 +80,28 @@ class CryptoRepositoryImpl @Inject constructor(
         val ohlcData = ohlcResp.result.entries
             .firstOrNull { it.key != "last" }
             ?.value?.jsonArray
-            ?: return emptyList()
+            ?: return Pair(emptyList(), emptyList())
 
         // Each entry: [timestamp, open, high, low, close, vwap, volume, count]
-        // Take last 24 entries, extract close price (index 4)
-        return ohlcData
-            .takeLast(24)
-            .map { entry ->
-                val candle = entry.jsonArray
-                candle[4].jsonPrimitive.content.toDouble()
-            }
+        // Take last 24 entries, extract close price (index 4) and timestamp (index 0)
+        val last24 = ohlcData.takeLast(24)
+        val prices = last24.map { entry -> entry.jsonArray[4].jsonPrimitive.content.toDouble() }
+        val timestamps = last24.map { entry -> entry.jsonArray[0].jsonPrimitive.content.toLong() }
+        return Pair(prices, timestamps)
     }
 
     override suspend fun fetchWalletBalance(address: String): Result<Double> = runCatching {
-        fetchWalletBalanceInternal(address)
+        fetchWalletBalanceInternal(WalletType.XRPL, address)
     }
 
-    private suspend fun fetchWalletBalanceInternal(address: String): Double {
+    private suspend fun fetchWalletBalanceInternal(walletType: WalletType, address: String): Double {
+        return when (walletType) {
+            WalletType.XRPL -> fetchXrplBalance(address)
+            WalletType.NONE -> 0.0
+        }
+    }
+
+    private suspend fun fetchXrplBalance(address: String): Double {
         val trimmed = address.trim()
         val request = XrplRequest(
             method = "account_info",

@@ -1,5 +1,7 @@
 package com.leeam.cryptowidget.ui.settings
 
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leeam.cryptowidget.data.local.AlertDirection
@@ -9,9 +11,14 @@ import com.leeam.cryptowidget.data.local.AlertRepository
 import com.leeam.cryptowidget.data.local.AppTheme
 import com.leeam.cryptowidget.data.local.ChartStyle
 import com.leeam.cryptowidget.data.local.WidgetPreferences
+import com.leeam.cryptowidget.data.model.CoinRegistry
+import com.leeam.cryptowidget.data.model.WalletType
 import com.leeam.cryptowidget.data.repository.CryptoRepository
+import com.leeam.cryptowidget.widget.CryptoWidgetProvider
 import com.leeam.cryptowidget.worker.WorkScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -22,13 +29,13 @@ data class SettingsUiState(
     val change24h: Double? = null,
     val priceLoading: Boolean = true,
     val priceError: String? = null,
-    val coinId: String = "ripple",
+    val coinId: String = CoinRegistry.default.id,
     val walletAddress: String = "",
     val walletTestResult: String? = null,
     val walletTestLoading: Boolean = false,
     val refreshIntervalMin: Int = 15,
     val showSparkline: Boolean = true,
-    val chartStyle: ChartStyle = ChartStyle.LINE,
+    val chartStyle: ChartStyle = ChartStyle.AREA,
     val alerts: List<AlertEntity> = emptyList(),
     val newAlertDirection: AlertDirection = AlertDirection.ABOVE,
     val newAlertThreshold: String = "",
@@ -43,6 +50,7 @@ data class SettingsUiState(
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val widgetPrefs: WidgetPreferences,
     private val cryptoRepository: CryptoRepository,
     private val alertRepository: AlertRepository,
@@ -60,24 +68,34 @@ class SettingsViewModel @Inject constructor(
         collectDiagnostics()
     }
 
-    private fun loadPreferences() = viewModelScope.launch {
-        combine(
-            widgetPrefs.coinId,
-            widgetPrefs.walletAddress,
-            widgetPrefs.refreshIntervalMin,
-            widgetPrefs.showSparkline,
-            widgetPrefs.chartStyle
-        ) { coinId, wallet, interval, sparkline, chart ->
-            _state.update {
-                it.copy(
-                    coinId = coinId,
-                    walletAddress = wallet,
-                    refreshIntervalMin = interval,
-                    showSparkline = sparkline,
-                    chartStyle = chart
-                )
-            }
-        }.collect()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun loadPreferences() {
+        // Load coinId + other scalar prefs
+        viewModelScope.launch {
+            combine(
+                widgetPrefs.coinId,
+                widgetPrefs.refreshIntervalMin,
+                widgetPrefs.showSparkline,
+                widgetPrefs.chartStyle
+            ) { coinId, interval, sparkline, chart ->
+                _state.update {
+                    it.copy(
+                        coinId = coinId,
+                        refreshIntervalMin = interval,
+                        showSparkline = sparkline,
+                        chartStyle = chart
+                    )
+                }
+            }.collect()
+        }
+        // Reactively reload wallet address when coin changes
+        viewModelScope.launch {
+            widgetPrefs.coinId
+                .flatMapLatest { coinId -> widgetPrefs.walletAddressFor(coinId) }
+                .collect { wallet ->
+                    _state.update { it.copy(walletAddress = wallet, walletTestResult = null) }
+                }
+        }
     }
 
     private fun loadTheme() = viewModelScope.launch {
@@ -106,12 +124,27 @@ class SettingsViewModel @Inject constructor(
         )
     }
 
-    /** Returns a human-readable error if the address is structurally invalid, null if it looks OK. */
-    private fun validateXrpAddress(address: String): String? {
+    fun onCoinChange(coinId: String) {
+        viewModelScope.launch {
+            widgetPrefs.setCoinId(coinId)
+            // walletAddress auto-reloads via the flatMapLatest in loadPreferences()
+            fetchLivePrice()
+        }
+    }
+
+    /** Returns a human-readable error for the wallet address, or null if it looks OK. */
+    private fun validateWalletAddress(coinId: String, address: String): String? {
+        val coin = CoinRegistry.byId(coinId)
+        return when (coin.walletType) {
+            WalletType.XRPL -> validateXrplAddress(address)
+            WalletType.NONE -> null // no wallet for this coin
+        }
+    }
+
+    private fun validateXrplAddress(address: String): String? {
         if (!address.startsWith("r")) return "Must start with 'r'"
         if (address.length < 25 || address.length > 34)
             return "Length must be 25–34 chars (yours: ${address.length})"
-        // Base58Check alphabet — excludes 0, O, I, l
         val invalidChars = address.filter { it !in "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" }
         if (invalidChars.isNotEmpty()) return "Invalid character(s): $invalidChars"
         return null
@@ -119,11 +152,12 @@ class SettingsViewModel @Inject constructor(
 
     fun testWallet() {
         val address = _state.value.walletAddress.trim()
+        val coinId = _state.value.coinId
         if (address.isBlank()) {
             _state.update { it.copy(walletTestResult = "Enter a wallet address first") }
             return
         }
-        val formatError = validateXrpAddress(address)
+        val formatError = validateWalletAddress(coinId, address)
         if (formatError != null) {
             _state.update { it.copy(walletTestResult = "Bad address: $formatError") }
             return
@@ -133,11 +167,12 @@ class SettingsViewModel @Inject constructor(
             cryptoRepository.fetchWalletBalance(address).fold(
                 onSuccess = { bal ->
                     val price = _state.value.livePrice ?: 0.0
+                    val symbol = CoinRegistry.byId(coinId).symbol
                     _state.update {
                         it.copy(
                             walletTestLoading = false,
                             walletTestResult = String.format(
-                                Locale.US, "OK  %.4f XRP ≈ \$%.2f", bal, bal * price
+                                Locale.US, "OK  %.4f %s ≈ \$%.2f", bal, symbol, bal * price
                             )
                         )
                     }
@@ -179,10 +214,12 @@ class SettingsViewModel @Inject constructor(
             _state.update { it.copy(saveError = "Enter a valid price threshold") }
             return
         }
+        val coinId = _state.value.coinId
+        val symbol = CoinRegistry.byId(coinId).symbol
         viewModelScope.launch {
             alertRepository.addAlert(
-                coinId = _state.value.coinId,
-                symbol = "XRP",
+                coinId = coinId,
+                symbol = symbol,
                 direction = _state.value.newAlertDirection,
                 thresholdUsd = threshold,
                 alertMode = _state.value.newAlertMode,
@@ -216,12 +253,16 @@ class SettingsViewModel @Inject constructor(
     fun save() = viewModelScope.launch {
         try {
             val s = _state.value
-            widgetPrefs.setWalletAddress(s.walletAddress.trim())
+            widgetPrefs.setWalletAddress(s.coinId, s.walletAddress.trim())
             widgetPrefs.setRefreshInterval(s.refreshIntervalMin)
             widgetPrefs.setShowSparkline(s.showSparkline)
             widgetPrefs.setChartStyle(s.chartStyle)
             workScheduler.schedulePeriodicRefresh(s.refreshIntervalMin)
-            workScheduler.triggerImmediateRefresh()
+            context.sendBroadcast(
+                Intent(context, CryptoWidgetProvider::class.java).apply {
+                    action = "com.leeam.cryptowidget.ACTION_REFRESH"
+                }
+            )
             _state.update { it.copy(saveSuccess = true, saveError = null) }
         } catch (e: Exception) {
             _state.update { it.copy(saveError = e.message ?: "Save failed") }

@@ -54,6 +54,8 @@ import com.leeam.cryptowidget.data.local.AlertEntity
 import com.leeam.cryptowidget.data.local.AlertMode
 import com.leeam.cryptowidget.data.local.AppTheme
 import com.leeam.cryptowidget.data.local.ChartStyle
+import com.leeam.cryptowidget.data.model.CoinRegistry
+import com.leeam.cryptowidget.data.model.WalletType
 import com.leeam.cryptowidget.ui.ParticleField
 import com.leeam.cryptowidget.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
@@ -129,7 +131,7 @@ private fun SettingsScreen(vm: SettingsViewModel) {
                     .fillMaxSize()
                     .padding(padding)
                     .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Header
@@ -163,6 +165,21 @@ private fun SettingsScreen(vm: SettingsViewModel) {
                     }
                 }
 
+                // ── Coin picker card ──────────────────────────────────────────
+                CryptoCard {
+                    SectionLabel("COIN")
+                    Spacer(Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        CoinRegistry.all.forEach { coin ->
+                            CryptoFilterChip(
+                                label    = coin.symbol,
+                                selected = state.coinId == coin.id,
+                                onClick  = { vm.onCoinChange(coin.id) }
+                            )
+                        }
+                    }
+                }
+
                 // ── Live price card ───────────────────────────────────────────
                 CryptoCard {
                     SectionLabel(stringResource(R.string.label_live_price))
@@ -185,48 +202,48 @@ private fun SettingsScreen(vm: SettingsViewModel) {
                                 }
                             }
                         }
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(6.dp),
-                            horizontalAlignment = Alignment.End
-                        ) {
-                            SpinningRefreshButton(
-                                isSpinning = state.priceLoading,
-                                onClick    = vm::fetchLivePrice
-                            )
-                            CryptoOutlinedButton(stringResource(R.string.btn_force_widget)) { vm.save() }
-                        }
+                        SpinningRefreshButton(
+                            isSpinning = state.priceLoading,
+                            onClick    = vm::fetchLivePrice
+                        )
                     }
                 }
 
-                // ── Wallet card ───────────────────────────────────────────────
-                CryptoCard {
-                    SectionLabel(stringResource(R.string.label_wallet_address))
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = state.walletAddress,
-                        onValueChange = vm::onWalletChange,
-                        placeholder = { Text(stringResource(R.string.placeholder_wallet_address), color = TextSecondary, fontFamily = FontFamily.Monospace) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        textStyle = LocalTextStyle.current.copy(
-                            color = LocalThemeColors.current.accent, fontFamily = FontFamily.Monospace, fontSize = 13.sp
-                        ),
-                        colors = cryptoTextFieldColors(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii)
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.weight(1f)) {
-                            when {
-                                state.walletTestLoading ->
-                                    CircularProgressIndicator(modifier = Modifier.size(16.dp), color = LocalThemeColors.current.accent, strokeWidth = 2.dp)
-                                state.walletTestResult != null -> {
-                                    val ok = state.walletTestResult!!.startsWith("OK")
-                                    Text(state.walletTestResult!!, color = if (ok) ColorUp else ColorDown, fontSize = 11.sp)
+                // ── Wallet card (only for coins with wallet support) ──────────
+                AnimatedVisibility(
+                    visible = CoinRegistry.byId(state.coinId).walletType != WalletType.NONE,
+                    enter = fadeIn() + slideInVertically(),
+                    exit  = fadeOut() + slideOutVertically()
+                ) {
+                    CryptoCard {
+                        SectionLabel(stringResource(R.string.label_wallet_address))
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = state.walletAddress,
+                            onValueChange = vm::onWalletChange,
+                            placeholder = { Text(stringResource(R.string.placeholder_wallet_address), color = TextSecondary, fontFamily = FontFamily.Monospace) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            textStyle = LocalTextStyle.current.copy(
+                                color = LocalThemeColors.current.accent, fontFamily = FontFamily.Monospace, fontSize = 13.sp
+                            ),
+                            colors = cryptoTextFieldColors(),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii)
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Box(Modifier.weight(1f)) {
+                                when {
+                                    state.walletTestLoading ->
+                                        CircularProgressIndicator(modifier = Modifier.size(16.dp), color = LocalThemeColors.current.accent, strokeWidth = 2.dp)
+                                    state.walletTestResult != null -> {
+                                        val ok = state.walletTestResult!!.startsWith("OK")
+                                        Text(state.walletTestResult!!, color = if (ok) ColorUp else ColorDown, fontSize = 11.sp)
+                                    }
                                 }
                             }
+                            CryptoOutlinedButton(stringResource(R.string.btn_test_balance)) { vm.testWallet() }
                         }
-                        CryptoOutlinedButton(stringResource(R.string.btn_test_balance)) { vm.testWallet() }
                     }
                 }
 
@@ -278,7 +295,7 @@ private fun SettingsScreen(vm: SettingsViewModel) {
                             SectionLabel(stringResource(R.string.label_chart_style))
                             Spacer(Modifier.height(6.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                ChartStyle.entries.forEach { style ->
+                                listOf(ChartStyle.AREA, ChartStyle.LINE, ChartStyle.CANDLE).forEach { style ->
                                     val label = when (style) {
                                         ChartStyle.LINE   -> stringResource(R.string.chart_style_line)
                                         ChartStyle.CANDLE -> stringResource(R.string.chart_style_candle)
@@ -444,7 +461,21 @@ private fun SettingsScreen(vm: SettingsViewModel) {
                     }
                 }
 
-                // ── Save button ───────────────────────────────────────────────
+            }
+
+            // ── Floating save button ──────────────────────────────────────
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(Color.Transparent, BgDark.copy(alpha = 0.97f))
+                        )
+                    )
+                    .navigationBarsPadding()
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
                 Button(
                     onClick = vm::save,
                     modifier = Modifier.fillMaxWidth().height(52.dp),
@@ -453,8 +484,6 @@ private fun SettingsScreen(vm: SettingsViewModel) {
                 ) {
                     Text(stringResource(R.string.btn_save_update), color = BgDark, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                 }
-
-                Spacer(Modifier.height(16.dp))
             }
         }
     }
@@ -536,7 +565,7 @@ private fun PriceShimmer(modifier: Modifier = Modifier) {
 private fun SpinningRefreshButton(isSpinning: Boolean, onClick: () -> Unit) {
     val spinTransition = rememberInfiniteTransition(label = "refresh-spin")
     val spinAngle by spinTransition.animateFloat(
-        initialValue = 0f, targetValue = 360f,
+        initialValue = 0f, targetValue = -360f,
         animationSpec = infiniteRepeatable(tween(700, easing = LinearEasing)),
         label = "spin-angle"
     )
@@ -549,8 +578,8 @@ private fun SpinningRefreshButton(isSpinning: Boolean, onClick: () -> Unit) {
         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
     ) {
         Image(
-            painter = painterResource(R.drawable.widget_refresh_icon),
-            contentDescription = stringResource(R.string.btn_refresh),
+            painter = painterResource(R.drawable.ic_refresh),
+            contentDescription = null,
             modifier = Modifier
                 .size(16.dp)
                 .rotate(if (isSpinning) spinAngle else 0f),

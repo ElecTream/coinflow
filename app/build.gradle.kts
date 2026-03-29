@@ -1,3 +1,16 @@
+import java.util.Properties
+
+// ── Version ───────────────────────────────────────────────────────────────────
+// Edit app/version.properties to change the version, or run:
+//   ./gradlew bumpPatch   →  1.1.5  →  1.1.6
+//   ./gradlew bumpMinor   →  1.1.5  →  1.2.0
+//   ./gradlew bumpMajor   →  1.1.5  →  2.0.0
+val versionProps = Properties().apply {
+    file("version.properties").inputStream().use { load(it) }
+}
+val appVersionName: String = versionProps.getProperty("VERSION_NAME")
+val appVersionCode: Int    = versionProps.getProperty("VERSION_CODE").toInt()
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
@@ -14,8 +27,8 @@ android {
         applicationId = "com.leeam.cryptowidget"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = appVersionCode
+        versionName = appVersionName
     }
 
     compileOptions {
@@ -53,6 +66,36 @@ android {
             applicationIdSuffix = ".debug"
             isDebuggable = true
         }
+    }
+}
+
+// ── APK output naming ─────────────────────────────────────────────────────────
+// Release APK → Coinflow-1.1.5.apk  (in app/build/outputs/apk/release/)
+// Uses a proper Gradle task (not doLast) so the action is configuration-cache safe.
+abstract class RenameReleaseApkTask : DefaultTask() {
+    @get:InputDirectory
+    abstract val apkDir: DirectoryProperty
+
+    @get:Input
+    abstract val versionName: Property<String>
+
+    @TaskAction
+    fun rename() {
+        val dir = apkDir.get().asFile
+        dir.listFiles { _, n -> n.endsWith(".apk") }
+            ?.forEach { apk -> apk.renameTo(File(dir, "Coinflow-${versionName.get()}.apk")) }
+    }
+}
+
+val renameReleaseApk by tasks.registering(RenameReleaseApkTask::class) {
+    val packageTask = tasks.named<com.android.build.gradle.tasks.PackageApplication>("packageRelease")
+    apkDir.set(packageTask.flatMap { it.outputDirectory })
+    versionName.set(appVersionName)
+}
+
+afterEvaluate {
+    tasks.named("assembleRelease") {
+        finalizedBy(renameReleaseApk)
     }
 }
 
@@ -111,4 +154,65 @@ dependencies {
     // Core
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
+}
+
+// ── Version bump tasks ────────────────────────────────────────────────────────
+// These edit version.properties in place; run before assembleRelease.
+// Uses a typed DefaultTask (not doLast closures) so the configuration cache
+// can serialize all state without capturing the build script object.
+abstract class BumpVersionTask : DefaultTask() {
+    @get:Input
+    abstract val currentVersionName: Property<String>
+
+    @get:Input
+    abstract val component: Property<String>   // "MAJOR", "MINOR", or "PATCH"
+
+    @get:Internal
+    abstract val versionPropsFile: RegularFileProperty
+
+    @TaskAction
+    fun bump() {
+        val ver   = currentVersionName.get()
+        val parts = ver.split(".").map { it.toInt() }.toMutableList()
+        when (component.get()) {
+            "MAJOR" -> { parts[0]++; parts[1] = 0; parts[2] = 0 }
+            "MINOR" -> { parts[1]++;               parts[2] = 0 }
+            else    ->                             { parts[2]++ }  // PATCH
+        }
+        val newName = parts.joinToString(".")
+        val newCode = parts[0] * 10000 + parts[1] * 100 + parts[2]
+        val props = Properties()
+        props.setProperty("VERSION_NAME", newName)
+        props.setProperty("VERSION_CODE", newCode.toString())
+        versionPropsFile.get().asFile.outputStream().use { props.store(it, null) }
+        println("╔══════════════════════════════╗")
+        println("║  Version: $ver → $newName")
+        println("║  Code:    → $newCode")
+        println("╚══════════════════════════════╝")
+        println("Run ./gradlew assembleRelease to build Coinflow-${newName}.apk")
+    }
+}
+
+tasks.register("bumpPatch", BumpVersionTask::class) {
+    group = "versioning"
+    description = "Increment patch version: 1.1.5 → 1.1.6"
+    currentVersionName.set(appVersionName)
+    component.set("PATCH")
+    versionPropsFile.set(file("version.properties"))
+}
+
+tasks.register("bumpMinor", BumpVersionTask::class) {
+    group = "versioning"
+    description = "Increment minor version: 1.1.5 → 1.2.0"
+    currentVersionName.set(appVersionName)
+    component.set("MINOR")
+    versionPropsFile.set(file("version.properties"))
+}
+
+tasks.register("bumpMajor", BumpVersionTask::class) {
+    group = "versioning"
+    description = "Increment major version: 1.1.5 → 2.0.0"
+    currentVersionName.set(appVersionName)
+    component.set("MAJOR")
+    versionPropsFile.set(file("version.properties"))
 }

@@ -32,7 +32,9 @@
       "Bash(python -c \"from PIL import Image; print\\(''Pillow available''\\)\")",
       "Bash(pip install:*)",
       "Bash(./gradlew assembleRelease)",
-      "Bash(./gradlew assembleDebug)"
+      "Bash(./gradlew assembleDebug)",
+      "Bash(./gradlew compileDebugKotlin)",
+      "Bash(./gradlew bumpPatch)"
     ]
   }
 }

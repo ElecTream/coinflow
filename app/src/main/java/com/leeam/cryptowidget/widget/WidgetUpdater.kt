@@ -10,6 +10,7 @@ import android.widget.RemoteViews
 import com.leeam.cryptowidget.R
 import com.leeam.cryptowidget.data.local.ChartStyle
 import com.leeam.cryptowidget.data.model.CryptoWidgetData
+import com.leeam.cryptowidget.ui.chart.ChartDetailActivity
 import com.leeam.cryptowidget.ui.settings.SettingsActivity
 import com.leeam.cryptowidget.ui.theme.CyberColors
 import com.leeam.cryptowidget.ui.theme.ThemeColors
@@ -88,18 +89,18 @@ object WidgetUpdater {
         }
 
         // 24h change
-        val isUp = data.change24hPct >= 0
-        val changeText = "${if (isUp) "▲" else "▼"} ${String.format(Locale.US, "%.2f", abs(data.change24hPct))}%"
+        val changeIsUp = data.change24hPct >= 0
+        val changeText = "${if (changeIsUp) "▲" else "▼"} ${String.format(Locale.US, "%.2f", abs(data.change24hPct))}%"
         views.setTextViewText(R.id.tv_change, changeText)
         views.setTextColor(
             R.id.tv_change,
-            if (isUp) 0xFF00FF88.toInt() else 0xFFFF4466.toInt()
+            if (changeIsUp) 0xFF00FF88.toInt() else 0xFFFF4466.toInt()
         )
 
         // Sparkline
         if (data.sparklinePrices.size >= 2) {
             val bitmap = SparklineRenderer.render(
-                data.sparklinePrices, sparklineWidthPx, sparklineHeightPx, isUp, chartStyle
+                data.sparklinePrices, sparklineWidthPx, sparklineHeightPx, changeIsUp, chartStyle
             )
             if (bitmap != null) {
                 views.setImageViewBitmap(R.id.iv_sparkline, bitmap)
@@ -107,11 +108,11 @@ object WidgetUpdater {
         }
 
         // Wallet row
-        if (data.walletBalanceXrp > 0.0) {
+        if (data.walletBalance > 0.0) {
             views.setViewVisibility(R.id.wallet_row, View.VISIBLE)
             views.setTextViewText(
                 R.id.tv_balance,
-                String.format(Locale.US, "%.4f XRP", data.walletBalanceXrp)
+                String.format(Locale.US, "%.4f %s", data.walletBalance, data.symbol)
             )
             views.setTextColor(R.id.tv_balance, themeColors.accentArgb)
             views.setTextViewText(
@@ -134,13 +135,11 @@ object WidgetUpdater {
         }
         views.setTextViewText(R.id.tv_last_updated, ageText)
 
-        // Restore static refresh icon (replaces any spinning AVD from a previous refresh tap)
-        views.setImageViewResource(R.id.btn_refresh, R.drawable.widget_refresh_icon)
-
-        // Theme color filter on AVD layers — tints the white-authored vectors to the active theme
-        views.setInt(R.id.iv_particle_bg,     "setColorFilter", themeColors.accentArgb)
-        views.setInt(R.id.iv_border_glow,     "setColorFilter", themeColors.accentArgb)
-        views.setInt(R.id.iv_sparkline_pulse, "setColorFilter", themeColors.accentArgb)
+        // Cancel the spin-frame loop before restoring the static icon so no stale
+        // rotated frames overwrite this update after it lands.
+        CryptoWidgetProvider.cancelSpinner()
+        views.setImageViewResource(R.id.btn_refresh, R.drawable.ic_refresh)
+        views.setInt(R.id.btn_refresh, "setImageAlpha", 255)
 
         // Refresh button PendingIntent
         val refreshIntent = Intent(context, CryptoWidgetProvider::class.java).apply {
@@ -151,6 +150,16 @@ object WidgetUpdater {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         views.setOnClickPendingIntent(R.id.btn_refresh, refreshPi)
+
+        // Chart detail PendingIntent — tap sparkline to open interactive chart
+        val chartIntent = Intent(context, ChartDetailActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val chartPi = PendingIntent.getActivity(
+            context, 2, chartIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        views.setOnClickPendingIntent(R.id.iv_sparkline, chartPi)
 
         // Settings icon PendingIntent
         val settingsIntent = Intent(context, SettingsActivity::class.java).apply {

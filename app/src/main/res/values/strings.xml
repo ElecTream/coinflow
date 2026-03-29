@@ -9,12 +9,12 @@
     <string name="save_success">Saved! Widget updating...</string>
     <string name="error_prefix">Error: %1$s</string>
     <string name="app_title">Coinflow</string>
-    <string name="xrp_price_tracker">XRP Price Tracker</string>
+    <string name="xrp_price_tracker">Crypto Price Tracker</string>
     <string name="label_live_price">LIVE PRICE</string>
     <string name="price_change_24h">%1$s %2$.2f%% 24h</string>
-    <string name="btn_refresh">↻ Refresh</string>
-    <string name="btn_force_widget">⚡ Force Widget</string>
-    <string name="label_wallet_address">WALLET ADDRESS (XRP)</string>
+    <string name="btn_refresh">Refresh</string>
+    <string name="btn_force_widget">Force Widget</string>
+    <string name="label_wallet_address">WALLET ADDRESS</string>
     <string name="placeholder_wallet_address">rXXXXXXXXXXX...</string>
     <string name="btn_test_balance">Test Balance</string>
     <string name="label_refresh_interval">REFRESH INTERVAL</string>

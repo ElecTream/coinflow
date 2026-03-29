@@ -26,6 +26,6 @@
       type="MAIN"
       applicationId="com.leeam.cryptowidget"
       generatedSourceFolders="build\generated\ap_generated_sources\release\out;build\generated\source\buildConfig\release"
-      desugaredMethodsFiles="C:\Users\lsweeney\.gradle\caches\9.3.1\transforms\02955f88ea9cd2b82389b4f4284dec31\workspace\transformed\D8BackportedDesugaredMethods.txt">
+      desugaredMethodsFiles="C:\Users\Leeam\.gradle\caches\9.3.1\transforms\02955f88ea9cd2b82389b4f4284dec31\workspace\transformed\D8BackportedDesugaredMethods.txt">
   </artifact>
 </variant>

@@ -8,6 +8,8 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
+private const val WORK_TAG_IMMEDIATE = "price_refresh_immediate"
+
 @Singleton
 class WorkScheduler @Inject constructor(
     @ApplicationContext private val context: Context
@@ -41,15 +43,11 @@ class WorkScheduler @Inject constructor(
     }
 
     fun triggerImmediateRefresh() {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
-
         val request = OneTimeWorkRequestBuilder<PriceUpdateWorker>()
-            .setConstraints(constraints)
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .build()
 
-        wm.enqueue(request)
+        wm.enqueueUniqueWork(WORK_TAG_IMMEDIATE, ExistingWorkPolicy.REPLACE, request)
     }
 
     fun cancelAll() {

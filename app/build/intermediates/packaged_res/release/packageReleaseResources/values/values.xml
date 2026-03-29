@@ -17,8 +17,8 @@
     <string name="alert_fired">Fired</string>
     <string name="app_name">Coinflow</string>
     <string name="app_title">Coinflow</string>
-    <string name="btn_force_widget">⚡ Force Widget</string>
-    <string name="btn_refresh">↻ Refresh</string>
+    <string name="btn_force_widget">Force Widget</string>
+    <string name="btn_refresh">Refresh</string>
     <string name="btn_save_update">Save &amp; Update Widget</string>
     <string name="btn_test_balance">Test Balance</string>
     <string name="chart_style_area">Area</string>
@@ -36,7 +36,7 @@
     <string name="label_price_alerts">PRICE ALERTS</string>
     <string name="label_refresh_interval">REFRESH INTERVAL</string>
     <string name="label_show_sparkline">Show Sparkline Chart</string>
-    <string name="label_wallet_address">WALLET ADDRESS (XRP)</string>
+    <string name="label_wallet_address">WALLET ADDRESS</string>
     <string name="last_update">Last update: %1$s</string>
     <string name="no_alerts_set">No alerts set</string>
     <string name="notification_channel_desc">Notifications when crypto price hits your thresholds</string>
@@ -48,7 +48,7 @@
     <string name="save_success">Saved! Widget updating...</string>
     <string name="status_ok">Status: OK</string>
     <string name="widget_name">Coinflow Widget</string>
-    <string name="xrp_price_tracker">XRP Price Tracker</string>
+    <string name="xrp_price_tracker">Crypto Price Tracker</string>
     <style name="Theme.Coinflow" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/accent_cyan</item>
         <item name="colorSecondary">@color/accent_purple</item>

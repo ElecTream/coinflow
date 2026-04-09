@@ -1,6 +1,6 @@
 package com.leeam.cryptowidget.data.model
 
-data class CryptoWidgetData(
+data class WidgetData(
     val coinId: String = "ripple",
     val symbol: String = "",
     val priceUsd: Double = 0.0,

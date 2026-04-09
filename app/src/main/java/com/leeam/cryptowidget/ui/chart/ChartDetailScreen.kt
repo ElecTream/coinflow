@@ -23,10 +23,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leeam.cryptowidget.ui.theme.*
+import com.leeam.cryptowidget.ui.util.CoinFormatter
 import java.time.Instant
+import java.util.Locale
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -131,7 +132,7 @@ private fun ChartHeader(symbol: String, priceUsd: Double, change24hPct: Double) 
             letterSpacing = 1.5.sp
         )
         Text(
-            text       = "$${String.format(Locale.US, "%.4f", priceUsd)}",
+            text       = CoinFormatter.formatPrice(priceUsd),
             color      = TextPrimary,
             fontSize   = 30.sp,
             fontWeight = FontWeight.Bold
@@ -208,7 +209,7 @@ private fun InteractiveChart(
                 contentAlignment = Alignment.BottomEnd
             ) {
                 Text(
-                    text     = "$${String.format(Locale.US, "%.4f", prices.last())}",
+                    text     = CoinFormatter.formatPrice(prices.last()),
                     color    = if (lastUp) ColorUp else ColorDown,
                     fontSize = 11.sp
                 )
@@ -304,7 +305,7 @@ private fun ChartTooltip(
 ) {
     val tooltipColor = if (isUp) ColorUp else ColorDown
     val timeText  = timestamp?.let { formatTimestamp(it) } ?: "--"
-    val priceText = "$${String.format(Locale.US, "%.4f", price)}"
+    val priceText = CoinFormatter.formatPrice(price)
 
     // Pin tooltip to left side when scrubber is in the right half, and vice versa
     val alignment = if (index > totalPoints / 2) Alignment.TopStart else Alignment.TopEnd

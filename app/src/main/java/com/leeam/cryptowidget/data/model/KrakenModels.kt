@@ -26,3 +26,19 @@ data class KrakenOhlcResponse(
     val error: List<String> = emptyList(),
     val result: Map<String, JsonElement> = emptyMap()
 )
+
+// Response from: GET https://api.kraken.com/0/public/AssetPairs
+// Shape: { "error": [], "result": { "XBTUSD": { "altname": "XBTUSD", "wsname": "XBT/USD", ... }, ... } }
+@Serializable
+data class KrakenAssetPairsResponse(
+    val error: List<String> = emptyList(),
+    val result: Map<String, KrakenPairInfo> = emptyMap()
+)
+
+@Serializable
+data class KrakenPairInfo(
+    val altname: String = "",
+    val wsname: String = "",
+    val base: String = "",
+    val quote: String = ""
+)

@@ -9,11 +9,13 @@ import android.view.View
 import android.widget.RemoteViews
 import com.leeam.cryptowidget.R
 import com.leeam.cryptowidget.data.local.ChartStyle
-import com.leeam.cryptowidget.data.model.CryptoWidgetData
+import com.leeam.cryptowidget.data.model.CoinRegistry
+import com.leeam.cryptowidget.data.model.WidgetData
 import com.leeam.cryptowidget.ui.chart.ChartDetailActivity
 import com.leeam.cryptowidget.ui.settings.SettingsActivity
 import com.leeam.cryptowidget.ui.theme.CyberColors
 import com.leeam.cryptowidget.ui.theme.ThemeColors
+import com.leeam.cryptowidget.ui.util.CoinFormatter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -25,31 +27,37 @@ object WidgetUpdater {
 
     fun updateAllWidgets(
         context: Context,
-        data: CryptoWidgetData,
+        data: WidgetData,
         chartStyle: ChartStyle = ChartStyle.LINE,
-        themeColors: ThemeColors = CyberColors
+        themeColors: ThemeColors = CyberColors,
+        widgetCoinIds: List<String> = listOf(data.coinId),
+        activeCoinId: String = data.coinId
     ) {
         val manager = AppWidgetManager.getInstance(context)
         val ids = manager.getAppWidgetIds(
-            ComponentName(context, CryptoWidgetProvider::class.java)
+            ComponentName(context, CoinflowWidgetProvider::class.java)
         )
         if (ids.isEmpty()) return
 
         for (widgetId in ids) {
-            val options = manager.getAppWidgetOptions(widgetId)
-            val minW = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180)
-            val minH = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110)
-            val density = context.resources.displayMetrics.density
+            val options  = manager.getAppWidgetOptions(widgetId)
+            val minW     = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180)
+            val minH     = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110)
+            val density  = context.resources.displayMetrics.density
             val widthPx  = (minW  * density).toInt().coerceAtLeast(200)
             val heightPx = ((minH * density) * 0.30f).toInt().coerceAtLeast(40)
 
-            val views = buildRemoteViews(context, data, widthPx, heightPx, chartStyle, themeColors)
+            val views = buildRemoteViews(
+                context, data, widthPx, heightPx, chartStyle, themeColors,
+                widgetCoinIds = widgetCoinIds,
+                activeCoinId  = activeCoinId
+            )
             manager.updateAppWidget(widgetId, views)
         }
 
-        // Price flash: set price to direction color, reset to white after 400ms
+        // Price flash: highlight the price text green/red briefly, then reset to white
         if (data.errorMessage == null) {
-            val isUp = data.change24hPct >= 0
+            val isUp      = data.change24hPct >= 0
             val flashColor = if (isUp) 0xFF00FF88.toInt() else 0xFFFF4466.toInt()
             CoroutineScope(Dispatchers.Main).launch {
                 delay(400)
@@ -57,7 +65,6 @@ object WidgetUpdater {
                 resetViews.setTextColor(R.id.tv_price, 0xFFFFFFFF.toInt())
                 ids.forEach { manager.partiallyUpdateAppWidget(it, resetViews) }
             }
-            // Apply flash color immediately via partial update
             val flashViews = RemoteViews(context.packageName, R.layout.widget_layout)
             flashViews.setTextColor(R.id.tv_price, flashColor)
             ids.forEach { manager.partiallyUpdateAppWidget(it, flashViews) }
@@ -66,64 +73,95 @@ object WidgetUpdater {
 
     fun buildRemoteViews(
         context: Context,
-        data: CryptoWidgetData,
+        data: WidgetData,
         sparklineWidthPx: Int,
         sparklineHeightPx: Int,
         chartStyle: ChartStyle = ChartStyle.LINE,
-        themeColors: ThemeColors = CyberColors
+        themeColors: ThemeColors = CyberColors,
+        widgetCoinIds: List<String> = listOf(data.coinId),
+        activeCoinId: String = data.coinId
     ): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget_layout)
 
-        // Coin symbol
-        views.setTextViewText(R.id.tv_coin_symbol, data.symbol)
-        views.setTextColor(R.id.tv_coin_symbol, themeColors.accentArgb)
+        // ── Coin tabs ─────────────────────────────────────────────────────────
+        val tabIds = listOf(
+            R.id.tab_coin_1, R.id.tab_coin_2, R.id.tab_coin_3,
+            R.id.tab_coin_4, R.id.tab_coin_5
+        )
+        val showTabs = widgetCoinIds.isNotEmpty()
 
-        // Price
+        tabIds.forEachIndexed { index, tabId ->
+            if (index < widgetCoinIds.size) {
+                val tabCoinId = widgetCoinIds[index]
+                val tabCoin   = CoinRegistry.byId(tabCoinId)
+                val isActive  = tabCoinId == activeCoinId
+                val tabColor  = if (isActive) themeColors.accentArgb else 0xFF5A6A7A.toInt()
+
+                views.setViewVisibility(tabId, View.VISIBLE)
+                views.setTextViewText(tabId, tabCoin.symbol)
+                views.setTextColor(tabId, tabColor)
+
+                // Tap switches the active coin
+                val selectIntent = Intent(context, CoinflowWidgetProvider::class.java).apply {
+                    action = CoinflowWidgetProvider.ACTION_SELECT_COIN
+                    putExtra(CoinflowWidgetProvider.EXTRA_COIN_ID, tabCoinId)
+                }
+                val selectPi = PendingIntent.getBroadcast(
+                    context,
+                    100 + index,
+                    selectIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                views.setOnClickPendingIntent(tabId, selectPi)
+            } else {
+                views.setViewVisibility(tabId, View.GONE)
+            }
+        }
+        views.setViewVisibility(R.id.tab_divider, if (showTabs) View.VISIBLE else View.GONE)
+
+        // ── Price ─────────────────────────────────────────────────────────────
         if (data.errorMessage != null) {
             views.setTextViewText(R.id.tv_price, "Error")
             views.setTextColor(R.id.tv_price, 0xFFFF4466.toInt())
         } else {
-            val priceText = "$${String.format(Locale.US, "%.4f", data.priceUsd)}"
-            views.setTextViewText(R.id.tv_price, priceText)
+            views.setTextViewText(R.id.tv_price, CoinFormatter.formatPrice(data.priceUsd))
             views.setTextColor(R.id.tv_price, 0xFFFFFFFF.toInt())
         }
 
-        // 24h change
-        val changeIsUp = data.change24hPct >= 0
-        val changeText = "${if (changeIsUp) "▲" else "▼"} ${String.format(Locale.US, "%.2f", abs(data.change24hPct))}%"
+        // ── 24h change ────────────────────────────────────────────────────────
+        val changeIsUp  = data.change24hPct >= 0
+        val changeText  = "${if (changeIsUp) "▲" else "▼"} ${String.format(Locale.US, "%.2f", abs(data.change24hPct))}%"
         views.setTextViewText(R.id.tv_change, changeText)
         views.setTextColor(
             R.id.tv_change,
             if (changeIsUp) 0xFF00FF88.toInt() else 0xFFFF4466.toInt()
         )
 
-        // Sparkline
+        // ── Sparkline ─────────────────────────────────────────────────────────
         if (data.sparklinePrices.size >= 2) {
             val bitmap = SparklineRenderer.render(
                 data.sparklinePrices, sparklineWidthPx, sparklineHeightPx, changeIsUp, chartStyle
             )
-            if (bitmap != null) {
-                views.setImageViewBitmap(R.id.iv_sparkline, bitmap)
-            }
+            if (bitmap != null) views.setImageViewBitmap(R.id.iv_sparkline, bitmap)
         }
 
-        // Wallet row
+        // ── Wallet row ────────────────────────────────────────────────────────
         if (data.walletBalance > 0.0) {
             views.setViewVisibility(R.id.wallet_row, View.VISIBLE)
             views.setTextViewText(
                 R.id.tv_balance,
-                String.format(Locale.US, "%.4f %s", data.walletBalance, data.symbol)
+                CoinFormatter.formatBalanceWithSymbol(data.walletBalance, data.priceUsd, data.symbol)
             )
             views.setTextColor(R.id.tv_balance, themeColors.accentArgb)
             views.setTextViewText(
                 R.id.tv_portfolio_value,
-                "≈ $${String.format(Locale.US, "%.2f", data.walletValueUsd)}"
+                "≈ ${CoinFormatter.formatValueUsd(data.walletValueUsd)}"
             )
         } else {
             views.setViewVisibility(R.id.wallet_row, View.GONE)
         }
 
-        // Timestamp
+        // ── Timestamp ─────────────────────────────────────────────────────────
         val ageMin = if (data.lastUpdatedMs > 0L) {
             ((System.currentTimeMillis() - data.lastUpdatedMs) / 60_000L).toInt()
         } else -1
@@ -135,41 +173,44 @@ object WidgetUpdater {
         }
         views.setTextViewText(R.id.tv_last_updated, ageText)
 
-        // Cancel the spin-frame loop before restoring the static icon so no stale
-        // rotated frames overwrite this update after it lands.
-        CryptoWidgetProvider.cancelSpinner()
+        // Cancel any in-flight spin frames before restoring the static icon
+        CoinflowWidgetProvider.cancelSpinner()
         views.setImageViewResource(R.id.btn_refresh, R.drawable.ic_refresh)
         views.setInt(R.id.btn_refresh, "setImageAlpha", 255)
 
-        // Refresh button PendingIntent
-        val refreshIntent = Intent(context, CryptoWidgetProvider::class.java).apply {
+        // ── PendingIntents ────────────────────────────────────────────────────
+        val refreshIntent = Intent(context, CoinflowWidgetProvider::class.java).apply {
             action = "com.leeam.cryptowidget.ACTION_REFRESH"
         }
-        val refreshPi = PendingIntent.getBroadcast(
-            context, 0, refreshIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        views.setOnClickPendingIntent(
+            R.id.btn_refresh,
+            PendingIntent.getBroadcast(
+                context, 0, refreshIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
         )
-        views.setOnClickPendingIntent(R.id.btn_refresh, refreshPi)
 
-        // Chart detail PendingIntent — tap sparkline to open interactive chart
         val chartIntent = Intent(context, ChartDetailActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
-        val chartPi = PendingIntent.getActivity(
-            context, 2, chartIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        views.setOnClickPendingIntent(
+            R.id.iv_sparkline,
+            PendingIntent.getActivity(
+                context, 2, chartIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
         )
-        views.setOnClickPendingIntent(R.id.iv_sparkline, chartPi)
 
-        // Settings icon PendingIntent
         val settingsIntent = Intent(context, SettingsActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
-        val settingsPi = PendingIntent.getActivity(
-            context, 1, settingsIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        views.setOnClickPendingIntent(
+            R.id.btn_settings,
+            PendingIntent.getActivity(
+                context, 1, settingsIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
         )
-        views.setOnClickPendingIntent(R.id.btn_settings, settingsPi)
 
         return views
     }

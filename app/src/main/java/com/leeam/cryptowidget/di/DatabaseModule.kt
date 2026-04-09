@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.leeam.cryptowidget.data.local.AlertDao
 import com.leeam.cryptowidget.data.local.AlertDatabase
+import com.leeam.cryptowidget.data.local.CustomCoinDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,4 +25,7 @@ object DatabaseModule {
 
     @Provides
     fun provideAlertDao(db: AlertDatabase): AlertDao = db.alertDao()
+
+    @Provides
+    fun provideCustomCoinDao(db: AlertDatabase): CustomCoinDao = db.customCoinDao()
 }

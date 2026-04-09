@@ -2,7 +2,7 @@ package com.leeam.cryptowidget.worker
 
 import android.content.Context
 import androidx.work.*
-import com.leeam.cryptowidget.CryptoWidgetApplication.Companion.WORK_TAG_PERIODIC
+import com.leeam.cryptowidget.CoinflowApplication.Companion.WORK_TAG_PERIODIC
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject

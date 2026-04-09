@@ -34,7 +34,8 @@
       "Bash(./gradlew assembleRelease)",
       "Bash(./gradlew assembleDebug)",
       "Bash(./gradlew compileDebugKotlin)",
-      "Bash(./gradlew bumpPatch)"
+      "Bash(./gradlew bumpPatch)",
+      "Bash(gh repo:*)"
     ]
   }
 }

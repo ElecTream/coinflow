@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leeam.cryptowidget.data.local.WidgetPreferences
 import com.leeam.cryptowidget.data.model.CoinRegistry
-import com.leeam.cryptowidget.widget.CryptoWidgetProvider
+import com.leeam.cryptowidget.widget.CoinflowWidgetProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,7 +56,7 @@ class ChartDetailViewModel @Inject constructor(
     /** Broadcasts ACTION_REFRESH — same path as the widget's manual refresh button. */
     fun refresh() {
         context.sendBroadcast(
-            Intent(context, CryptoWidgetProvider::class.java).apply {
+            Intent(context, CoinflowWidgetProvider::class.java).apply {
                 action = "com.leeam.cryptowidget.ACTION_REFRESH"
             }
         )

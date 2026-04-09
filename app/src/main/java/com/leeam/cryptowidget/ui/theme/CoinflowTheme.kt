@@ -23,7 +23,7 @@ val AccentPurple  = CyberColors.secondary
 // ── Theme ─────────────────────────────────────────────────────────────────────
 
 @Composable
-fun CryptoWidgetTheme(
+fun CoinflowTheme(
     themeColors: ThemeColors = CyberColors,
     content: @Composable () -> Unit
 ) {

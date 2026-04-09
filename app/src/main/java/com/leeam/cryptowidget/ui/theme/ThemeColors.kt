@@ -42,11 +42,20 @@ val MidnightColors = ThemeColors(
     secondaryArgb = 0xFF00E5FF.toInt()
 )
 
-fun AppTheme.toThemeColors(): ThemeColors = when (this) {
+fun AppTheme.toThemeColors(
+    customAccentArgb: Int = 0xFF00D4FF.toInt(),
+    customSecondaryArgb: Int = 0xFF7B2FFF.toInt()
+): ThemeColors = when (this) {
     AppTheme.CYBER    -> CyberColors
     AppTheme.AMBER    -> AmberColors
     AppTheme.MATRIX   -> MatrixColors
     AppTheme.MIDNIGHT -> MidnightColors
+    AppTheme.CUSTOM   -> ThemeColors(
+        accent        = Color(customAccentArgb),
+        secondary     = Color(customSecondaryArgb),
+        accentArgb    = customAccentArgb,
+        secondaryArgb = customSecondaryArgb
+    )
 }
 
 // ── CompositionLocal ─────────────────────────────────────────────────────────

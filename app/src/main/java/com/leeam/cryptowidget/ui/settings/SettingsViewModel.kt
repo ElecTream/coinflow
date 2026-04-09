@@ -12,16 +12,16 @@ import com.leeam.cryptowidget.data.local.AppTheme
 import com.leeam.cryptowidget.data.local.ChartStyle
 import com.leeam.cryptowidget.data.local.WidgetPreferences
 import com.leeam.cryptowidget.data.model.CoinRegistry
-import com.leeam.cryptowidget.data.model.WalletType
+import com.leeam.cryptowidget.data.model.WalletConfig
 import com.leeam.cryptowidget.data.repository.CryptoRepository
-import com.leeam.cryptowidget.widget.CryptoWidgetProvider
+import com.leeam.cryptowidget.ui.util.CoinFormatter
+import com.leeam.cryptowidget.widget.CoinflowWidgetProvider
 import com.leeam.cryptowidget.worker.WorkScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.util.Locale
 import javax.inject.Inject
 
 data class SettingsUiState(
@@ -45,7 +45,11 @@ data class SettingsUiState(
     val saveSuccess: Boolean = false,
     val saveError: String? = null,
     val lastWorkerRunMs: Long = 0L,
-    val lastErrorMsg: String? = null
+    val lastErrorMsg: String? = null,
+    val followedCoinIds: List<String> = CoinRegistry.all.map { it.id },
+    val widgetCoinIds: List<String>   = listOf(CoinRegistry.default.id),
+    val customAccentArgb: Int = 0xFF00D4FF.toInt(),
+    val customSecondaryArgb: Int = 0xFF7B2FFF.toInt()
 )
 
 @HiltViewModel
@@ -66,6 +70,8 @@ class SettingsViewModel @Inject constructor(
         fetchLivePrice()
         collectAlerts()
         collectDiagnostics()
+        collectMultiCoinPrefs()
+        collectCustomColors()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -135,9 +141,13 @@ class SettingsViewModel @Inject constructor(
     /** Returns a human-readable error for the wallet address, or null if it looks OK. */
     private fun validateWalletAddress(coinId: String, address: String): String? {
         val coin = CoinRegistry.byId(coinId)
-        return when (coin.walletType) {
-            WalletType.XRPL -> validateXrplAddress(address)
-            WalletType.NONE -> null // no wallet for this coin
+        return when (coin.walletConfig) {
+            is WalletConfig.Xrpl        -> validateXrplAddress(address)
+            is WalletConfig.Bitcoin     -> if (Regex("^(1|3|bc1)[a-zA-HJ-NP-Z0-9]{25,62}$").matches(address)) null else "Invalid Bitcoin address"
+            is WalletConfig.Ethereum    -> if (Regex("^0x[0-9a-fA-F]{40}$").matches(address)) null else "Must be 0x + 40 hex chars"
+            is WalletConfig.Solana      -> if (Regex("^[1-9A-HJ-NP-Za-km-z]{32,44}$").matches(address)) null else "Invalid Solana address"
+            is WalletConfig.GenericRest -> if (address.isNotBlank()) null else "Address required"
+            is WalletConfig.None        -> null
         }
     }
 
@@ -164,16 +174,14 @@ class SettingsViewModel @Inject constructor(
         }
         viewModelScope.launch {
             _state.update { it.copy(walletTestLoading = true, walletTestResult = null) }
-            cryptoRepository.fetchWalletBalance(address).fold(
+            cryptoRepository.fetchWalletBalance(coinId, address).fold(
                 onSuccess = { bal ->
                     val price = _state.value.livePrice ?: 0.0
                     val symbol = CoinRegistry.byId(coinId).symbol
                     _state.update {
                         it.copy(
                             walletTestLoading = false,
-                            walletTestResult = String.format(
-                                Locale.US, "OK  %.4f %s ≈ \$%.2f", bal, symbol, bal * price
-                            )
+                            walletTestResult = "OK  ${CoinFormatter.formatAmount(bal, price)} $symbol ≈ ${CoinFormatter.formatValueUsd(bal * price)}"
                         )
                     }
                 },
@@ -250,6 +258,16 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch { widgetPrefs.setAppTheme(theme) }
     }
 
+    fun onCustomAccentChange(argb: Int) {
+        _state.update { it.copy(customAccentArgb = argb) }
+        viewModelScope.launch { widgetPrefs.setCustomAccentArgb(argb) }
+    }
+
+    fun onCustomSecondaryChange(argb: Int) {
+        _state.update { it.copy(customSecondaryArgb = argb) }
+        viewModelScope.launch { widgetPrefs.setCustomSecondaryArgb(argb) }
+    }
+
     fun save() = viewModelScope.launch {
         try {
             val s = _state.value
@@ -259,7 +277,7 @@ class SettingsViewModel @Inject constructor(
             widgetPrefs.setChartStyle(s.chartStyle)
             workScheduler.schedulePeriodicRefresh(s.refreshIntervalMin)
             context.sendBroadcast(
-                Intent(context, CryptoWidgetProvider::class.java).apply {
+                Intent(context, CoinflowWidgetProvider::class.java).apply {
                     action = "com.leeam.cryptowidget.ACTION_REFRESH"
                 }
             )
@@ -270,4 +288,59 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun clearFeedback() = _state.update { it.copy(saveSuccess = false, saveError = null) }
+
+    private fun collectMultiCoinPrefs() {
+        viewModelScope.launch {
+            widgetPrefs.followedCoinIds.collect { ids ->
+                _state.update { it.copy(followedCoinIds = ids) }
+            }
+        }
+        viewModelScope.launch {
+            widgetPrefs.widgetCoinIds.collect { ids ->
+                _state.update { it.copy(widgetCoinIds = ids) }
+            }
+        }
+    }
+
+    private fun collectCustomColors() {
+        viewModelScope.launch {
+            widgetPrefs.customAccentArgb.collect { argb ->
+                _state.update { it.copy(customAccentArgb = argb) }
+            }
+        }
+        viewModelScope.launch {
+            widgetPrefs.customSecondaryArgb.collect { argb ->
+                _state.update { it.copy(customSecondaryArgb = argb) }
+            }
+        }
+    }
+
+    /** Adds or removes a coin from the followed list. */
+    fun toggleFollow(coinId: String) = viewModelScope.launch {
+        val current = _state.value.followedCoinIds.toMutableList()
+        if (coinId in current) {
+            current.remove(coinId)
+            // Auto-remove from widget tabs too
+            val widgetIds = _state.value.widgetCoinIds.filter { it != coinId }
+            widgetPrefs.setWidgetCoinIds(widgetIds)
+        } else {
+            current.add(coinId)
+        }
+        widgetPrefs.setFollowedCoinIds(current)
+    }
+
+    /** Adds or removes a coin from the widget tab list (max 5, must be in followed list). */
+    fun toggleWidgetCoin(coinId: String) = viewModelScope.launch {
+        val current = _state.value.widgetCoinIds.toMutableList()
+        if (coinId in current) {
+            current.remove(coinId)
+            // If we removed the active coin, switch to the first remaining tab
+            if (coinId == _state.value.coinId && current.isNotEmpty()) {
+                widgetPrefs.setCoinId(current.first())
+            }
+        } else if (current.size < 5) {
+            current.add(coinId)
+        }
+        widgetPrefs.setWidgetCoinIds(current)
+    }
 }

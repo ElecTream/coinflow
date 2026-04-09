@@ -7,7 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import com.leeam.cryptowidget.data.local.WidgetPreferences
 import com.leeam.cryptowidget.ui.settings.SettingsActivity
-import com.leeam.cryptowidget.ui.theme.CryptoWidgetTheme
+import com.leeam.cryptowidget.ui.theme.CoinflowTheme
 import com.leeam.cryptowidget.ui.theme.toThemeColors
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
@@ -24,10 +24,15 @@ class ChartDetailActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Read the persisted theme synchronously before first frame to avoid a flash.
-        val themeColors = runBlocking { prefs.appTheme.first() }.toThemeColors()
+        val themeColors = runBlocking {
+            prefs.appTheme.first().toThemeColors(
+                customAccentArgb    = prefs.customAccentArgb.first(),
+                customSecondaryArgb = prefs.customSecondaryArgb.first()
+            )
+        }
 
         setContent {
-            CryptoWidgetTheme(themeColors = themeColors) {
+            CoinflowTheme(themeColors = themeColors) {
                 ChartDetailScreen(
                     vm         = vm,
                     onBack     = { finish() },

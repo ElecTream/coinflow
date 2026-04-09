@@ -11,5 +11,8 @@ enum class AppTheme {
     MATRIX,
 
     /** Violet + pink. Dreamcore. */
-    MIDNIGHT
+    MIDNIGHT,
+
+    /** User-defined accent + secondary colors stored in DataStore. */
+    CUSTOM
 }

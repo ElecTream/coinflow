@@ -6,14 +6,15 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 
 @Database(
-    entities = [AlertEntity::class],
-    version = 2,
+    entities = [AlertEntity::class, CustomCoinEntity::class],
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(AlertDatabase.Converters::class)
 abstract class AlertDatabase : RoomDatabase() {
 
     abstract fun alertDao(): AlertDao
+    abstract fun customCoinDao(): CustomCoinDao
 
     class Converters {
         @TypeConverter

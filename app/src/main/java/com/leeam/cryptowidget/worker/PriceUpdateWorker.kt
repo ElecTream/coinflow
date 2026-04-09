@@ -6,18 +6,19 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
-import com.leeam.cryptowidget.CryptoWidgetApplication.Companion.ALERT_CHANNEL_ID
+import com.leeam.cryptowidget.CoinflowApplication.Companion.ALERT_CHANNEL_ID
 import com.leeam.cryptowidget.R
 import com.leeam.cryptowidget.data.local.AlertRepository
 import com.leeam.cryptowidget.data.local.WidgetPreferences
-import com.leeam.cryptowidget.ui.theme.toThemeColors
-import com.leeam.cryptowidget.data.model.CryptoWidgetData
+import com.leeam.cryptowidget.data.model.WidgetData
 import com.leeam.cryptowidget.data.repository.CryptoRepository
 import com.leeam.cryptowidget.notifications.AlertNotifier
+import com.leeam.cryptowidget.ui.theme.toThemeColors
 import com.leeam.cryptowidget.widget.WidgetUpdater
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
+import kotlin.math.max
 
 @HiltWorker
 class PriceUpdateWorker @AssistedInject constructor(
@@ -36,7 +37,7 @@ class PriceUpdateWorker @AssistedInject constructor(
     override suspend fun getForegroundInfo(): ForegroundInfo {
         val notification = NotificationCompat.Builder(applicationContext, ALERT_CHANNEL_ID)
             .setContentTitle(applicationContext.getString(R.string.app_name))
-            .setContentText("Updating price…")
+            .setContentText("Updating prices…")
             .setSmallIcon(R.drawable.ic_notification)
             .setOngoing(true)
             .setSilent(true)
@@ -45,43 +46,66 @@ class PriceUpdateWorker @AssistedInject constructor(
     }
 
     override suspend fun doWork(): Result {
-        val coinId = widgetPreferences.coinId.first()
-        val wallet = widgetPreferences.walletAddressFor(coinId).first()
-        val chartStyle = widgetPreferences.chartStyle.first()
-        val themeColors = widgetPreferences.appTheme.first().toThemeColors()
+        val intervalMin     = widgetPreferences.refreshIntervalMin.first()
+        val activeCoinId    = widgetPreferences.coinId.first()
+        val widgetCoinIds   = widgetPreferences.widgetCoinIds.first()
+        val followedCoinIds = widgetPreferences.followedCoinIds.first()
+        val chartStyle      = widgetPreferences.chartStyle.first()
+        val themeColors     = widgetPreferences.appTheme.first().toThemeColors(
+            customAccentArgb    = widgetPreferences.customAccentArgb.first(),
+            customSecondaryArgb = widgetPreferences.customSecondaryArgb.first()
+        )
 
-        return try {
-            val result = cryptoRepository.fetchWidgetData(coinId, wallet)
-            val data = result.getOrThrow()
+        // Widget coins refresh at user interval; background coins at 4× (min 60 min)
+        val widgetThresholdMs     = intervalMin * 60_000L
+        val backgroundThresholdMs = max(4 * intervalMin, 60) * 60_000L
 
-            WidgetUpdater.updateAllWidgets(applicationContext, data, chartStyle, themeColors)
+        val now = System.currentTimeMillis()
+        var lastError: String? = null
 
-            widgetPreferences.cacheWidgetData(
-                priceUsd            = data.priceUsd,
-                changePct           = data.change24hPct,
-                balance             = data.walletBalance,
-                sparkline           = data.sparklinePrices,
-                sparklineTimestamps = data.sparklineTimestamps
+        for (coinId in followedCoinIds) {
+            val isWidgetCoin = coinId in widgetCoinIds
+            val threshold    = if (isWidgetCoin) widgetThresholdMs else backgroundThresholdMs
+            val lastFetched  = widgetPreferences.lastFetchedMsFor(coinId).first()
+
+            if (lastFetched > 0L && (now - lastFetched) < threshold) continue
+
+            val wallet = widgetPreferences.walletAddressFor(coinId).first()
+
+            cryptoRepository.fetchWidgetData(coinId, wallet).fold(
+                onSuccess = { data ->
+                    widgetPreferences.cacheCoinData(
+                        coinId              = coinId,
+                        priceUsd            = data.priceUsd,
+                        changePct           = data.change24hPct,
+                        balance             = data.walletBalance,
+                        sparkline           = data.sparklinePrices,
+                        sparklineTimestamps = data.sparklineTimestamps
+                    )
+
+                    if (coinId == activeCoinId) {
+                        WidgetUpdater.updateAllWidgets(
+                            applicationContext, data, chartStyle, themeColors,
+                            widgetCoinIds = widgetCoinIds,
+                            activeCoinId  = coinId
+                        )
+                    }
+
+                    alertRepository.checkAndFireAlerts(coinId, data.priceUsd) { alert ->
+                        alertNotifier.fireAlertNotification(alert, data.priceUsd)
+                    }
+                },
+                onFailure = { e ->
+                    lastError = e.message
+                    if (coinId == activeCoinId) {
+                        val errorData = WidgetData(coinId = coinId, errorMessage = e.message ?: "Fetch failed")
+                        try { WidgetUpdater.updateAllWidgets(applicationContext, errorData) } catch (_: Exception) {}
+                    }
+                }
             )
-
-            alertRepository.checkAndFireAlerts(coinId, data.priceUsd) { alert ->
-                alertNotifier.fireAlertNotification(alert, data.priceUsd)
-            }
-
-            widgetPreferences.recordWorkerResult(null)
-            Result.success()
-
-        } catch (e: Exception) {
-            val errorData = CryptoWidgetData(
-                coinId = coinId,
-                errorMessage = e.message ?: "Fetch failed"
-            )
-            try {
-                WidgetUpdater.updateAllWidgets(applicationContext, errorData)
-            } catch (_: Exception) { }
-
-            widgetPreferences.recordWorkerResult(e.message)
-            Result.retry()
         }
+
+        widgetPreferences.recordWorkerResult(lastError)
+        return if (lastError == null) Result.success() else Result.retry()
     }
 }

@@ -11,7 +11,7 @@ import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
 @HiltAndroidApp
-class CryptoWidgetApplication : Application(), Configuration.Provider {
+class CoinflowApplication : Application(), Configuration.Provider {
 
     @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var workScheduler: WorkScheduler

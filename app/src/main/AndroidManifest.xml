@@ -10,7 +10,7 @@
         android:maxSdkVersion="32" />
 
     <application
-        android:name=".CryptoWidgetApplication"
+        android:name=".CoinflowApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -53,7 +53,7 @@
         </provider>
 
         <receiver
-            android:name=".widget.CryptoWidgetProvider"
+            android:name=".widget.CoinflowWidgetProvider"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -62,7 +62,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/crypto_widget_info" />
+                android:resource="@xml/coinflow_widget_info" />
         </receiver>
 
     </application>

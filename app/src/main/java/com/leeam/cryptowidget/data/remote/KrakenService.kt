@@ -1,5 +1,6 @@
 package com.leeam.cryptowidget.data.remote
 
+import com.leeam.cryptowidget.data.model.KrakenAssetPairsResponse
 import com.leeam.cryptowidget.data.model.KrakenOhlcResponse
 import com.leeam.cryptowidget.data.model.KrakenTickerResponse
 import retrofit2.http.GET
@@ -17,4 +18,8 @@ interface KrakenService {
         @Query("pair") pair: String,
         @Query("interval") interval: Int = 60  // 60 = hourly candles
     ): KrakenOhlcResponse
+
+    /** Returns all tradable pairs (~700+). Called once; results cached in AddCoinViewModel. */
+    @GET("0/public/AssetPairs")
+    suspend fun getAssetPairs(): KrakenAssetPairsResponse
 }

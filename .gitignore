@@ -21,3 +21,5 @@ local.properties
 # OS
 .DS_Store
 Thumbs.db
+.gradle/buildOutputCleanup/buildOutputCleanup.lock
+.gradle/file-system.probe

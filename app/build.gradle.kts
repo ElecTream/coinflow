@@ -49,10 +49,24 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile   = file("${System.getProperty("user.home")}/.android/debug.keystore")
-            storePassword = "android"
-            keyAlias    = "androiddebugkey"
-            keyPassword = "android"
+            val releaseStoreFile = project.findProperty("RELEASE_STORE_FILE") as String?
+            if (releaseStoreFile != null) {
+                storeFile     = file(releaseStoreFile)
+                storePassword = project.findProperty("RELEASE_STORE_PASSWORD") as String
+                keyAlias      = project.findProperty("RELEASE_KEY_ALIAS") as String
+                keyPassword   = project.findProperty("RELEASE_KEY_PASSWORD") as String
+            } else {
+                // Fallback so assembleRelease works before the shared release keystore
+                // is generated. Populate app/gradle.properties with RELEASE_* props.
+                storeFile     = file("${System.getProperty("user.home")}/.android/debug.keystore")
+                storePassword = "android"
+                keyAlias      = "androiddebugkey"
+                keyPassword   = "android"
+            }
+            enableV1Signing = true
+            enableV2Signing = true
+            enableV3Signing = true
+            enableV4Signing = true
         }
     }
     buildTypes {
@@ -67,11 +81,24 @@ android {
             isDebuggable = true
         }
     }
+
+    // ── ABI splits ────────────────────────────────────────────────────────────
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86_64")
+            isUniversalApk = false
+        }
+    }
 }
 
 // ── APK output naming ─────────────────────────────────────────────────────────
-// Release APK → Coinflow-1.1.5.apk  (in app/build/outputs/apk/release/)
-// Uses a proper Gradle task (not doLast) so the action is configuration-cache safe.
+// With ABI splits enabled, rename each per-ABI output to include its ABI:
+//   app-arm64-v8a-release.apk   →  Coinflow-1.2.0-arm64-v8a.apk
+//   app-armeabi-v7a-release.apk →  Coinflow-1.2.0-armeabi-v7a.apk
+//   app-x86_64-release.apk      →  Coinflow-1.2.0-x86_64.apk
+// .idsig sidecars (v4 signature) are renamed in lockstep.
 abstract class RenameReleaseApkTask : DefaultTask() {
     @get:InputDirectory
     abstract val apkDir: DirectoryProperty
@@ -82,8 +109,22 @@ abstract class RenameReleaseApkTask : DefaultTask() {
     @TaskAction
     fun rename() {
         val dir = apkDir.get().asFile
-        dir.listFiles { _, n -> n.endsWith(".apk") }
-            ?.forEach { apk -> apk.renameTo(File(dir, "Coinflow-${versionName.get()}.apk")) }
+        val version = versionName.get()
+        val apkRegex   = Regex("""^app-(.+)-release\.apk$""")
+        val idsigRegex = Regex("""^app-(.+)-release\.apk\.idsig$""")
+        dir.listFiles { _, n -> n.endsWith(".apk") || n.endsWith(".apk.idsig") }
+            ?.forEach { f ->
+                val target: File = when {
+                    apkRegex.matches(f.name) ->
+                        File(dir, "Coinflow-$version-${apkRegex.matchEntire(f.name)!!.groupValues[1]}.apk")
+                    idsigRegex.matches(f.name) ->
+                        File(dir, "Coinflow-$version-${idsigRegex.matchEntire(f.name)!!.groupValues[1]}.apk.idsig")
+                    f.name.endsWith(".apk") ->
+                        File(dir, "Coinflow-$version.apk")
+                    else -> return@forEach
+                }
+                f.renameTo(target)
+            }
     }
 }
 

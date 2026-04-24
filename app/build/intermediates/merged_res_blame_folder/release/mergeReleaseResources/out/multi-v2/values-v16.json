@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.leeam.cryptowidget.app-mergeReleaseResources-64:/values-v16/values-v16.xml",
+            "outputFile": "com.leeam.cryptowidget.app-mergeReleaseResources-71:/values-v16/values-v16.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Leeam\\.gradle\\caches\\9.3.1\\transforms\\f44c50c4be28cbb0b0f3d1212b5d23fb\\workspace\\transformed\\appcompat-1.7.0\\res\\values-v16\\values-v16.xml",
+                    "source": "C:\\Users\\leeam\\.gradle\\caches\\9.3.1\\transforms\\6e0d4dc2d9473a6144bc4ed8e6a89bdf\\workspace\\transformed\\appcompat-1.7.0\\res\\values-v16\\values-v16.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

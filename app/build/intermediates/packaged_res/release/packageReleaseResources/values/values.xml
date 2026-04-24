@@ -20,11 +20,13 @@
     <string name="btn_force_widget">Force Widget</string>
     <string name="btn_refresh">Refresh</string>
     <string name="btn_save_update">Save &amp; Update Widget</string>
-    <string name="btn_test_balance">Test Balance</string>
+    <string name="btn_verify_balance">Verify Balance</string>
     <string name="chart_style_area">Area</string>
     <string name="chart_style_candle">Candle</string>
     <string name="chart_style_line">Line</string>
+    <string name="coin_price_tracker">Crypto Price Tracker</string>
     <string name="error_prefix">Error: %1$s</string>
+    <string name="hint_wallet_address">Enter wallet address…</string>
     <string name="interval_15m">15m</string>
     <string name="interval_1h">1h</string>
     <string name="interval_2h">2h</string>
@@ -43,12 +45,10 @@
     <string name="notification_channel_id">crypto_alerts</string>
     <string name="notification_channel_name">Price Alerts</string>
     <string name="placeholder_price">Price</string>
-    <string name="placeholder_wallet_address">rXXXXXXXXXXX...</string>
     <string name="price_change_24h">%1$s %2$.2f%% 24h</string>
     <string name="save_success">Saved! Widget updating...</string>
     <string name="status_ok">Status: OK</string>
     <string name="widget_name">Coinflow Widget</string>
-    <string name="xrp_price_tracker">Crypto Price Tracker</string>
     <style name="Theme.Coinflow" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/accent_cyan</item>
         <item name="colorSecondary">@color/accent_purple</item>

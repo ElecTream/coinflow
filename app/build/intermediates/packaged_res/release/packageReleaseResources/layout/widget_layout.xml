@@ -6,7 +6,7 @@
     android:background="@drawable/widget_background"
     android:padding="10dp">
 
-    <!-- TOP ROW: coin symbol + 24h change + refresh button -->
+    <!-- TOP ROW: coin tabs (up to 5 slots) + 24h change + refresh button -->
     <LinearLayout
         android:id="@+id/top_row"
         android:layout_width="match_parent"
@@ -15,31 +15,96 @@
         android:gravity="center_vertical"
         android:layout_alignParentTop="true">
 
+        <!-- Coin tab slots — WidgetUpdater sets text/color/click per active widget coins -->
         <TextView
-            android:id="@+id/tv_coin_symbol"
+            android:id="@+id/tab_coin_1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text=""
-            android:textColor="#AABBCC"
-            android:textSize="14sp"
+            android:gravity="center"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
+            android:textSize="11sp"
             android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.12" />
+            android:letterSpacing="0.08"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tab_coin_2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
+            android:textSize="11sp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.08"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tab_coin_3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
+            android:textSize="11sp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.08"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tab_coin_4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
+            android:textSize="11sp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.08"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tab_coin_5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
+            android:textSize="11sp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.08"
+            android:visibility="gone" />
+
+        <!-- Divider between tabs and right-side controls -->
+        <View
+            android:id="@+id/tab_divider"
+            android:layout_width="1dp"
+            android:layout_height="14dp"
+            android:background="#33FFFFFF"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/tv_change"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:fontFamily="sans-serif-medium"
             android:textColor="#00FF88"
-            android:layout_marginEnd="4dp"
+            android:layout_marginEnd="2dp"
             android:text="▲ 0.00%" />
 
         <ImageView
             android:id="@+id/btn_refresh"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:padding="4dp"
             android:src="@drawable/ic_refresh"
             android:contentDescription="Refresh" />
@@ -66,18 +131,18 @@
 
         <ImageView
             android:id="@+id/btn_settings"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:padding="4dp"
             android:src="@drawable/widget_settings_icon"
             android:contentDescription="Settings" />
     </LinearLayout>
 
-    <!-- SPARKLINE: above bottom row, with pulse overlay -->
+    <!-- SPARKLINE: above bottom row -->
     <FrameLayout
         android:id="@+id/sparkline_container"
         android:layout_width="match_parent"
-        android:layout_height="36dp"
+        android:layout_height="32dp"
         android:layout_above="@id/bottom_row"
         android:layout_marginBottom="2dp">
 
@@ -87,7 +152,6 @@
             android:layout_height="match_parent"
             android:scaleType="fitXY"
             android:contentDescription="Price chart" />
-
     </FrameLayout>
 
     <!-- PRICE ROW: price on the left, wallet balance stacked on the right -->
@@ -99,8 +163,8 @@
         android:gravity="center_vertical"
         android:layout_below="@id/top_row"
         android:layout_above="@id/sparkline_container"
-        android:paddingTop="2dp"
-        android:paddingBottom="2dp">
+        android:paddingTop="1dp"
+        android:paddingBottom="1dp">
 
         <TextView
             android:id="@+id/tv_price"
@@ -108,7 +172,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textColor="#FFFFFF"
-            android:textSize="30sp"
+            android:textSize="28sp"
             android:fontFamily="sans-serif-medium"
             android:text="$0.0000" />
 
@@ -126,7 +190,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#00D4FF"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:fontFamily="sans-serif-medium"
                 android:text="" />
 
@@ -135,7 +199,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#8899BB"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:fontFamily="sans-serif-light"
                 android:text="≈ $0.00" />
         </LinearLayout>

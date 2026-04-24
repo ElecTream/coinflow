@@ -1,12 +1,12 @@
 <lint-module
     format="1"
-    dir="C:\Users\Leeam\Documents\github\widget_crypto\app"
+    dir="C:\Users\leeam\Documents\Github\coinflow\app"
     name=":app"
     type="APP"
     maven="Coinflow:app:unspecified"
-    agpVersion="9.1.0"
+    agpVersion="9.1.1"
     buildFolder="build"
-    bootClassPath="C:\Android\SDK\platforms\android-35\android.jar;C:\Android\SDK\build-tools\36.0.0\core-lambda-stubs.jar"
+    bootClassPath="C:\Users\leeam\AppData\Local\Android\Sdk\platforms\android-35\android.jar;C:\Users\leeam\AppData\Local\Android\Sdk\build-tools\36.0.0\core-lambda-stubs.jar"
     javaSourceLevel="17"
     compileTarget="android-35"
     highlightGradualR8Api="false">

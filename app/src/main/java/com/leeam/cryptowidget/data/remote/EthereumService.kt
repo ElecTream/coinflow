@@ -7,7 +7,7 @@ import java.math.BigInteger
 
 interface EthereumService {
     /**
-     * eth.llamarpc.com — free Ethereum JSON-RPC, no key required.
+     * ethereum-rpc.publicnode.com — free Ethereum JSON-RPC, no key required, generous rate limits.
      * Calls eth_getBalance for a given address.
      */
     @POST(".")

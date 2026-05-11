@@ -363,6 +363,13 @@ class SettingsViewModel @Inject constructor(
             // Auto-remove from widget tabs too
             val widgetIds = _state.value.widgetCoinIds.filter { it != coinId }
             widgetPrefs.setWidgetCoinIds(widgetIds)
+            // If we just unfollowed the active widget coin, migrate to the next available.
+            if (coinId == _state.value.coinId) {
+                val fallback = widgetIds.firstOrNull()
+                    ?: current.firstOrNull()
+                    ?: CoinRegistry.default.id
+                widgetPrefs.setCoinId(fallback)
+            }
         } else {
             current.add(coinId)
         }

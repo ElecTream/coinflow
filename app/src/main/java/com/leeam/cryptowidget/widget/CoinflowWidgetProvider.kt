@@ -151,7 +151,18 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
         CoroutineScope(Dispatchers.IO).launch {
             val prefs = entryPoint(context).widgetPreferences()
 
-            val coinId = prefs.coinId.first()
+            val storedCoinId  = prefs.coinId.first()
+            val widgetCoinIds = prefs.widgetCoinIds.first()
+
+            // Resolve which coin to actually render. If the stored active coin has no
+            // cached price (fresh install, schema migration, or coin was removed), fall
+            // back to the first widget tab that does have data.
+            val candidates = buildList {
+                add(storedCoinId)
+                widgetCoinIds.forEach { if (it !in this) add(it) }
+            }
+            val coinId = candidates.firstOrNull { prefs.priceUsdFor(it).first() > 0.0 }
+                ?: storedCoinId
             val price  = prefs.priceUsdFor(coinId).first()
 
             if (price <= 0.0) {
@@ -160,6 +171,10 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
                 }
                 return@launch
             }
+
+            // Self-heal: if the rendered coin doesn't match the stored active coin,
+            // persist the switch so subsequent refreshes target it.
+            if (coinId != storedCoinId) prefs.setCoinId(coinId)
 
             val change        = prefs.changePctFor(coinId).first()
             val balance       = prefs.balanceFor(coinId).first()
@@ -171,7 +186,6 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
                 customAccentArgb    = prefs.customAccentArgb.first(),
                 customSecondaryArgb = prefs.customSecondaryArgb.first()
             )
-            val widgetCoinIds = prefs.widgetCoinIds.first()
             val coin          = CoinRegistry.byId(coinId)
 
             val cached = WidgetData(

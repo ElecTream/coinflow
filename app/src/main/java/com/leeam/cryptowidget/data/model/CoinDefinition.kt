@@ -35,7 +35,7 @@ sealed class WalletConfig {
     object Xrpl : WalletConfig()
     /** Bitcoin — Blockstream.info API. Address: 1/3/bc1 prefix. */
     object Bitcoin : WalletConfig()
-    /** Ethereum — eth.llamarpc.com JSON-RPC (eth_getBalance). Address: 0x + 40 hex chars. */
+    /** Ethereum — ethereum-rpc.publicnode.com JSON-RPC (eth_getBalance). Address: 0x + 40 hex chars. */
     object Ethereum : WalletConfig()
     /** Solana — mainnet-beta.solana.com JSON-RPC (getBalance). Address: Base58, 32–44 chars. */
     object Solana : WalletConfig()

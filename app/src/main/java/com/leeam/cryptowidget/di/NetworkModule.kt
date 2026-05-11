@@ -61,7 +61,7 @@ object NetworkModule {
     fun provideBitcoinRetrofit(client: OkHttpClient): Retrofit = retrofit("https://blockstream.info/", client)
 
     @Provides @Singleton @Named("ethereum")
-    fun provideEthereumRetrofit(client: OkHttpClient): Retrofit = retrofit("https://eth.llamarpc.com/", client)
+    fun provideEthereumRetrofit(client: OkHttpClient): Retrofit = retrofit("https://ethereum-rpc.publicnode.com/", client)
 
     @Provides @Singleton @Named("solana")
     fun provideSolanaRetrofit(client: OkHttpClient): Retrofit = retrofit("https://api.mainnet-beta.solana.com/", client)

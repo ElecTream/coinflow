@@ -179,32 +179,40 @@ class WidgetPreferences @Inject constructor(
 
     // ── Per-coin cache reads ────────────────────────────────────────────────────
 
+    /**
+     * Legacy single-coin cache keys are only meaningful if the stored active coin id matches
+     * the coin we're reading. They were written by an older build that only knew about XRP,
+     * so the fallback must consult the persisted active coinId rather than the moving default.
+     */
+    private fun isLegacyActive(prefs: Preferences, coinId: String): Boolean =
+        coinId == (prefs[Keys.COIN_ID] ?: CoinRegistry.default.id)
+
     fun priceUsdFor(coinId: String): Flow<Double> = ds.data
         .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
         .map { prefs ->
             prefs[Keys.priceUsdFor(coinId)]
-                ?: if (coinId == CoinRegistry.default.id) prefs[Keys.CACHED_PRICE_USD] ?: 0.0 else 0.0
+                ?: if (isLegacyActive(prefs, coinId)) prefs[Keys.CACHED_PRICE_USD] ?: 0.0 else 0.0
         }
 
     fun changePctFor(coinId: String): Flow<Double> = ds.data
         .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
         .map { prefs ->
             prefs[Keys.changePctFor(coinId)]
-                ?: if (coinId == CoinRegistry.default.id) prefs[Keys.CACHED_CHANGE_PCT] ?: 0.0 else 0.0
+                ?: if (isLegacyActive(prefs, coinId)) prefs[Keys.CACHED_CHANGE_PCT] ?: 0.0 else 0.0
         }
 
     fun balanceFor(coinId: String): Flow<Double> = ds.data
         .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
         .map { prefs ->
             prefs[Keys.balanceFor(coinId)]
-                ?: if (coinId == CoinRegistry.default.id) prefs[Keys.CACHED_BALANCE] ?: 0.0 else 0.0
+                ?: if (isLegacyActive(prefs, coinId)) prefs[Keys.CACHED_BALANCE] ?: 0.0 else 0.0
         }
 
     fun sparklineFor(coinId: String): Flow<List<Double>> = ds.data
         .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
         .map { prefs ->
             val raw = prefs[Keys.sparklineFor(coinId)]
-                ?: if (coinId == CoinRegistry.default.id) prefs[Keys.CACHED_SPARKLINE] else null
+                ?: if (isLegacyActive(prefs, coinId)) prefs[Keys.CACHED_SPARKLINE] else null
             raw?.split(",")?.mapNotNull { it.toDoubleOrNull() } ?: emptyList()
         }
 
@@ -212,7 +220,7 @@ class WidgetPreferences @Inject constructor(
         .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
         .map { prefs ->
             val raw = prefs[Keys.sparklineTsFor(coinId)]
-                ?: if (coinId == CoinRegistry.default.id) prefs[Keys.CACHED_SPARKLINE_TS] else null
+                ?: if (isLegacyActive(prefs, coinId)) prefs[Keys.CACHED_SPARKLINE_TS] else null
             raw?.split(",")?.mapNotNull { it.toLongOrNull() } ?: emptyList()
         }
 
@@ -220,7 +228,7 @@ class WidgetPreferences @Inject constructor(
         .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
         .map { prefs ->
             prefs[Keys.updatedMsFor(coinId)]
-                ?: if (coinId == CoinRegistry.default.id) prefs[Keys.CACHED_UPDATED_MS] ?: 0L else 0L
+                ?: if (isLegacyActive(prefs, coinId)) prefs[Keys.CACHED_UPDATED_MS] ?: 0L else 0L
         }
 
     fun lastFetchedMsFor(coinId: String): Flow<Long> = ds.data

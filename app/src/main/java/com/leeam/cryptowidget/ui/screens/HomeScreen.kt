@@ -61,8 +61,9 @@ fun HomeScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .statusBarsPadding()
+                .navigationBarsPadding()
                 .padding(horizontal = 16.dp)
-                .padding(top = 20.dp, bottom = 28.dp),
+                .padding(top = 20.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             HomeHeader()

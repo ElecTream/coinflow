@@ -8,12 +8,43 @@
   "variantName": "release",
   "elements": [
     {
-      "type": "SINGLE",
-      "filters": [],
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "armeabi-v7a"
+        }
+      ],
       "attributes": [],
-      "versionCode": 10200,
-      "versionName": "1.2.0",
-      "outputFile": "AndroidManifest.xml"
+      "versionCode": 10201,
+      "versionName": "1.2.1",
+      "outputFile": "armeabi-v7a/AndroidManifest.xml"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "x86_64"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 10201,
+      "versionName": "1.2.1",
+      "outputFile": "x86_64/AndroidManifest.xml"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "arm64-v8a"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 10201,
+      "versionName": "1.2.1",
+      "outputFile": "arm64-v8a/AndroidManifest.xml"
     }
   ],
   "elementType": "File"

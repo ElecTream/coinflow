@@ -64,9 +64,9 @@ sealed class WalletConfig {
 data class CoinDefinition(
     /** Stable internal ID (lowercase). Stored in DataStore and Room. Never change after first use. */
     val id: String,
-    /** Display ticker shown in the widget and UI, e.g. "XRP". */
+    /** Display ticker shown in the widget and UI, e.g. "BTC". */
     val symbol: String,
-    /** Full display name shown in settings, e.g. "XRP / Ripple". */
+    /** Full display name shown in settings, e.g. "Bitcoin". */
     val displayName: String,
     /** How to fetch price, 24h change, and sparkline data. */
     val priceSource: PriceSource,
@@ -76,13 +76,6 @@ data class CoinDefinition(
 
 object CoinRegistry {
     val all: List<CoinDefinition> = listOf(
-        CoinDefinition(
-            id           = "ripple",
-            symbol       = "XRP",
-            displayName  = "XRP / Ripple",
-            priceSource  = PriceSource.Kraken("XRPUSD"),
-            walletConfig = WalletConfig.Xrpl
-        ),
         CoinDefinition(
             id           = "bitcoin",
             symbol       = "BTC",
@@ -104,13 +97,20 @@ object CoinRegistry {
             priceSource  = PriceSource.Kraken("SOLUSD"),
             walletConfig = WalletConfig.Solana
         ),
+        CoinDefinition(
+            id           = "ripple",
+            symbol       = "XRP",
+            displayName  = "XRP",
+            priceSource  = PriceSource.Kraken("XRPUSD"),
+            walletConfig = WalletConfig.Xrpl
+        ),
     )
 
     private val byIdMap: Map<String, CoinDefinition> = all.associateBy { it.id }
 
-    /** Returns the [CoinDefinition] for [id], or XRP as a safe fallback. */
+    /** Returns the [CoinDefinition] for [id], or the first registered coin as a fallback. */
     fun byId(id: String): CoinDefinition = byIdMap[id] ?: all.first()
 
-    /** Default coin shown on first install. */
+    /** Default coin used as a seed on first install. */
     val default: CoinDefinition = all.first()
 }

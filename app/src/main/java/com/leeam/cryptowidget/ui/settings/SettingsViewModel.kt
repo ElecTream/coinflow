@@ -11,8 +11,10 @@ import com.leeam.cryptowidget.data.local.AlertRepository
 import com.leeam.cryptowidget.data.local.AppTheme
 import com.leeam.cryptowidget.data.local.ChartStyle
 import com.leeam.cryptowidget.data.local.WidgetPreferences
+import com.leeam.cryptowidget.data.model.CoinDefinition
 import com.leeam.cryptowidget.data.model.CoinRegistry
 import com.leeam.cryptowidget.data.model.WalletConfig
+import com.leeam.cryptowidget.data.repository.CoinRepository
 import com.leeam.cryptowidget.data.repository.CryptoRepository
 import com.leeam.cryptowidget.ui.util.CoinFormatter
 import com.leeam.cryptowidget.widget.CoinflowWidgetProvider
@@ -20,9 +22,20 @@ import com.leeam.cryptowidget.worker.WorkScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+data class CoinSnapshot(
+    val coin: CoinDefinition,
+    val priceUsd: Double,
+    val change24hPct: Double,
+    val sparkline: List<Double>,
+    val updatedMs: Long
+)
 
 data class SettingsUiState(
     val livePrice: Double? = null,
@@ -49,7 +62,10 @@ data class SettingsUiState(
     val followedCoinIds: List<String> = CoinRegistry.all.map { it.id },
     val widgetCoinIds: List<String>   = listOf(CoinRegistry.default.id),
     val customAccentArgb: Int = 0xFF00D4FF.toInt(),
-    val customSecondaryArgb: Int = 0xFF7B2FFF.toInt()
+    val customSecondaryArgb: Int = 0xFF7B2FFF.toInt(),
+    val followedSnapshots: List<CoinSnapshot> = emptyList(),
+    val isRefreshingAll: Boolean = false,
+    val customCoins: List<CoinDefinition> = emptyList()
 )
 
 @HiltViewModel
@@ -58,6 +74,7 @@ class SettingsViewModel @Inject constructor(
     private val widgetPrefs: WidgetPreferences,
     private val cryptoRepository: CryptoRepository,
     private val alertRepository: AlertRepository,
+    private val coinRepository: CoinRepository,
     private val workScheduler: WorkScheduler
 ) : ViewModel() {
 
@@ -72,6 +89,29 @@ class SettingsViewModel @Inject constructor(
         collectDiagnostics()
         collectMultiCoinPrefs()
         collectCustomColors()
+        collectFollowedSnapshots()
+        collectCustomCoins()
+    }
+
+    private fun collectCustomCoins() = viewModelScope.launch {
+        coinRepository.allCoins().collect { all ->
+            val builtinIds = CoinRegistry.all.map { it.id }.toSet()
+            _state.update { it.copy(customCoins = all.filter { c -> c.id !in builtinIds }) }
+        }
+    }
+
+    /** Remove a user-added custom coin entirely; also clears it from followed and widget lists. */
+    fun deleteCustomCoin(coinId: String) = viewModelScope.launch {
+        val followed = widgetPrefs.followedCoinIds.first().filter { it != coinId }
+        val widgetTabs = widgetPrefs.widgetCoinIds.first().filter { it != coinId }
+        widgetPrefs.setFollowedCoinIds(followed)
+        widgetPrefs.setWidgetCoinIds(widgetTabs)
+        coinRepository.deleteCustomCoin(coinId)
+        // If the deleted coin was the active widget coin, fall back to the first remaining tab.
+        if (coinId == _state.value.coinId) {
+            val fallback = widgetTabs.firstOrNull() ?: CoinRegistry.default.id
+            widgetPrefs.setCoinId(fallback)
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -327,6 +367,81 @@ class SettingsViewModel @Inject constructor(
             current.add(coinId)
         }
         widgetPrefs.setFollowedCoinIds(current)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun collectFollowedSnapshots() = viewModelScope.launch {
+        val combined = combine(
+            widgetPrefs.followedCoinIds,
+            coinRepository.allCoins()
+        ) { ids, coins -> ids to coins }
+            .flatMapLatest { (ids, allCoins) ->
+                val byId = allCoins.associateBy { it.id }
+                val orderedCoins = ids.mapNotNull { id ->
+                    byId[id] ?: CoinRegistry.all.firstOrNull { it.id == id }
+                }
+                if (orderedCoins.isEmpty()) {
+                    flowOf(emptyList())
+                } else {
+                    val perCoinFlows = orderedCoins.map { coin ->
+                        combine(
+                            widgetPrefs.priceUsdFor(coin.id),
+                            widgetPrefs.changePctFor(coin.id),
+                            widgetPrefs.sparklineFor(coin.id),
+                            widgetPrefs.updatedMsFor(coin.id)
+                        ) { price, change, sparkline, updated ->
+                            CoinSnapshot(
+                                coin         = coin,
+                                priceUsd     = price,
+                                change24hPct = change,
+                                sparkline    = sparkline,
+                                updatedMs    = updated
+                            )
+                        }
+                    }
+                    combine(perCoinFlows) { it.toList() }
+                }
+            }
+        combined.collect { snapshots ->
+            _state.update { it.copy(followedSnapshots = snapshots) }
+        }
+    }
+
+    /** Refresh price + sparkline for every followed coin in parallel. */
+    fun refreshAllFollowed() {
+        if (_state.value.isRefreshingAll) return
+        viewModelScope.launch {
+            _state.update { it.copy(isRefreshingAll = true) }
+            val snapshots = _state.value.followedSnapshots
+            if (snapshots.isEmpty()) {
+                _state.update { it.copy(isRefreshingAll = false) }
+                return@launch
+            }
+            try {
+                coroutineScope {
+                    snapshots.map { snap ->
+                        async {
+                            val wallet = widgetPrefs.walletAddressFor(snap.coin.id).first()
+                            cryptoRepository.fetchWidgetData(snap.coin.id, wallet).fold(
+                                onSuccess = { data ->
+                                    widgetPrefs.cacheCoinData(
+                                        coinId              = snap.coin.id,
+                                        priceUsd            = data.priceUsd,
+                                        changePct           = data.change24hPct,
+                                        balance             = data.walletBalance,
+                                        sparkline           = data.sparklinePrices,
+                                        sparklineTimestamps = data.sparklineTimestamps
+                                    )
+                                },
+                                onFailure = { /* swallowed per-coin */ }
+                            )
+                        }
+                    }.awaitAll()
+                }
+            } finally {
+                _state.update { it.copy(isRefreshingAll = false) }
+            }
+        }
     }
 
     /** Adds or removes a coin from the widget tab list (max 5, must be in followed list). */

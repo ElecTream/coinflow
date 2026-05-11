@@ -1,40 +1,48 @@
-# Crypto Widget
+# Coinflow
 
-A polished Android home-screen widget for live XRP price tracking.
+A polished Android home-screen widget and companion app for live multi-coin crypto price tracking.
 
 ## Features
 
-- **Live XRP price** from CoinGecko (free, no API key required)
-- **Sparkline chart** showing 24-hour price history with green/red glow effect
-- **Wallet balance tracking** — enter any public XRP wallet address to see your holdings
-- **Configurable refresh intervals** — 15m, 30m, 1h, 2h, or 6h
-- **Price alerts** — set ABOVE/BELOW thresholds; get notified when XRP crosses them
-- **Dark crypto theme** — electric cyan and purple on near-black
-- Supports **widget resize** — sparkline re-renders at the new dimensions
+- **Live prices** for any number of coins, pulled from Kraken's public market API (no key required)
+- **Sparkline charts** showing 24-hour price history with green/red glow segments
+- **Multi-coin widget** — pick up to 5 coins, swipe between them on a single 4×2 widget
+- **Wallet balance tracking** — XRPL, Bitcoin, Ethereum, Solana, plus generic REST endpoints for custom coins
+- **Multi-coin portfolio screen** — total value, 24h delta, per-coin allocation breakdown
+- **Configurable refresh intervals** — 15m, 30m, 1h, 2h, 6h
+- **Price alerts** — ABOVE/BELOW thresholds in crossing, repeating, or one-shot modes
+- **Themeable** — Cyber, Amber, Matrix, Midnight, or fully custom accent + secondary
+- **BYOC (Bring Your Own Coin)** — add any Kraken pair, or wire up a custom REST endpoint with dot-notation JSON paths
 
 ## Architecture
 
 ```
-CryptoWidgetApplication (Hilt)
+CoinflowApplication (Hilt)
   └── WorkScheduler
         └── PriceUpdateWorker (WorkManager, periodic)
               ├── CryptoRepository
-              │     ├── CoinGeckoService (price + sparkline)
-              │     └── XrpScanService (wallet balance)
-              ├── WidgetUpdater → RemoteViews → CryptoWidgetProvider
+              │     ├── KrakenService   (price + OHLC sparkline, any pair)
+              │     ├── XrplService     (XRPL wallet balance)
+              │     ├── BitcoinService  (Blockstream.info balance)
+              │     ├── EthereumService (eth.llamarpc.com JSON-RPC balance)
+              │     ├── SolanaService   (mainnet-beta JSON-RPC balance)
+              │     └── GenericRestService (custom URL + JSON path for BYOC)
+              ├── CoinRepository (built-in + Room-stored custom coins)
+              ├── WidgetUpdater → RemoteViews → CoinflowWidgetProvider
               ├── AlertRepository → checkAndFireAlerts
               └── AlertNotifier → NotificationManager
 ```
 
-## APIs used
+## Built-in coins
 
-| Service | Endpoint | Notes |
-|---------|----------|-------|
-| CoinGecko | `api/v3/simple/price` | Live price + 24h change |
-| CoinGecko | `api/v3/coins/ripple/market_chart` | Sparkline data (hourly) |
-| XRPScan | `api/v1/account/{address}` | Wallet XRP balance |
+| Symbol | Name     | Kraken pair | Wallet support      |
+|--------|----------|-------------|---------------------|
+| BTC    | Bitcoin  | XBTUSD      | Blockstream.info    |
+| ETH    | Ethereum | ETHUSD      | eth.llamarpc.com    |
+| SOL    | Solana   | SOLUSD      | mainnet-beta JSON-RPC |
+| XRP    | XRP      | XRPUSD      | xrplcluster.com     |
 
-Both APIs are free with no API key required.
+Add more via the in-app **Add Coin** flow — either pick from the full Kraken pair list or supply a custom REST endpoint.
 
 ## Build
 
@@ -42,7 +50,7 @@ Both APIs are free with no API key required.
 # Debug build
 ./gradlew assembleDebug
 
-# Release build (signed with debug keystore)
+# Release build (minified + shrunk)
 ./gradlew assembleRelease
 ```
 
@@ -54,25 +62,16 @@ Requires:
 ## Install
 
 ```bash
-# Install debug APK
-adb install -r app/build/outputs/apk/debug/app-debug.apk
-
-# Install release APK
-adb install -r app/build/outputs/apk/release/app-release.apk
-
-# Or one-step
 ./gradlew installDebug
 ```
 
 ## Setup
 
-1. Add the widget to your home screen (long-press → Widgets → Crypto Widget)
-2. Open the **Crypto Widget** app to configure:
-   - Enter a public XRP wallet address (optional)
-   - Set your preferred refresh interval
-   - Add price alerts for above/below thresholds
-   - Tap **Save & Update Widget**
+1. Open the **Coinflow** app and tap the coins you want to follow.
+2. Pick which followed coins appear as widget tabs (max 5).
+3. Add the widget to your home screen (long-press → Widgets → Coinflow).
+4. Optional: tap a coin on the home tracker to set a wallet address or configure price alerts.
 
 ## Min SDK
 
-API 26 (Android 8.0 Oreo) — required for adaptive icons and modern WorkManager behavior.
+API 26 (Android 8.0 Oreo).

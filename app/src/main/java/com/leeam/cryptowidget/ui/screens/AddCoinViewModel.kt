@@ -3,6 +3,7 @@ package com.leeam.cryptowidget.ui.screens
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leeam.cryptowidget.data.local.CustomCoinEntity
+import com.leeam.cryptowidget.data.local.WidgetPreferences
 import com.leeam.cryptowidget.data.remote.KrakenService
 import com.leeam.cryptowidget.data.repository.CoinRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -55,6 +57,7 @@ data class AddCoinUiState(
 @HiltViewModel
 class AddCoinViewModel @Inject constructor(
     private val coinRepository: CoinRepository,
+    private val widgetPrefs: WidgetPreferences,
     private val krakenService: KrakenService
 ) : ViewModel() {
 
@@ -181,6 +184,9 @@ class AddCoinViewModel @Inject constructor(
 
         try {
             coinRepository.addCustomCoin(entity)
+            // Auto-follow the newly added coin so it surfaces in the live tracker immediately.
+            val current = widgetPrefs.followedCoinIds.first()
+            if (id !in current) widgetPrefs.setFollowedCoinIds(current + id)
             _state.update { it.copy(isSaving = false) }
             onSuccess()
         } catch (e: Exception) {

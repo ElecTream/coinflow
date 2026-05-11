@@ -15,31 +15,31 @@ No test files exist yet — `./gradlew test` will run if tests are added.
 
 ## Architecture Overview
 
-**Coinflow** is a single-module Android app (`com.leeam.cryptowidget`) that tracks XRP price and displays it as a home screen widget.
+**Coinflow** is a single-module Android app (`com.leeam.cryptowidget`) that tracks multiple cryptocurrencies and displays them as a home screen widget plus a companion Compose UI.
 
-**Tech stack:** Hilt DI, WorkManager, Jetpack Compose (settings UI), Room, DataStore, Retrofit, Kotlin Coroutines, Kotlin Serialization.
+**Tech stack:** Hilt DI, WorkManager, Jetpack Compose, Room, DataStore, Retrofit, Kotlin Coroutines, Kotlin Serialization.
 
 ### Data Flow
 
-1. `CryptoWidgetApplication` initializes the notification channel and schedules a periodic `PriceUpdateWorker` via `WorkScheduler` (default 15 min, network-constrained).
-2. `PriceUpdateWorker` calls `CryptoRepositoryImpl`, which hits two APIs in parallel:
-   - **Kraken** — live XRP price + 24h change + hourly sparkline data
-   - **XRPL** (direct ledger) — wallet XRP balance (if address configured)
-3. Results are cached in **DataStore** (`WidgetPreferences`), and any enabled price alerts are checked against **Room** (`AlertDatabase`).
-4. `WidgetUpdater` builds a `RemoteViews` object with the new data; `SparklineRenderer` draws the 24h chart to a `Canvas` bitmap.
-5. `CryptoWidgetProvider` (AppWidgetProvider) applies the `RemoteViews` to all active widget instances.
+1. `CoinflowApplication` initializes the notification channel and schedules a periodic `PriceUpdateWorker` via `WorkScheduler` (default 15 min, network-constrained).
+2. `PriceUpdateWorker` iterates every followed coin and calls `CryptoRepositoryImpl`, which dispatches per-coin:
+   - Price + 24h change + hourly OHLC sparkline → **Kraken** (any pair) or a user-defined **GenericRest** endpoint
+   - Wallet balance → XRPL / Bitcoin (Blockstream) / Ethereum (llamarpc) / Solana (mainnet-beta) / GenericRest, depending on the coin's `WalletConfig`
+3. Each coin's results are cached per-id in **DataStore** (`WidgetPreferences`), and any enabled price alerts are checked against **Room** (`AlertDatabase`).
+4. `WidgetUpdater` builds a `RemoteViews` object with the active coin's data; `SparklineRenderer` draws the 24h chart to a `Canvas` bitmap.
+5. `CoinflowWidgetProvider` (AppWidgetProvider) applies the `RemoteViews` to all active widget instances. The widget exposes a top tab strip for swapping between the user's chosen coins (up to 5).
 
 ### Key Layers
 
 | Layer | Location |
 |---|---|
-| Widget UI (RemoteViews) | `widget/CryptoWidgetProvider`, `widget/WidgetUpdater`, `widget/SparklineRenderer` |
-| Settings UI (Compose) | `ui/settings/SettingsActivity`, `ui/settings/SettingsViewModel` |
+| Widget UI (RemoteViews) | `widget/CoinflowWidgetProvider`, `widget/WidgetUpdater`, `widget/SparklineRenderer` |
+| App UI (Compose) | `ui/settings/SettingsActivity` (NavHost), `ui/screens/*`, `ui/components/*`, `ui/chart/*` |
 | Background work | `worker/PriceUpdateWorker`, `worker/WorkScheduler` |
-| Repository | `data/repository/CryptoRepositoryImpl` |
-| Remote APIs | `data/remote/KrakenService`, `data/remote/XrplService` |
-| Local storage | `data/local/WidgetPreferences` (DataStore), `data/local/AlertDatabase` (Room) |
-| DI | `di/NetworkModule` (two Retrofit instances), `di/DatabaseModule` |
+| Repositories | `data/repository/CryptoRepositoryImpl`, `data/repository/CoinRepositoryImpl` |
+| Remote APIs | `data/remote/KrakenService`, `XrplService`, `BitcoinService`, `EthereumService`, `SolanaService`, `GenericRestService` |
+| Local storage | `data/local/WidgetPreferences` (DataStore, per-coin keys), `data/local/AlertDatabase` (Room), `data/local/CustomCoinDao` (BYOC) |
+| DI | `di/NetworkModule` (one Retrofit per host), `di/DatabaseModule`, `di/RepositoryModule` |
 
 ### Error Handling Pattern
 
@@ -47,8 +47,12 @@ Each data source in `CryptoRepositoryImpl` fails independently — a sparkline f
 
 ## APIs
 
-- **Kraken** (`https://api.kraken.com/0/public`) — no API key required, US-based, no geo-restrictions
-- **XRPL** (`https://xrplcluster.com`) — direct ledger query, no API key required
+- **Kraken** (`https://api.kraken.com/0/public`) — price + OHLC for any pair, no API key required, no geo-restrictions
+- **XRPL** (`https://xrplcluster.com`) — direct ledger query for XRP wallets, no API key required
+- **Blockstream.info** — BTC wallet balance
+- **eth.llamarpc.com** — Ethereum JSON-RPC for ETH wallet balance
+- **api.mainnet-beta.solana.com** — Solana JSON-RPC for SOL wallet balance
+- **GenericRestService** — user-supplied URL + dot-notation JSON path for BYOC coins
 
 ## Configuration Notes
 

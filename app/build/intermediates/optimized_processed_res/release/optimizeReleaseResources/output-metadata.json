@@ -8,12 +8,43 @@
   "variantName": "release",
   "elements": [
     {
-      "type": "SINGLE",
-      "filters": [],
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "armeabi-v7a"
+        }
+      ],
       "attributes": [],
-      "versionCode": 10200,
-      "versionName": "1.2.0",
-      "outputFile": "resources-release-optimize.ap_"
+      "versionCode": 10201,
+      "versionName": "1.2.1",
+      "outputFile": "resources-armeabi-v7a-release-optimize.ap_"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "x86_64"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 10201,
+      "versionName": "1.2.1",
+      "outputFile": "resources-x86_64-release-optimize.ap_"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "arm64-v8a"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 10201,
+      "versionName": "1.2.1",
+      "outputFile": "resources-arm64-v8a-release-optimize.ap_"
     }
   ],
   "elementType": "File"

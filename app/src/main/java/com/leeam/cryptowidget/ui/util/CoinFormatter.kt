@@ -111,7 +111,7 @@ object CoinFormatter {
 
     /**
      * Formats a balance + symbol for the widget's wallet row.
-     * e.g. "0.00094832 BTC"  or  "1,234.567 XRP"
+     * e.g. "0.00094832 BTC"  or  "12.345 SOL"
      */
     fun formatBalanceWithSymbol(amount: Double, priceUsd: Double, symbol: String): String {
         val formatted = formatAmount(amount, priceUsd)

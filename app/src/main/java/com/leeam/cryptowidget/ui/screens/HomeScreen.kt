@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.ui.draw.clip
 import androidx.compose.material3.*
@@ -19,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.font.FontWeight
@@ -44,6 +46,7 @@ fun HomeScreen(
     navController: NavController
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
+    val activeCoin = CoinRegistry.byId(state.coinId)
 
     Box(
         modifier = Modifier
@@ -56,28 +59,55 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .statusBarsPadding()
+                .padding(horizontal = 16.dp)
+                .padding(top = 20.dp, bottom = 28.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // Header
-            Text(
-                "Coinflow",
-                color      = TextPrimary,
-                fontSize   = 26.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                "Crypto price tracker",
-                color    = TextSecondary,
-                fontSize = 13.sp
+            HomeHeader()
+
+            // ── Live price hero ─────────────────────────────────────────────
+            CryptoCard {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    SectionLabel("LIVE · ${activeCoin.symbol}")
+                    Spacer(Modifier.weight(1f))
+                    HomePriceRefreshButton(isSpinning = state.priceLoading, onClick = vm::fetchLivePrice)
+                }
+                Spacer(Modifier.height(10.dp))
+                when {
+                    state.priceLoading && state.livePrice == null ->
+                        HomePriceShimmer(Modifier.fillMaxWidth())
+                    state.priceError != null && state.livePrice == null ->
+                        Text(
+                            "Error: ${state.priceError}",
+                            color = ColorDown,
+                            fontSize = 12.sp
+                        )
+                    state.livePrice != null ->
+                        HomePriceDisplay(
+                            price     = state.livePrice!!,
+                            change24h = state.change24h
+                        )
+                    else ->
+                        HomePriceShimmer(Modifier.fillMaxWidth())
+                }
+            }
+
+            // ── Portfolio quick link (prominent) ────────────────────────────
+            PortfolioLinkCard(
+                followedCount = state.followedCoinIds.size,
+                onClick       = { navController.navigate(Screen.PORTFOLIO) }
             )
 
-            // ── Follow management ──────────────────────────────────────────
+            // ── Follow management ───────────────────────────────────────────
             CryptoCard {
                 SectionLabel("FOLLOW")
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(10.dp))
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.horizontalScroll(rememberScrollState())
                 ) {
                     CoinRegistry.all.forEach { coin ->
@@ -90,71 +120,60 @@ fun HomeScreen(
                 }
             }
 
-            // ── Widget tab management ──────────────────────────────────────
+            // ── Widget tabs ────────────────────────────────────────────────
             CryptoCard {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     SectionLabel("WIDGET TABS")
                     Spacer(Modifier.weight(1f))
                     Text(
-                        "${state.widgetCoinIds.size}/5",
+                        "${state.widgetCoinIds.size} / 5",
                         color    = if (state.widgetCoinIds.size >= 5) ColorDown else TextSecondary,
-                        fontSize = 10.sp
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
-                Spacer(Modifier.height(8.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.horizontalScroll(rememberScrollState())
-                ) {
-                    state.followedCoinIds.forEach { coinId ->
-                        val coin     = CoinRegistry.byId(coinId)
-                        val onWidget = coinId in state.widgetCoinIds
-                        val canAdd   = !onWidget && state.widgetCoinIds.size < 5
-                        CryptoFilterChip(
-                            label    = coin.symbol,
-                            selected = onWidget,
-                            onClick  = { if (onWidget || canAdd) vm.toggleWidgetCoin(coinId) }
+                Spacer(Modifier.height(10.dp))
+                if (state.followedCoinIds.isEmpty()) {
+                    Text(
+                        "Follow at least one coin to add it to the widget.",
+                        color = TextSecondary,
+                        fontSize = 12.sp
+                    )
+                } else {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.horizontalScroll(rememberScrollState())
+                    ) {
+                        state.followedCoinIds.forEach { coinId ->
+                            val coin     = CoinRegistry.byId(coinId)
+                            val onWidget = coinId in state.widgetCoinIds
+                            val canAdd   = !onWidget && state.widgetCoinIds.size < 5
+                            CryptoFilterChip(
+                                label    = coin.symbol,
+                                selected = onWidget,
+                                onClick  = { if (onWidget || canAdd) vm.toggleWidgetCoin(coinId) }
+                            )
+                        }
+                    }
+                    if (state.widgetCoinIds.size >= 5) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            "Widget tab limit reached (5 max).",
+                            color = ColorDown,
+                            fontSize = 11.sp
                         )
                     }
                 }
-                if (state.widgetCoinIds.size >= 5) {
-                    Spacer(Modifier.height(4.dp))
-                    Text("Widget tab limit reached (5 max)", color = ColorDown, fontSize = 10.sp)
-                }
             }
 
-            // Live price card
-            CryptoCard {
-                SectionLabel("LIVE PRICE")
-                Spacer(Modifier.height(8.dp))
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment     = Alignment.CenterVertically
-                ) {
-                    Box(modifier = Modifier.weight(1f)) {
-                        when {
-                            state.priceLoading   -> HomePriceShimmer(Modifier.fillMaxWidth())
-                            state.priceError != null ->
-                                Text("Error: ${state.priceError}", color = ColorDown, fontSize = 12.sp)
-                            state.livePrice != null ->
-                                HomePriceDisplay(
-                                    price    = state.livePrice!!,
-                                    change24h = state.change24h
-                                )
-                        }
-                    }
-                    HomePriceRefreshButton(isSpinning = state.priceLoading, onClick = vm::fetchLivePrice)
-                }
-            }
-
-            // Navigation links
+            // ── Settings navigation ────────────────────────────────────────
+            Spacer(Modifier.height(2.dp))
             SectionLabel("SETTINGS")
-            Spacer(Modifier.height(0.dp))
+            Spacer(Modifier.height(2.dp))
 
             NavLinkCard(
                 title    = "Price Alerts & Wallet",
-                subtitle = "Alerts, thresholds, and wallet balance for ${CoinRegistry.byId(state.coinId).symbol}",
+                subtitle = "Thresholds and balance for ${activeCoin.symbol}",
                 onClick  = { navController.navigate(Screen.coinDetail(state.coinId)) }
             )
             NavLinkCard(
@@ -168,13 +187,9 @@ fun HomeScreen(
                 onClick  = { navController.navigate(Screen.APPEARANCE) }
             )
             NavLinkCard(
-                title    = "Portfolio",
-                subtitle = "Multi-coin portfolio view",
-                onClick  = { navController.navigate(Screen.PORTFOLIO) }
-            )
-            NavLinkCard(
                 title    = "Add Coin",
                 subtitle = "Track a Kraken pair or any custom REST endpoint",
+                leadingIcon = Icons.Default.Add,
                 onClick  = { navController.navigate(Screen.ADD_COIN) }
             )
         }
@@ -182,21 +197,115 @@ fun HomeScreen(
 }
 
 @Composable
-private fun NavLinkCard(title: String, subtitle: String, onClick: () -> Unit) {
+private fun HomeHeader() {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(
+            "Coinflow",
+            color      = TextPrimary,
+            fontSize   = 28.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = (-0.5).sp
+        )
+        Text(
+            "Crypto price tracker",
+            color    = TextSecondary,
+            fontSize = 13.sp
+        )
+    }
+}
+
+@Composable
+private fun PortfolioLinkCard(followedCount: Int, onClick: () -> Unit) {
     val themeColors = LocalThemeColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Surface.copy(alpha = 0.85f), RoundedCornerShape(12.dp))
-            .border(1.dp, CardBorder, RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(14.dp))
+            .background(
+                Brush.horizontalGradient(
+                    listOf(
+                        themeColors.secondary.copy(alpha = 0.22f),
+                        themeColors.accent.copy(alpha = 0.18f)
+                    )
+                )
+            )
+            .border(1.dp, themeColors.accent.copy(alpha = 0.45f), RoundedCornerShape(14.dp))
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            Text(
+                "Portfolio",
+                color      = TextPrimary,
+                fontSize   = 16.sp,
+                fontWeight = FontWeight.SemiBold
+            )
             Spacer(Modifier.height(2.dp))
-            Text(subtitle, color = TextSecondary, fontSize = 11.sp)
+            Text(
+                if (followedCount == 0) "Add coins to start tracking"
+                else "Track $followedCount coin${if (followedCount == 1) "" else "s"} in one place",
+                color    = TextSecondary,
+                fontSize = 12.sp
+            )
+        }
+        Icon(
+            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint     = themeColors.accent,
+            modifier = Modifier.size(22.dp)
+        )
+    }
+}
+
+@Composable
+private fun NavLinkCard(
+    title: String,
+    subtitle: String,
+    leadingIcon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+    onClick: () -> Unit
+) {
+    val themeColors = LocalThemeColors.current
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Surface.copy(alpha = 0.85f))
+            .border(1.dp, CardBorder, RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (leadingIcon != null) {
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(themeColors.accent.copy(alpha = 0.14f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    leadingIcon,
+                    contentDescription = null,
+                    tint     = themeColors.accent,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+            Spacer(Modifier.width(12.dp))
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                title,
+                color      = TextPrimary,
+                fontSize   = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
+            Spacer(Modifier.height(3.dp))
+            Text(
+                subtitle,
+                color    = TextSecondary,
+                fontSize = 12.sp
+            )
         }
         Icon(
             Icons.AutoMirrored.Filled.KeyboardArrowRight,
@@ -220,29 +329,33 @@ private fun HomePriceDisplay(price: Double, change24h: Double?) {
 
     val priceColor = lerp(TextPrimary, flashColorState.value, flashAlpha.value)
 
-    AnimatedContent(
-        targetState = price,
-        transitionSpec = {
-            (slideInVertically { -it } + fadeIn()) togetherWith (slideOutVertically { it } + fadeOut())
-        },
-        label = "price_digits"
-    ) { p ->
-        Text(
-            CoinFormatter.formatPrice(p),
-            color      = priceColor,
-            fontSize   = 28.sp,
-            fontWeight = FontWeight.Bold
-        )
-    }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        AnimatedContent(
+            targetState = price,
+            transitionSpec = {
+                (slideInVertically { -it } + fadeIn()) togetherWith (slideOutVertically { it } + fadeOut())
+            },
+            label = "price_digits"
+        ) { p ->
+            Text(
+                CoinFormatter.formatPrice(p),
+                color      = priceColor,
+                fontSize   = 32.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = (-0.5).sp
+            )
+        }
 
-    change24h?.let { change ->
-        val upColor = if (change >= 0) ColorUp else ColorDown
-        val arrow   = if (change >= 0) "▲" else "▼"
-        Text(
-            "$arrow ${String.format(Locale.US, "%.2f", abs(change))}%  24h",
-            color    = upColor,
-            fontSize = 12.sp
-        )
+        change24h?.let { change ->
+            val upColor = if (change >= 0) ColorUp else ColorDown
+            val arrow   = if (change >= 0) "▲" else "▼"
+            Text(
+                "$arrow ${String.format(Locale.US, "%.2f", abs(change))}%   ·   24h",
+                color    = upColor,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }
 
@@ -255,15 +368,15 @@ private fun HomePriceShimmer(modifier: Modifier = Modifier) {
         animationSpec = infiniteRepeatable(tween(1200, easing = LinearEasing)),
         label = "shimmerX"
     )
-    val brush = androidx.compose.ui.graphics.Brush.linearGradient(
+    val brush = Brush.linearGradient(
         colors = listOf(Color.Transparent, accent.copy(alpha = 0.35f), Color.Transparent),
         start  = androidx.compose.ui.geometry.Offset(shimmerX, 0f),
         end    = androidx.compose.ui.geometry.Offset(shimmerX + 400f, 0f)
     )
     Box(
         modifier
-            .height(34.dp)
-            .clip(RoundedCornerShape(6.dp))
+            .height(40.dp)
+            .clip(RoundedCornerShape(8.dp))
             .background(Surface)
             .background(brush)
     )
@@ -281,18 +394,19 @@ private fun HomePriceRefreshButton(isSpinning: Boolean, onClick: () -> Unit) {
     OutlinedButton(
         onClick = onClick,
         colors  = ButtonDefaults.outlinedButtonColors(contentColor = accent),
-        border  = BorderStroke(1.dp, accent),
-        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+        border  = BorderStroke(1.dp, accent.copy(alpha = 0.7f)),
+        shape   = RoundedCornerShape(10.dp),
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
     ) {
         Icon(
             Icons.Default.Refresh,
             contentDescription = "Refresh",
             modifier = Modifier
-                .size(16.dp)
+                .size(14.dp)
                 .rotate(if (isSpinning) spinAngle else 0f),
             tint = accent
         )
-        Spacer(Modifier.width(4.dp))
-        Text("Refresh", fontSize = 11.sp)
+        Spacer(Modifier.width(6.dp))
+        Text("Refresh", fontSize = 11.sp, fontWeight = FontWeight.Medium)
     }
 }

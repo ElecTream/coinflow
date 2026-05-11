@@ -102,7 +102,7 @@ fun CoinDetailNavScreen(
                 ) {
                     CryptoCard {
                         SectionLabel("WALLET ADDRESS")
-                        Spacer(Modifier.height(8.dp))
+                        Spacer(Modifier.height(10.dp))
                         OutlinedTextField(
                             value         = state.walletAddress,
                             onValueChange = vm::onWalletChange,
@@ -151,7 +151,7 @@ fun CoinDetailNavScreen(
                 // Price alerts
                 CryptoCard {
                     SectionLabel("PRICE ALERTS")
-                    Spacer(Modifier.height(10.dp))
+                    Spacer(Modifier.height(12.dp))
 
                     // Direction + threshold + add
                     Row(
@@ -198,11 +198,11 @@ fun CoinDetailNavScreen(
                         }
                     }
 
-                    Spacer(Modifier.height(6.dp))
+                    Spacer(Modifier.height(12.dp))
 
                     // Alert mode selector
                     SectionLabel("ALERT MODE")
-                    Spacer(Modifier.height(4.dp))
+                    Spacer(Modifier.height(8.dp))
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                         modifier = Modifier.horizontalScroll(rememberScrollState())
@@ -222,9 +222,9 @@ fun CoinDetailNavScreen(
 
                     AnimatedVisibility(visible = state.newAlertMode == AlertMode.REPEATING) {
                         Column {
-                            Spacer(Modifier.height(6.dp))
+                            Spacer(Modifier.height(12.dp))
                             SectionLabel("COOLDOWN")
-                            Spacer(Modifier.height(4.dp))
+                            Spacer(Modifier.height(8.dp))
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                                 modifier = Modifier.horizontalScroll(rememberScrollState())
@@ -250,17 +250,17 @@ fun CoinDetailNavScreen(
                         }
                     }
 
-                    Spacer(Modifier.height(4.dp))
+                    Spacer(Modifier.height(8.dp))
                     Text(
                         when (state.newAlertMode) {
                             AlertMode.CROSSING  -> "Fires each time price crosses the threshold. Re-arms automatically."
                             AlertMode.REPEATING -> "Fires repeatedly while condition holds, respecting cooldown."
                             AlertMode.ONE_SHOT  -> "Fires once, then disables. Re-enable manually to reuse."
                         },
-                        color = TextSecondary, fontSize = 10.sp
+                        color = TextSecondary, fontSize = 11.sp
                     )
 
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(12.dp))
 
                     val coinAlerts = state.alerts.filter { it.coinId == coinId }
                     if (coinAlerts.isEmpty()) {

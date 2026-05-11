@@ -74,7 +74,7 @@ fun WidgetSettingsScreen(
                 // Refresh interval
                 CryptoCard {
                     SectionLabel("REFRESH INTERVAL")
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(10.dp))
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.horizontalScroll(rememberScrollState())
@@ -92,7 +92,13 @@ fun WidgetSettingsScreen(
                 // Sparkline + chart style
                 CryptoCard {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Text("Show Sparkline", color = TextPrimary, fontSize = 14.sp, modifier = Modifier.weight(1f))
+                        Text(
+                            "Show Sparkline",
+                            color = TextPrimary,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.weight(1f)
+                        )
                         Switch(
                             checked = state.showSparkline,
                             onCheckedChange = vm::onShowSparklineChange,
@@ -108,9 +114,9 @@ fun WidgetSettingsScreen(
                     }
                     AnimatedVisibility(visible = state.showSparkline) {
                         Column {
-                            Spacer(Modifier.height(10.dp))
+                            Spacer(Modifier.height(12.dp))
                             SectionLabel("CHART STYLE")
-                            Spacer(Modifier.height(6.dp))
+                            Spacer(Modifier.height(10.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 listOf(ChartStyle.AREA to "Area", ChartStyle.LINE to "Line", ChartStyle.CANDLE to "Candle").forEach { (style, label) ->
                                     CryptoFilterChip(
@@ -128,16 +134,17 @@ fun WidgetSettingsScreen(
                 if (state.lastWorkerRunMs > 0L) {
                     CryptoCard {
                         SectionLabel("DIAGNOSTICS")
-                        Spacer(Modifier.height(4.dp))
+                        Spacer(Modifier.height(10.dp))
                         val fmt = SimpleDateFormat("HH:mm:ss MMM d", Locale.US)
                         Text(
                             "Last update: ${fmt.format(Date(state.lastWorkerRunMs))}",
-                            color = TextSecondary, fontSize = 11.sp
+                            color = TextSecondary, fontSize = 12.sp
                         )
+                        Spacer(Modifier.height(4.dp))
                         if (state.lastErrorMsg != null) {
-                            Text("Error: ${state.lastErrorMsg}", color = ColorDown, fontSize = 11.sp)
+                            Text("Error: ${state.lastErrorMsg}", color = ColorDown, fontSize = 12.sp)
                         } else {
-                            Text("Worker OK", color = ColorUp, fontSize = 11.sp)
+                            Text("Worker OK", color = ColorUp, fontSize = 12.sp, fontWeight = FontWeight.Medium)
                         }
                     }
                 }

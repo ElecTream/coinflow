@@ -82,7 +82,10 @@ private fun CoinflowNavHost(
         }
 
         composable(Screen.PORTFOLIO) {
-            PortfolioScreen(onBack = { navController.popBackStack() })
+            PortfolioScreen(
+                onBack      = { navController.popBackStack() },
+                onCoinClick = { coinId -> navController.navigate(Screen.coinDetail(coinId)) }
+            )
         }
 
         composable(

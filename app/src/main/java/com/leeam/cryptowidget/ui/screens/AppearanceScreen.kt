@@ -95,7 +95,7 @@ fun AppearanceScreen(
             // ── Theme presets ───────────────────────────────────────────────
             CryptoCard {
                 SectionLabel("THEME")
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(14.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.horizontalScroll(rememberScrollState())

@@ -3,7 +3,7 @@ package com.leeam.cryptowidget.data.local
 import android.content.Context
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
-import com.leeam.cryptowidget.data.model.CoinRegistry
+import com.leeam.cryptowidget.data.model.WidgetData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -22,6 +22,10 @@ class WidgetPreferences @Inject constructor(
     private val ds = context.widgetDataStore
 
     object Keys {
+        // ── Schema versioning ──────────────────────────────────────────────────
+        /** Bumped by [WidgetPreferencesBootstrap] after migrations run. */
+        val SCHEMA_VERSION        = intPreferencesKey("schema_version")
+
         // ── Legacy / single-coin ────────────────────────────────────────────────
         val COIN_ID               = stringPreferencesKey("coin_id")
         val WALLET_ADDRESS_LEGACY = stringPreferencesKey("wallet_address")
@@ -67,16 +71,24 @@ class WidgetPreferences @Inject constructor(
 
     // ── Single-coin compat ──────────────────────────────────────────────────────
 
-    /** Active widget coin — maps to the legacy coin_id key for full backward compat. */
+    /**
+     * Active widget coin — empty string when the user hasn't picked one yet.
+     * Callers MUST treat empty as a real "no coin chosen" state, not as a fallback to
+     * any default coin. See [WidgetPreferencesBootstrap] for the migration that seeds this.
+     */
     val coinId: Flow<String> = ds.data
         .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
-        .map { it[Keys.COIN_ID] ?: CoinRegistry.default.id }
+        .map { it[Keys.COIN_ID] ?: "" }
 
     fun walletAddressFor(coinId: String): Flow<String> = ds.data
         .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
         .map { prefs ->
+            // Legacy single-wallet key only applies to the coin that was the active coin
+            // at the time of upgrade — never to "the default coin" generally.
             prefs[Keys.walletAddressFor(coinId)]
-                ?: if (coinId == CoinRegistry.default.id) prefs[Keys.WALLET_ADDRESS_LEGACY] ?: "" else ""
+                ?: if (coinId.isNotEmpty() && prefs[Keys.COIN_ID] == coinId)
+                    prefs[Keys.WALLET_ADDRESS_LEGACY] ?: ""
+                else ""
         }
 
     val refreshIntervalMin: Flow<Int> = ds.data
@@ -158,27 +170,28 @@ class WidgetPreferences @Inject constructor(
     // ── Multi-coin flows ────────────────────────────────────────────────────────
 
     /**
-     * Ordered list of all followed coin IDs.
-     * Defaults to all built-in coins on first install.
+     * Ordered list of all followed coin IDs. Empty when the user hasn't picked any yet.
+     * The worker is a no-op while this is empty; the widget renders the "tap to choose
+     * coins" CTA. See [WidgetPreferencesBootstrap].
      */
     val followedCoinIds: Flow<List<String>> = ds.data
         .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
         .map { prefs ->
             prefs[Keys.FOLLOWED_COIN_IDS]
                 ?.split(",")?.filter { it.isNotBlank() }
-                ?: CoinRegistry.all.map { it.id }
+                ?: emptyList()
         }
 
     /**
-     * Ordered list of coin IDs shown as tabs on the widget (max 5).
-     * Defaults to just the active coin on first install.
+     * Ordered list of coin IDs shown as tabs on the widget (max 5). Empty when the user
+     * hasn't picked any yet.
      */
     val widgetCoinIds: Flow<List<String>> = ds.data
         .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
         .map { prefs ->
             prefs[Keys.WIDGET_COIN_IDS]
                 ?.split(",")?.filter { it.isNotBlank() }?.take(5)
-                ?: listOf(prefs[Keys.COIN_ID] ?: CoinRegistry.default.id)
+                ?: emptyList()
         }
 
     // ── Per-coin cache reads ────────────────────────────────────────────────────
@@ -186,10 +199,11 @@ class WidgetPreferences @Inject constructor(
     /**
      * Legacy single-coin cache keys are only meaningful if the stored active coin id matches
      * the coin we're reading. They were written by an older build that only knew about XRP,
-     * so the fallback must consult the persisted active coinId rather than the moving default.
+     * so the fallback must consult the persisted active coinId — never an implicit default.
+     * Returns false when no active coin is set (fresh install).
      */
     private fun isLegacyActive(prefs: Preferences, coinId: String): Boolean =
-        coinId == (prefs[Keys.COIN_ID] ?: CoinRegistry.default.id)
+        coinId.isNotEmpty() && prefs[Keys.COIN_ID] == coinId
 
     fun priceUsdFor(coinId: String): Flow<Double> = ds.data
         .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
@@ -323,8 +337,9 @@ class WidgetPreferences @Inject constructor(
         prefs[Keys.sparklineTsFor(coinId)]   = sparklineTimestamps.joinToString(",")
         prefs[Keys.lastFetchedMsFor(coinId)] = now
 
-        // Keep legacy keys in sync for the active widget coin
-        if (coinId == (prefs[Keys.COIN_ID] ?: CoinRegistry.default.id)) {
+        // Keep legacy keys in sync only when the active coin is set AND matches this write.
+        // Never bumps legacy keys for a non-active coin or when no active coin is chosen.
+        if (coinId.isNotEmpty() && prefs[Keys.COIN_ID] == coinId) {
             prefs[Keys.CACHED_PRICE_USD]    = priceUsd
             prefs[Keys.CACHED_CHANGE_PCT]   = changePct
             prefs[Keys.CACHED_BALANCE]      = balance
@@ -334,18 +349,6 @@ class WidgetPreferences @Inject constructor(
         }
     }
 
-    /** Legacy alias — writes to the currently active coin's cache slot. */
-    suspend fun cacheWidgetData(
-        priceUsd: Double,
-        changePct: Double,
-        balance: Double,
-        sparkline: List<Double> = emptyList(),
-        sparklineTimestamps: List<Long> = emptyList()
-    ) {
-        val activeCoinId = coinId.first()
-        cacheCoinData(activeCoinId, priceUsd, changePct, balance, sparkline, sparklineTimestamps)
-    }
-
     suspend fun recordWorkerResult(errorMsg: String?) = ds.edit {
         it[Keys.LAST_WORKER_RUN_MS] = System.currentTimeMillis()
         if (errorMsg != null) {
@@ -353,5 +356,42 @@ class WidgetPreferences @Inject constructor(
         } else {
             it.remove(Keys.LAST_ERROR_MSG)
         }
+    }
+
+    // ── Bootstrap / migration hooks ────────────────────────────────────────────
+
+    /**
+     * One-shot atomic edit primitive used by [WidgetPreferencesBootstrap] to read and
+     * mutate the underlying [Preferences] in a single transaction. Package-internal so
+     * the bootstrap can sit in the same package without leaking the DataStore handle.
+     */
+    internal suspend fun editPrefs(block: (MutablePreferences) -> Unit) = ds.edit(block)
+
+    /**
+     * Snapshot the per-coin cache into a [WidgetData] suitable for the renderer.
+     * Returns a `WidgetData` with the coin's symbol resolved via [com.leeam.cryptowidget.data.model.CoinRegistry];
+     * never throws (missing keys read as zero/empty). For a fresh, never-fetched coin this
+     * returns a zero-filled snapshot — callers should branch on `priceUsd > 0.0` if they
+     * need to distinguish "no data yet" from "real zero".
+     */
+    suspend fun snapshotFor(coinId: String): WidgetData {
+        val symbol = com.leeam.cryptowidget.data.model.CoinRegistry.byId(coinId).symbol
+        val price       = priceUsdFor(coinId).first()
+        val change      = changePctFor(coinId).first()
+        val balance     = balanceFor(coinId).first()
+        val updated     = updatedMsFor(coinId).first()
+        val sparkline   = sparklineFor(coinId).first()
+        val sparklineTs = sparklineTsFor(coinId).first()
+        return WidgetData(
+            coinId              = coinId,
+            symbol              = symbol,
+            priceUsd            = price,
+            change24hPct        = change,
+            walletBalance       = balance,
+            walletValueUsd      = balance * price,
+            lastUpdatedMs       = updated,
+            sparklinePrices     = sparkline,
+            sparklineTimestamps = sparklineTs
+        )
     }
 }

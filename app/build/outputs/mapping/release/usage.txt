@@ -43334,7 +43334,6 @@ kotlin.text.Regex:
     public static synthetic kotlin.sequences.Sequence findAll$default(kotlin.text.Regex,java.lang.CharSequence,int,int,java.lang.Object)
     private static final kotlin.text.MatchResult findAll$lambda$0(kotlin.text.Regex,java.lang.CharSequence,int)
     public final java.util.Set getOptions()
-    public final java.lang.String getPattern()
     public final kotlin.text.MatchResult matchAt(java.lang.CharSequence,int)
     public final kotlin.text.MatchResult matchEntire(java.lang.CharSequence)
     public final boolean matchesAt(java.lang.CharSequence,int)
@@ -64271,8 +64270,6 @@ com.leeam.cryptowidget.data.local.DebugLog$Command$Append:
     static void <clinit>()
 com.leeam.cryptowidget.data.local.WidgetPreferences:
     static void <clinit>()
-com.leeam.cryptowidget.data.model.CoinDefinition:
-    static void <clinit>()
 com.leeam.cryptowidget.data.model.PriceSource$GenericRest:
     static void <clinit>()
 com.leeam.cryptowidget.data.model.PriceSource$Kraken:
@@ -64288,8 +64285,6 @@ com.leeam.cryptowidget.data.model.WidgetData:
 com.leeam.cryptowidget.data.remote.GenericRestService:
     static void <clinit>()
 com.leeam.cryptowidget.data.repository.CoinRepositoryImpl:
-    static void <clinit>()
-com.leeam.cryptowidget.data.repository.CryptoRepositoryImpl:
     static void <clinit>()
 com.leeam.cryptowidget.di.RepositoryModule:
     static void <clinit>()
@@ -64512,7 +64507,6 @@ kotlin.collections.ArraysKt___ArraysKt
 kotlin.collections.ArraysUtilJVM
 kotlin.collections.CollectionsKt:
     public static boolean contains(java.lang.Iterable,java.lang.Object)
-    public static java.util.List distinct(java.util.List)
     public static java.lang.Object singleOrNull(java.util.List)
     public static float[] toFloatArray(java.util.List)
     public static final java.util.Set toMutableSet(java.lang.Iterable)
@@ -64844,6 +64838,7 @@ kotlin.text.Regex$Companion
 kotlin.text.Regex:
     static void <clinit>()
     public static kotlin.text.MatchResult find()
+    public static java.lang.String getPattern()
     public final boolean matches(java.lang.CharSequence)
     public static java.lang.String replace()
     public final java.lang.String replace(java.lang.String,androidx.compose.foundation.text.input.internal.HandwritingGestureApi34$performRemoveSpaceGesture$newText$2)

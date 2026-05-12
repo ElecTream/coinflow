@@ -44,7 +44,7 @@ data class SettingsUiState(
     val change24h: Double? = null,
     val priceLoading: Boolean = true,
     val priceError: String? = null,
-    val coinId: String = CoinRegistry.default.id,
+    val coinId: String = "",
     val walletAddress: String = "",
     val walletTestResult: String? = null,
     val walletTestLoading: Boolean = false,
@@ -61,8 +61,8 @@ data class SettingsUiState(
     val saveError: String? = null,
     val lastWorkerRunMs: Long = 0L,
     val lastErrorMsg: String? = null,
-    val followedCoinIds: List<String> = CoinRegistry.all.map { it.id },
-    val widgetCoinIds: List<String>   = listOf(CoinRegistry.default.id),
+    val followedCoinIds: List<String> = emptyList(),
+    val widgetCoinIds: List<String>   = emptyList(),
     val customAccentArgb: Int = 0xFF00D4FF.toInt(),
     val customSecondaryArgb: Int = 0xFF7B2FFF.toInt(),
     val followedSnapshots: List<CoinSnapshot> = emptyList(),
@@ -114,8 +114,9 @@ class SettingsViewModel @Inject constructor(
         coinRepository.deleteCustomCoin(coinId)
         // If the deleted coin was the active widget coin, fall back to the first remaining tab.
         if (coinId == _state.value.coinId) {
-            val fallback = widgetTabs.firstOrNull() ?: CoinRegistry.default.id
-            widgetPrefs.setCoinId(fallback)
+            // If we just deleted the last widget tab, clear the active coin entirely.
+            // The widget will render its "tap to choose coins" CTA.
+            widgetPrefs.setCoinId(widgetTabs.firstOrNull() ?: "")
         }
     }
 
@@ -374,9 +375,8 @@ class SettingsViewModel @Inject constructor(
             widgetPrefs.setWidgetCoinIds(widgetIds)
             // If we just unfollowed the active widget coin, migrate to the next available.
             if (coinId == _state.value.coinId) {
-                val fallback = widgetIds.firstOrNull()
-                    ?: current.firstOrNull()
-                    ?: CoinRegistry.default.id
+                // If we just unfollowed the last coin, clear the active coin.
+                val fallback = widgetIds.firstOrNull() ?: current.firstOrNull() ?: ""
                 widgetPrefs.setCoinId(fallback)
             }
         } else {

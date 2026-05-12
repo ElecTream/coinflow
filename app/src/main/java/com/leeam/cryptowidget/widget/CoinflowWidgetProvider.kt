@@ -72,7 +72,9 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
             entryPoint(context).debugLog()
                 .info("Widget.onUpdate", "ids=${appWidgetIds.toList()}")
             showCachedOrLoading(context, appWidgetManager, appWidgetIds)
-            enqueueRefresh(context)
+            // Worker enqueue is conditional on followedCoinIds being non-empty —
+            // see [maybeEnqueueRefresh]. We can't read DataStore synchronously here,
+            // so showCachedOrLoading's coroutine handles the kick-off after it knows.
         }.onFailure { e ->
             tryLog(context, "Widget.onUpdate", "uncaught", e)
         }
@@ -108,7 +110,6 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
             entryPoint(context).debugLog()
                 .info("Widget.onOptionsChanged", "id=$appWidgetId")
             showCachedOrLoading(context, appWidgetManager, intArrayOf(appWidgetId))
-            enqueueRefresh(context)
         }.onFailure { e ->
             tryLog(context, "Widget.onOptionsChanged", "uncaught id=$appWidgetId", e)
         }
@@ -126,57 +127,69 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
     private fun switchActiveCoin(context: Context, coinId: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-            val ep    = entryPoint(context)
-            val prefs = ep.widgetPreferences()
-            val coins = ep.coinRepository()
+                val ep    = entryPoint(context)
+                val prefs = ep.widgetPreferences()
+                val coins = ep.coinRepository()
 
-            prefs.setCoinId(coinId)
+                prefs.setCoinId(coinId)
 
-            val price         = prefs.priceUsdFor(coinId).first()
-            val change        = prefs.changePctFor(coinId).first()
-            val balance       = prefs.balanceFor(coinId).first()
-            val updatedMs     = prefs.updatedMsFor(coinId).first()
-            val sparkline     = prefs.sparklineFor(coinId).first()
-            val sparkTs       = prefs.sparklineTsFor(coinId).first()
-            val style         = prefs.chartStyle.first()
-            val theme         = prefs.appTheme.first().toThemeColors(
-                customAccentArgb    = prefs.customAccentArgb.first(),
-                customSecondaryArgb = prefs.customSecondaryArgb.first()
-            )
-            val widgetCoinIds = prefs.widgetCoinIds.first()
-            val coinLookup    = buildCoinLookup(coins, widgetCoinIds + coinId)
-            val coin          = coinLookup[coinId] ?: CoinRegistry.byId(coinId)
-
-            val data = WidgetData(
-                coinId              = coinId,
-                symbol              = coin.symbol,
-                priceUsd            = price,
-                change24hPct        = change,
-                walletBalance       = balance,
-                walletValueUsd      = balance * price,
-                lastUpdatedMs       = updatedMs,
-                sparklinePrices     = sparkline,
-                sparklineTimestamps = sparkTs
-            )
-
-            val manager = AppWidgetManager.getInstance(context)
-            val ids     = manager.getAppWidgetIds(ComponentName(context, CoinflowWidgetProvider::class.java))
-            val density = context.resources.displayMetrics.density
-
-            for (widgetId in ids) {
-                val options = manager.getAppWidgetOptions(widgetId)
-                val w = (options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180) * density)
-                    .toInt().coerceAtLeast(200)
-                val h = (options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110) * density * 0.30f)
-                    .toInt().coerceAtLeast(40)
-                val views = WidgetUpdater.buildRemoteViews(
-                    context, data, w, h, style, theme,
-                    widgetCoinIds = widgetCoinIds,
-                    activeCoinId  = coinId,
-                    coinLookup    = coinLookup
+                val theme = prefs.appTheme.first().toThemeColors(
+                    customAccentArgb    = prefs.customAccentArgb.first(),
+                    customSecondaryArgb = prefs.customSecondaryArgb.first()
                 )
-                manager.updateAppWidget(widgetId, views)
-            }
+                val widgetCoinIds = prefs.widgetCoinIds.first()
+                val coinLookup    = buildCoinLookup(coins, widgetCoinIds + coinId)
+                val price         = prefs.priceUsdFor(coinId).first()
+
+                val manager = AppWidgetManager.getInstance(context)
+                val ids     = manager.getAppWidgetIds(ComponentName(context, CoinflowWidgetProvider::class.java))
+
+                // If this coin has never been fetched, render the skeleton with the new
+                // active tab highlighted and trigger an immediate fetch.
+                if (price <= 0.0) {
+                    val skeleton = WidgetUpdater.buildLoadingSkeletonRemoteViews(
+                        context, widgetCoinIds.ifEmpty { listOf(coinId) }, coinId, coinLookup, theme
+                    )
+                    ids.forEach { manager.updateAppWidget(it, skeleton) }
+                    enqueueRefresh(context)
+                    return@launch
+                }
+
+                val change      = prefs.changePctFor(coinId).first()
+                val balance     = prefs.balanceFor(coinId).first()
+                val updatedMs   = prefs.updatedMsFor(coinId).first()
+                val sparkline   = prefs.sparklineFor(coinId).first()
+                val sparkTs     = prefs.sparklineTsFor(coinId).first()
+                val style       = prefs.chartStyle.first()
+                val coin        = coinLookup[coinId] ?: CoinRegistry.byId(coinId)
+
+                val data = WidgetData(
+                    coinId              = coinId,
+                    symbol              = coin.symbol,
+                    priceUsd            = price,
+                    change24hPct        = change,
+                    walletBalance       = balance,
+                    walletValueUsd      = balance * price,
+                    lastUpdatedMs       = updatedMs,
+                    sparklinePrices     = sparkline,
+                    sparklineTimestamps = sparkTs
+                )
+
+                val density = context.resources.displayMetrics.density
+                for (widgetId in ids) {
+                    val options = manager.getAppWidgetOptions(widgetId)
+                    val w = (options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180) * density)
+                        .toInt().coerceAtLeast(200)
+                    val h = (options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110) * density * 0.30f)
+                        .toInt().coerceAtLeast(40)
+                    val views = WidgetUpdater.buildRemoteViews(
+                        context, data, w, h, style, theme,
+                        widgetCoinIds = widgetCoinIds.ifEmpty { listOf(coinId) },
+                        activeCoinId  = coinId,
+                        coinLookup    = coinLookup
+                    )
+                    manager.updateAppWidget(widgetId, views)
+                }
             } catch (e: Exception) {
                 tryLog(context, "Widget.switchActiveCoin", "failed coinId=$coinId", e)
             }
@@ -195,65 +208,90 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-            val ep    = entryPoint(context)
-            val prefs = ep.widgetPreferences()
-            val coins = ep.coinRepository()
+                val ep    = entryPoint(context)
+                val prefs = ep.widgetPreferences()
+                val coins = ep.coinRepository()
 
-            val storedCoinId  = prefs.coinId.first()
-            val widgetCoinIds = prefs.widgetCoinIds.first()
+                val storedCoinId    = prefs.coinId.first()
+                val widgetCoinIds   = prefs.widgetCoinIds.first()
+                val followedCoinIds = prefs.followedCoinIds.first()
 
-            // Resolve which coin to actually render. If the stored active coin has no
-            // cached price (fresh install, schema migration, or coin was removed), fall
-            // back to the first widget tab that does have data.
-            val candidates = buildList {
-                add(storedCoinId)
-                widgetCoinIds.forEach { if (it !in this) add(it) }
-            }
-            val coinId = candidates.firstOrNull { prefs.priceUsdFor(it).first() > 0.0 }
-                ?: storedCoinId
-            val price  = prefs.priceUsdFor(coinId).first()
-
-            if (price <= 0.0) {
-                ids.forEach {
-                    manager.updateAppWidget(it, RemoteViews(context.packageName, R.layout.widget_loading))
+                // (a) No coins picked yet — show the picker CTA.
+                if (storedCoinId.isEmpty() && widgetCoinIds.isEmpty() && followedCoinIds.isEmpty()) {
+                    val empty = WidgetUpdater.buildEmptyRemoteViews(context)
+                    ids.forEach { manager.updateAppWidget(it, empty) }
+                    return@launch
                 }
-                return@launch
-            }
 
-            // Self-heal: if the rendered coin doesn't match the stored active coin,
-            // persist the switch so subsequent refreshes target it.
-            if (coinId != storedCoinId) prefs.setCoinId(coinId)
+                // From here on, the user has picked at least one coin. Schedule a refresh
+                // (worker will no-op gracefully if followedCoinIds is somehow empty).
+                enqueueRefresh(context)
 
-            val change        = prefs.changePctFor(coinId).first()
-            val balance       = prefs.balanceFor(coinId).first()
-            val updatedMs     = prefs.updatedMsFor(coinId).first()
-            val sparkline     = prefs.sparklineFor(coinId).first()
-            val sparklineTs   = prefs.sparklineTsFor(coinId).first()
-            val style         = prefs.chartStyle.first()
-            val theme         = prefs.appTheme.first().toThemeColors(
-                customAccentArgb    = prefs.customAccentArgb.first(),
-                customSecondaryArgb = prefs.customSecondaryArgb.first()
-            )
-            val coinLookup    = buildCoinLookup(coins, widgetCoinIds + coinId)
-            val coin          = coinLookup[coinId] ?: CoinRegistry.byId(coinId)
+                // Resolve which coin to actually render. Prefer the stored active; otherwise
+                // fall back to the first widget tab / followed coin that has cached data.
+                val candidates = buildList {
+                    if (storedCoinId.isNotEmpty()) add(storedCoinId)
+                    widgetCoinIds.forEach { if (it !in this) add(it) }
+                    followedCoinIds.forEach { if (it !in this) add(it) }
+                }
+                val coinId = candidates.firstOrNull { prefs.priceUsdFor(it).first() > 0.0 }
+                    ?: candidates.firstOrNull()
+                    ?: ""
 
-            val cached = WidgetData(
-                coinId              = coinId,
-                symbol              = coin.symbol,
-                priceUsd            = price,
-                change24hPct        = change,
-                walletBalance       = balance,
-                walletValueUsd      = balance * price,
-                lastUpdatedMs       = updatedMs,
-                sparklinePrices     = sparkline,
-                sparklineTimestamps = sparklineTs
-            )
-            WidgetUpdater.updateAllWidgets(
-                context, cached, style, theme,
-                widgetCoinIds = widgetCoinIds,
-                activeCoinId  = coinId,
-                coinLookup    = coinLookup
-            )
+                // Edge case: lists are present but every entry is blank. Shouldn't happen,
+                // but show the CTA rather than crash on an empty resolve.
+                if (coinId.isEmpty()) {
+                    val empty = WidgetUpdater.buildEmptyRemoteViews(context)
+                    ids.forEach { manager.updateAppWidget(it, empty) }
+                    return@launch
+                }
+
+                val theme = prefs.appTheme.first().toThemeColors(
+                    customAccentArgb    = prefs.customAccentArgb.first(),
+                    customSecondaryArgb = prefs.customSecondaryArgb.first()
+                )
+                val coinLookup = buildCoinLookup(coins, widgetCoinIds + coinId)
+                val price      = prefs.priceUsdFor(coinId).first()
+
+                // (b) Coins chosen but cache empty — render the skeleton with controls.
+                if (price <= 0.0) {
+                    val skeleton = WidgetUpdater.buildLoadingSkeletonRemoteViews(
+                        context, widgetCoinIds.ifEmpty { listOf(coinId) }, coinId, coinLookup, theme
+                    )
+                    ids.forEach { manager.updateAppWidget(it, skeleton) }
+                    return@launch
+                }
+
+                // Self-heal: if the rendered coin doesn't match the stored active coin,
+                // persist the switch so subsequent refreshes target it.
+                if (coinId != storedCoinId) prefs.setCoinId(coinId)
+
+                // (c) Cache has data — full render.
+                val change      = prefs.changePctFor(coinId).first()
+                val balance     = prefs.balanceFor(coinId).first()
+                val updatedMs   = prefs.updatedMsFor(coinId).first()
+                val sparkline   = prefs.sparklineFor(coinId).first()
+                val sparklineTs = prefs.sparklineTsFor(coinId).first()
+                val style       = prefs.chartStyle.first()
+                val coin        = coinLookup[coinId] ?: CoinRegistry.byId(coinId)
+
+                val cached = WidgetData(
+                    coinId              = coinId,
+                    symbol              = coin.symbol,
+                    priceUsd            = price,
+                    change24hPct        = change,
+                    walletBalance       = balance,
+                    walletValueUsd      = balance * price,
+                    lastUpdatedMs       = updatedMs,
+                    sparklinePrices     = sparkline,
+                    sparklineTimestamps = sparklineTs
+                )
+                WidgetUpdater.updateAllWidgets(
+                    context, cached, style, theme,
+                    widgetCoinIds = widgetCoinIds.ifEmpty { listOf(coinId) },
+                    activeCoinId  = coinId,
+                    coinLookup    = coinLookup
+                )
             } catch (e: Exception) {
                 tryLog(context, "Widget.showCachedOrLoading", "failed", e)
             }
@@ -271,7 +309,11 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
             val notifier = ep.alertNotifier()
             val log      = ep.debugLog()
 
-            val coinId        = prefs.coinId.first()
+            val coinId = prefs.coinId.first()
+            if (coinId.isEmpty()) {
+                log.info("Widget.fetchDirectly", "no active coin — nothing to fetch")
+                return@launch
+            }
             val wallet        = prefs.walletAddressFor(coinId).first()
             val style         = prefs.chartStyle.first()
             val theme         = prefs.appTheme.first().toThemeColors(

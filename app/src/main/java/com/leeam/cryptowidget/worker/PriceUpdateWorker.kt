@@ -62,14 +62,25 @@ class PriceUpdateWorker @AssistedInject constructor(
         val activeCoinId    = widgetPreferences.coinId.first()
         val widgetCoinIds   = widgetPreferences.widgetCoinIds.first()
         val followedCoinIds = widgetPreferences.followedCoinIds.first()
+
+        // Early exit: nothing to do until the user picks coins.
+        if (followedCoinIds.isEmpty()) {
+            debugLog.info("Worker", "no coins followed — skipping")
+            widgetPreferences.recordWorkerResult(null)
+            return Result.success()
+        }
+
         val chartStyle      = widgetPreferences.chartStyle.first()
         val themeColors     = widgetPreferences.appTheme.first().toThemeColors(
             customAccentArgb    = widgetPreferences.customAccentArgb.first(),
             customSecondaryArgb = widgetPreferences.customSecondaryArgb.first()
         )
-        val coinLookup = (widgetCoinIds + activeCoinId).distinct().associateWith {
-            coinRepository.coinById(it) ?: CoinRegistry.byId(it)
-        }
+        val coinLookup = (widgetCoinIds + followedCoinIds + activeCoinId)
+            .filter { it.isNotEmpty() }
+            .distinct()
+            .associateWith {
+                coinRepository.coinById(it) ?: CoinRegistry.byId(it)
+            }
 
         // Widget coins refresh at user interval; background coins at 4× (min 60 min)
         val widgetThresholdMs     = intervalMin * 60_000L
@@ -78,7 +89,12 @@ class PriceUpdateWorker @AssistedInject constructor(
         val now = System.currentTimeMillis()
         var lastError: String? = null
 
-        for (coinId in followedCoinIds) {
+        // Active coin first so a fresh widget renders ASAP after a reinstall.
+        val orderedCoinIds =
+            if (activeCoinId.isNotEmpty()) (listOf(activeCoinId) + followedCoinIds).distinct()
+            else followedCoinIds
+
+        for (coinId in orderedCoinIds) {
             val isWidgetCoin = coinId in widgetCoinIds
             val threshold    = if (isWidgetCoin) widgetThresholdMs else backgroundThresholdMs
             val lastFetched  = widgetPreferences.lastFetchedMsFor(coinId).first()
@@ -100,11 +116,11 @@ class PriceUpdateWorker @AssistedInject constructor(
                     widgetPreferences.setLastFetchError(coinId, null)
                     debugLog.info("Worker.fetch", "ok $coinId price=${data.priceUsd}")
 
-                    if (coinId == activeCoinId) {
+                    if (activeCoinId.isNotEmpty() && coinId == activeCoinId) {
                         try {
                             WidgetUpdater.updateAllWidgets(
                                 applicationContext, data, chartStyle, themeColors,
-                                widgetCoinIds = widgetCoinIds,
+                                widgetCoinIds = widgetCoinIds.ifEmpty { listOf(coinId) },
                                 activeCoinId  = coinId,
                                 coinLookup    = coinLookup
                             )
@@ -121,12 +137,12 @@ class PriceUpdateWorker @AssistedInject constructor(
                     lastError = e.message
                     widgetPreferences.setLastFetchError(coinId, e.message ?: "Fetch failed")
                     debugLog.error("Worker.fetch", "failed $coinId", e)
-                    if (coinId == activeCoinId) {
+                    if (activeCoinId.isNotEmpty() && coinId == activeCoinId) {
                         val errorData = WidgetData(coinId = coinId, errorMessage = e.message ?: "Fetch failed")
                         try {
                             WidgetUpdater.updateAllWidgets(
                                 applicationContext, errorData, chartStyle, themeColors,
-                                widgetCoinIds = widgetCoinIds,
+                                widgetCoinIds = widgetCoinIds.ifEmpty { listOf(coinId) },
                                 activeCoinId  = coinId,
                                 coinLookup    = coinLookup
                             )
@@ -136,6 +152,21 @@ class PriceUpdateWorker @AssistedInject constructor(
                     }
                 }
             )
+        }
+
+        // Trailing render: re-paint the active coin from its cache regardless of whether
+        // it was fetched this run. Covers the case where the active coin's fetch was
+        // skipped (threshold not elapsed) but the on-screen "Xm ago" is now stale.
+        if (activeCoinId.isNotEmpty()) {
+            runCatching {
+                val cached = widgetPreferences.snapshotFor(activeCoinId)
+                WidgetUpdater.updateAllWidgets(
+                    applicationContext, cached, chartStyle, themeColors,
+                    widgetCoinIds = widgetCoinIds.ifEmpty { listOf(activeCoinId) },
+                    activeCoinId  = activeCoinId,
+                    coinLookup    = coinLookup
+                )
+            }.onFailure { debugLog.error("Worker.trailingRender", "failed for $activeCoinId", it) }
         }
 
         widgetPreferences.recordWorkerResult(lastError)

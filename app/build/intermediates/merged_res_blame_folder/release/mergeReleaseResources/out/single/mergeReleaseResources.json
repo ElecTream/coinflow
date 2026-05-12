@@ -92,16 +92,16 @@
         "source": "C:\\Users\\leeam\\.gradle\\daemon\\9.3.1\\com.leeam.cryptowidget.app-main-75:\\drawable\\widget_refresh_icon.xml"
     },
     {
-        "merged": "com.leeam.cryptowidget.app-release-74:/layout_widget_layout.xml.flat",
-        "source": "com.leeam.cryptowidget.app-main-75:/layout/widget_layout.xml"
-    },
-    {
         "merged": "C:\\Users\\leeam\\.gradle\\daemon\\9.3.1\\com.leeam.cryptowidget.app-release-74:\\drawable_ic_launcher_foreground.xml.flat",
         "source": "C:\\Users\\leeam\\.gradle\\daemon\\9.3.1\\com.leeam.cryptowidget.app-main-75:\\drawable\\ic_launcher_foreground.xml"
     },
     {
         "merged": "C:\\Users\\leeam\\.gradle\\daemon\\9.3.1\\com.leeam.cryptowidget.app-release-74:\\drawable_ic_refresh_frame_135.xml.flat",
         "source": "C:\\Users\\leeam\\.gradle\\daemon\\9.3.1\\com.leeam.cryptowidget.app-main-75:\\drawable\\ic_refresh_frame_135.xml"
+    },
+    {
+        "merged": "com.leeam.cryptowidget.app-release-74:/layout_widget_empty.xml.flat",
+        "source": "com.leeam.cryptowidget.app-main-75:/layout/widget_empty.xml"
     },
     {
         "merged": "C:\\Users\\leeam\\.gradle\\daemon\\9.3.1\\com.leeam.cryptowidget.app-release-74:\\drawable_ic_arrow_down.xml.flat",

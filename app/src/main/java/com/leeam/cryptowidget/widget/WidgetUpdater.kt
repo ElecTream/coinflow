@@ -111,44 +111,7 @@ object WidgetUpdater {
     ): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget_layout)
 
-        fun resolveCoin(id: String): CoinDefinition =
-            coinLookup[id] ?: CoinRegistry.byId(id)
-
-        // ── Coin tabs ─────────────────────────────────────────────────────────
-        val tabIds = listOf(
-            R.id.tab_coin_1, R.id.tab_coin_2, R.id.tab_coin_3,
-            R.id.tab_coin_4, R.id.tab_coin_5
-        )
-        val showTabs = widgetCoinIds.isNotEmpty()
-
-        tabIds.forEachIndexed { index, tabId ->
-            if (index < widgetCoinIds.size) {
-                val tabCoinId = widgetCoinIds[index]
-                val tabCoin   = resolveCoin(tabCoinId)
-                val isActive  = tabCoinId == activeCoinId
-                val tabColor  = if (isActive) themeColors.accentArgb else 0xFF5A6A7A.toInt()
-
-                views.setViewVisibility(tabId, View.VISIBLE)
-                views.setTextViewText(tabId, tabCoin.symbol)
-                views.setTextColor(tabId, tabColor)
-
-                // Tap switches the active coin
-                val selectIntent = Intent(context, CoinflowWidgetProvider::class.java).apply {
-                    action = CoinflowWidgetProvider.ACTION_SELECT_COIN
-                    putExtra(CoinflowWidgetProvider.EXTRA_COIN_ID, tabCoinId)
-                }
-                val selectPi = PendingIntent.getBroadcast(
-                    context,
-                    100 + index,
-                    selectIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
-                views.setOnClickPendingIntent(tabId, selectPi)
-            } else {
-                views.setViewVisibility(tabId, View.GONE)
-            }
-        }
-        views.setViewVisibility(R.id.tab_divider, if (showTabs) View.VISIBLE else View.GONE)
+        wireTabs(views, context, widgetCoinIds, activeCoinId, themeColors, coinLookup)
 
         // ── Price ─────────────────────────────────────────────────────────────
         if (data.errorMessage != null) {
@@ -209,7 +172,110 @@ object WidgetUpdater {
         views.setImageViewResource(R.id.btn_refresh, R.drawable.ic_refresh)
         views.setInt(R.id.btn_refresh, "setImageAlpha", 255)
 
-        // ── PendingIntents ────────────────────────────────────────────────────
+        wireControlPendingIntents(views, context)
+        return views
+    }
+
+    /**
+     * Loading skeleton: same `widget_layout.xml` as [buildRemoteViews] (so tabs and controls
+     * are present and tappable) but with placeholder text instead of real data. Used when the
+     * user has picked coins but the cache hasn't been populated yet (typically the first few
+     * seconds after a reinstall, before the worker writes any per-coin keys).
+     */
+    fun buildLoadingSkeletonRemoteViews(
+        context: Context,
+        widgetCoinIds: List<String>,
+        activeCoinId: String,
+        coinLookup: Map<String, CoinDefinition>,
+        themeColors: ThemeColors = CyberColors
+    ): RemoteViews {
+        val views = RemoteViews(context.packageName, R.layout.widget_layout)
+
+        wireTabs(views, context, widgetCoinIds, activeCoinId, themeColors, coinLookup)
+
+        views.setTextViewText(R.id.tv_price, "—")
+        views.setTextColor(R.id.tv_price, 0xFFFFFFFF.toInt())
+
+        views.setTextViewText(R.id.tv_change, "…")
+        views.setTextColor(R.id.tv_change, 0xFF8899BB.toInt())
+
+        views.setViewVisibility(R.id.wallet_row, View.GONE)
+        views.setTextViewText(R.id.tv_last_updated, "Fetching…")
+
+        CoinflowWidgetProvider.cancelSpinner()
+        views.setImageViewResource(R.id.btn_refresh, R.drawable.ic_refresh)
+        views.setInt(R.id.btn_refresh, "setImageAlpha", 255)
+
+        wireControlPendingIntents(views, context)
+        return views
+    }
+
+    /**
+     * Empty-state CTA: shown when no coins have been picked yet. Whole body is a single
+     * tappable surface that opens [SettingsActivity] so the user can choose coins to track.
+     * No refresh/settings buttons — the layout has only the CTA text.
+     */
+    fun buildEmptyRemoteViews(context: Context): RemoteViews {
+        val views = RemoteViews(context.packageName, R.layout.widget_empty)
+        val settingsIntent = Intent(context, SettingsActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        views.setOnClickPendingIntent(
+            R.id.widget_empty_root,
+            PendingIntent.getActivity(
+                context, 3, settingsIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        )
+        return views
+    }
+
+    // ── Private helpers ────────────────────────────────────────────────────────
+
+    private fun wireTabs(
+        views: RemoteViews,
+        context: Context,
+        widgetCoinIds: List<String>,
+        activeCoinId: String,
+        themeColors: ThemeColors,
+        coinLookup: Map<String, CoinDefinition>
+    ) {
+        val tabIds = listOf(
+            R.id.tab_coin_1, R.id.tab_coin_2, R.id.tab_coin_3,
+            R.id.tab_coin_4, R.id.tab_coin_5
+        )
+        val showTabs = widgetCoinIds.isNotEmpty()
+
+        tabIds.forEachIndexed { index, tabId ->
+            if (index < widgetCoinIds.size) {
+                val tabCoinId = widgetCoinIds[index]
+                val tabCoin   = coinLookup[tabCoinId] ?: CoinRegistry.byId(tabCoinId)
+                val isActive  = tabCoinId == activeCoinId
+                val tabColor  = if (isActive) themeColors.accentArgb else 0xFF5A6A7A.toInt()
+
+                views.setViewVisibility(tabId, View.VISIBLE)
+                views.setTextViewText(tabId, tabCoin.symbol)
+                views.setTextColor(tabId, tabColor)
+
+                val selectIntent = Intent(context, CoinflowWidgetProvider::class.java).apply {
+                    action = CoinflowWidgetProvider.ACTION_SELECT_COIN
+                    putExtra(CoinflowWidgetProvider.EXTRA_COIN_ID, tabCoinId)
+                }
+                views.setOnClickPendingIntent(
+                    tabId,
+                    PendingIntent.getBroadcast(
+                        context, 100 + index, selectIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    )
+                )
+            } else {
+                views.setViewVisibility(tabId, View.GONE)
+            }
+        }
+        views.setViewVisibility(R.id.tab_divider, if (showTabs) View.VISIBLE else View.GONE)
+    }
+
+    private fun wireControlPendingIntents(views: RemoteViews, context: Context) {
         val refreshIntent = Intent(context, CoinflowWidgetProvider::class.java).apply {
             action = "com.leeam.cryptowidget.ACTION_REFRESH"
         }
@@ -242,7 +308,5 @@ object WidgetUpdater {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
         )
-
-        return views
     }
 }

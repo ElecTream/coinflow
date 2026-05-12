@@ -72,7 +72,19 @@ data class CoinDefinition(
     val priceSource: PriceSource,
     /** How to fetch wallet balance, or [WalletConfig.None] if unsupported. */
     val walletConfig: WalletConfig = WalletConfig.None
-)
+) {
+    init {
+        require(id.matches(ID_REGEX)) {
+            "Coin id must be lowercase kebab/snake-case (matched ${ID_REGEX.pattern}): '$id'"
+        }
+        require(symbol.isNotBlank()) { "symbol blank for coin id '$id'" }
+        require(displayName.isNotBlank()) { "displayName blank for coin id '$id'" }
+    }
+
+    companion object {
+        private val ID_REGEX = Regex("^[a-z0-9_-]+$")
+    }
+}
 
 object CoinRegistry {
     val all: List<CoinDefinition> = listOf(
@@ -106,11 +118,25 @@ object CoinRegistry {
         ),
     )
 
+    init {
+        val ids = all.map { it.id }
+        require(ids.distinct().size == ids.size) {
+            "Duplicate coin ids in CoinRegistry: ${ids.groupBy { it }.filter { it.value.size > 1 }.keys}"
+        }
+    }
+
     private val byIdMap: Map<String, CoinDefinition> = all.associateBy { it.id }
 
-    /** Returns the [CoinDefinition] for [id], or the first registered coin as a fallback. */
-    fun byId(id: String): CoinDefinition = byIdMap[id] ?: all.first()
+    /**
+     * Resolves [id] to a [CoinDefinition].
+     *
+     * Falls back to [firstRegistered] if the id is unknown — a recovery aid for stale
+     * preferences pointing at a removed coin, NOT a user-facing default. Code that needs
+     * to know "did the user pick a coin?" should check `prefs.coinId.isEmpty()` instead
+     * of comparing to this fallback.
+     */
+    fun byId(id: String): CoinDefinition = byIdMap[id] ?: firstRegistered
 
-    /** Default coin used as a seed on first install. */
-    val default: CoinDefinition = all.first()
+    /** Last-resort fallback when an id can't be resolved. Not a user default — see [byId] kdoc. */
+    internal val firstRegistered: CoinDefinition = all.first()
 }

@@ -45,6 +45,22 @@ No test files exist yet — `./gradlew test` will run if tests are added.
 
 Each data source in `CryptoRepositoryImpl` fails independently — a sparkline fetch failure does not block the price display. `PriceUpdateWorker` persists the last error message to DataStore for display in the Settings diagnostics section.
 
+### No default coin
+
+Coinflow has **no implicit default coin**. On a fresh install the widget renders a "Tap to choose coins" CTA (`res/layout/widget_empty.xml`) that opens `SettingsActivity`. The worker is idle while `WidgetPreferences.followedCoinIds` is empty — no background fetches, no battery cost.
+
+Upgrades from v1.1.7 (single-coin schema) are handled by `WidgetPreferencesBootstrap` on `Application.onCreate`: the legacy `cached_*` keys and `wallet_address` are copied into the per-coin schema for whatever coin was active at upgrade time, and `widget_coin_ids` / `followed_coin_ids` are seeded with that coin. Bump `WidgetPreferencesBootstrap.TARGET_VERSION` when the migration shape itself changes.
+
+### Adding a built-in coin
+
+1. Add one `CoinDefinition` to `CoinRegistry.all` in `data/model/CoinDefinition.kt`.
+   - `id` must be lowercase kebab/snake-case (regex `^[a-z0-9_-]+$`) and STABLE forever — DataStore keys derive from it.
+   - `priceSource` → `PriceSource.Kraken("PAIRUSD")` for Kraken-listed coins; else `PriceSource.GenericRest(...)`.
+   - `walletConfig` → `WalletConfig.None` if balance tracking is unsupported.
+2. Build and install. No other file needs changing.
+
+Validation runs at app startup: duplicate ids and malformed id strings throw `IllegalArgumentException` so the app fails fast rather than silently corrupting DataStore.
+
 ## APIs
 
 - **Kraken** (`https://api.kraken.com/0/public`) — price + OHLC for any pair, no API key required, no geo-restrictions

@@ -6,8 +6,15 @@ import android.app.NotificationManager
 import android.os.Build
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.leeam.cryptowidget.data.local.WidgetPreferences
+import com.leeam.cryptowidget.data.local.WidgetPreferencesBootstrap
 import com.leeam.cryptowidget.worker.WorkScheduler
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -15,6 +22,10 @@ class CoinflowApplication : Application(), Configuration.Provider {
 
     @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var workScheduler: WorkScheduler
+    @Inject lateinit var bootstrap: WidgetPreferencesBootstrap
+    @Inject lateinit var widgetPrefs: WidgetPreferences
+
+    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
@@ -24,7 +35,16 @@ class CoinflowApplication : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        workScheduler.schedulePeriodicRefresh(15)
+        appScope.launch {
+            // Run migrations BEFORE the worker is allowed to write per-coin keys.
+            bootstrap.runIfNeeded()
+            // Periodic schedule is always on so it's ready the moment the user picks coins.
+            workScheduler.schedulePeriodicRefresh(15)
+            // Only kick off an immediate fetch if there's something to fetch.
+            if (widgetPrefs.followedCoinIds.first().isNotEmpty()) {
+                workScheduler.triggerImmediateRefresh()
+            }
+        }
     }
 
     private fun createNotificationChannel() {

@@ -52,7 +52,9 @@ id tv_last_updated
 id tv_portfolio_value
 id tv_price
 id wallet_row
+id widget_empty_root
 id widget_root
+layout widget_empty
 layout widget_layout
 layout widget_loading
 mipmap ic_launcher

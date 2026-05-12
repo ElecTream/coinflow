@@ -19,10 +19,6 @@ import com.leeam.cryptowidget.ui.settings.SettingsActivity
 import com.leeam.cryptowidget.ui.theme.CyberColors
 import com.leeam.cryptowidget.ui.theme.ThemeColors
 import com.leeam.cryptowidget.ui.util.CoinFormatter
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.math.abs
 
@@ -99,21 +95,6 @@ object WidgetUpdater {
                 }
                 throw e
             }
-        }
-
-        // Price flash: highlight the price text green/red briefly, then reset to white
-        if (data.errorMessage == null) {
-            val isUp      = data.change24hPct >= 0
-            val flashColor = if (isUp) 0xFF00FF88.toInt() else 0xFFFF4466.toInt()
-            CoroutineScope(Dispatchers.Main).launch {
-                delay(400)
-                val resetViews = RemoteViews(context.packageName, R.layout.widget_layout)
-                resetViews.setTextColor(R.id.tv_price, 0xFFFFFFFF.toInt())
-                ids.forEach { manager.partiallyUpdateAppWidget(it, resetViews) }
-            }
-            val flashViews = RemoteViews(context.packageName, R.layout.widget_layout)
-            flashViews.setTextColor(R.id.tv_price, flashColor)
-            ids.forEach { manager.partiallyUpdateAppWidget(it, flashViews) }
         }
     }
 

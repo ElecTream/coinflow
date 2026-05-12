@@ -29,14 +29,6 @@
         </activity>
 
         <activity
-            android:name=".ui.settings.WidgetConfigActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
-            </intent-filter>
-        </activity>
-
-        <activity
             android:name=".ui.chart.ChartDetailActivity"
             android:exported="false"
             android:theme="@style/Theme.Coinflow" />

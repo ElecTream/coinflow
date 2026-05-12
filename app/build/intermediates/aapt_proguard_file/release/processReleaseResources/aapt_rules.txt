@@ -16,7 +16,6 @@
 -keep class com.leeam.cryptowidget.CoinflowApplication { <init>(); }
 -keep class com.leeam.cryptowidget.ui.chart.ChartDetailActivity { <init>(); }
 -keep class com.leeam.cryptowidget.ui.settings.SettingsActivity { <init>(); }
--keep class com.leeam.cryptowidget.ui.settings.WidgetConfigActivity { <init>(); }
 -keep class com.leeam.cryptowidget.widget.CoinflowWidgetProvider { <init>(); }
 -keep class android.widget.Space { <init>(android.content.Context, android.util.AttributeSet); }
 

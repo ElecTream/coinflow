@@ -64267,6 +64267,8 @@ com.leeam.cryptowidget.data.local.CustomCoinEntity:
     static void <clinit>()
 com.leeam.cryptowidget.data.local.DebugEntry:
     static void <clinit>()
+com.leeam.cryptowidget.data.local.DebugLog$Command$Append:
+    static void <clinit>()
 com.leeam.cryptowidget.data.local.WidgetPreferences:
     static void <clinit>()
 com.leeam.cryptowidget.data.model.CoinDefinition:

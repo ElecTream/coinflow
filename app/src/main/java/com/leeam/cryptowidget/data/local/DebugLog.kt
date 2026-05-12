@@ -3,6 +3,7 @@ package com.leeam.cryptowidget.data.local
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,26 +34,48 @@ class DebugLog @Inject constructor(
     private val _entries = MutableStateFlow<List<DebugEntry>>(emptyList())
     val entries: StateFlow<List<DebugEntry>> = _entries.asStateFlow()
 
+    // Sealed command stream so init-load and appends are processed in strict order.
+    // Without this, init's load can race with a concurrent log() and silently wipe
+    // an entry, or a clear() can land between two appends and lose data.
+    private sealed interface Command {
+        data class Append(val entry: DebugEntry) : Command
+        data object Clear : Command
+    }
+
+    private val inbox = Channel<Command>(capacity = Channel.UNLIMITED)
+
     init {
         scope.launch {
+            // Phase 1: load persisted entries before processing any new commands.
             _entries.value = widgetPrefs.debugLog.first()
+            // Phase 2: serially drain new commands. Single consumer ⇒ no races.
+            for (cmd in inbox) {
+                when (cmd) {
+                    is Command.Append -> {
+                        _entries.update { (it + cmd.entry).takeLast(MAX_ENTRIES) }
+                        runCatching { widgetPrefs.persistDebugLog(_entries.value) }
+                    }
+                    is Command.Clear -> {
+                        _entries.value = emptyList()
+                        runCatching { widgetPrefs.persistDebugLog(emptyList()) }
+                    }
+                }
+            }
         }
     }
 
     fun log(source: String, message: String, throwable: Throwable? = null, level: DebugLevel = DebugLevel.ERROR) {
-        scope.launch {
-            val text = if (throwable != null) {
-                "$message :: ${throwable.javaClass.simpleName}: ${throwable.message ?: "(no message)"}"
-            } else message
-            val entry = DebugEntry(
-                timeMs  = System.currentTimeMillis(),
-                source  = source,
-                level   = level,
-                message = text
-            )
-            _entries.update { (it + entry).takeLast(MAX_ENTRIES) }
-            widgetPrefs.persistDebugLog(_entries.value)
-        }
+        val text = if (throwable != null) {
+            "$message :: ${throwable.javaClass.simpleName}: ${throwable.message ?: "(no message)"}"
+        } else message
+        val entry = DebugEntry(
+            timeMs  = System.currentTimeMillis(),
+            source  = source,
+            level   = level,
+            message = text
+        )
+        // trySend is fine because the Channel is UNLIMITED — won't drop unless closed.
+        inbox.trySend(Command.Append(entry))
     }
 
     fun info(source: String, message: String) = log(source, message, level = DebugLevel.INFO)
@@ -60,10 +83,7 @@ class DebugLog @Inject constructor(
     fun error(source: String, message: String, t: Throwable? = null) = log(source, message, t, DebugLevel.ERROR)
 
     fun clear() {
-        scope.launch {
-            _entries.value = emptyList()
-            widgetPrefs.persistDebugLog(emptyList())
-        }
+        inbox.trySend(Command.Clear)
     }
 }
 

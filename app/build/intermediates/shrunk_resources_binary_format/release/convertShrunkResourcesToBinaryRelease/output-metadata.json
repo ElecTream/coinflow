@@ -16,22 +16,9 @@
         }
       ],
       "attributes": [],
-      "versionCode": 10208,
-      "versionName": "1.2.8",
+      "versionCode": 10210,
+      "versionName": "1.2.10",
       "outputFile": "shrunk-resources-binary-format-armeabi-v7a-release.ap_"
-    },
-    {
-      "type": "ONE_OF_MANY",
-      "filters": [
-        {
-          "filterType": "ABI",
-          "value": "arm64-v8a"
-        }
-      ],
-      "attributes": [],
-      "versionCode": 10208,
-      "versionName": "1.2.8",
-      "outputFile": "shrunk-resources-binary-format-arm64-v8a-release.ap_"
     },
     {
       "type": "ONE_OF_MANY",
@@ -42,9 +29,22 @@
         }
       ],
       "attributes": [],
-      "versionCode": 10208,
-      "versionName": "1.2.8",
+      "versionCode": 10210,
+      "versionName": "1.2.10",
       "outputFile": "shrunk-resources-binary-format-x86_64-release.ap_"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "arm64-v8a"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 10210,
+      "versionName": "1.2.10",
+      "outputFile": "shrunk-resources-binary-format-arm64-v8a-release.ap_"
     }
   ],
   "elementType": "File"

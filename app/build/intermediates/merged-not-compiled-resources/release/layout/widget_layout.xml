@@ -1,32 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@drawable/widget_background"
-    android:padding="10dp">
+    android:padding="8dp">
 
-    <!-- TOP ROW: coin tabs (up to 5 slots) + 24h change + refresh button -->
+    <!-- TOP ROW: coin tabs + refresh -->
     <LinearLayout
         android:id="@+id/top_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_alignParentTop="true">
+        android:gravity="center_vertical">
 
-        <!-- Coin tab slots — WidgetUpdater sets text/color/click per active widget coins -->
         <TextView
             android:id="@+id/tab_coin_1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:paddingStart="2dp"
-            android:paddingEnd="2dp"
-            android:textSize="11sp"
+            android:textSize="10sp"
             android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.08"
+            android:letterSpacing="0.06"
             android:visibility="gone" />
 
         <TextView
@@ -35,11 +32,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:paddingStart="2dp"
-            android:paddingEnd="2dp"
-            android:textSize="11sp"
+            android:textSize="10sp"
             android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.08"
+            android:letterSpacing="0.06"
             android:visibility="gone" />
 
         <TextView
@@ -48,11 +43,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:paddingStart="2dp"
-            android:paddingEnd="2dp"
-            android:textSize="11sp"
+            android:textSize="10sp"
             android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.08"
+            android:letterSpacing="0.06"
             android:visibility="gone" />
 
         <TextView
@@ -61,11 +54,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:paddingStart="2dp"
-            android:paddingEnd="2dp"
-            android:textSize="11sp"
+            android:textSize="10sp"
             android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.08"
+            android:letterSpacing="0.06"
             android:visibility="gone" />
 
         <TextView
@@ -74,109 +65,61 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:paddingStart="2dp"
-            android:paddingEnd="2dp"
-            android:textSize="11sp"
+            android:textSize="10sp"
             android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.08"
+            android:letterSpacing="0.06"
             android:visibility="gone" />
 
-        <!-- Divider between tabs and right-side controls -->
         <View
             android:id="@+id/tab_divider"
             android:layout_width="1dp"
-            android:layout_height="14dp"
+            android:layout_height="12dp"
             android:background="#33FFFFFF"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="4dp"
             android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/tv_change"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="#00FF88"
-            android:layout_marginEnd="2dp"
-            android:text="▲ 0.00%" />
-
         <ImageView
             android:id="@+id/btn_refresh"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:padding="4dp"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
             android:src="@drawable/ic_refresh"
             android:contentDescription="Refresh" />
     </LinearLayout>
 
-    <!-- BOTTOM ROW: last-updated timestamp + settings icon -->
-    <LinearLayout
-        android:id="@+id/bottom_row"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_alignParentBottom="true">
-
-        <TextView
-            android:id="@+id/tv_last_updated"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="#5A5A88"
-            android:textSize="10sp"
-            android:fontFamily="sans-serif-light"
-            android:text="Updating..." />
-
-        <ImageView
-            android:id="@+id/btn_settings"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:padding="4dp"
-            android:src="@drawable/widget_settings_icon"
-            android:contentDescription="Settings" />
-    </LinearLayout>
-
-    <!-- SPARKLINE: above bottom row -->
-    <FrameLayout
-        android:id="@+id/sparkline_container"
-        android:layout_width="match_parent"
-        android:layout_height="32dp"
-        android:layout_above="@id/bottom_row"
-        android:layout_marginBottom="2dp">
-
-        <ImageView
-            android:id="@+id/iv_sparkline"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="fitXY"
-            android:contentDescription="Price chart" />
-    </FrameLayout>
-
-    <!-- PRICE ROW: price on the left, wallet balance stacked on the right -->
+    <!-- PRICE + 24H CHANGE on one inline row (saves vertical space) -->
     <LinearLayout
         android:id="@+id/price_row"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_below="@id/top_row"
-        android:layout_above="@id/sparkline_container"
-        android:paddingTop="1dp"
-        android:paddingBottom="1dp">
+        android:baselineAligned="false">
 
         <TextView
             android:id="@+id/tv_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:fontFamily="sans-serif-medium"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:text="$0.0000" />
+
+        <TextView
+            android:id="@+id/tv_change"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="#FFFFFF"
-            android:textSize="28sp"
+            android:layout_marginStart="6dp"
+            android:textSize="11sp"
             android:fontFamily="sans-serif-medium"
-            android:text="$0.0000" />
+            android:textColor="#00FF88"
+            android:singleLine="true"
+            android:text="▲ 0.00%" />
 
-        <!-- Wallet: stacked column, right-aligned, hidden until balance is set -->
         <LinearLayout
             android:id="@+id/wallet_row"
             android:layout_width="wrap_content"
@@ -190,8 +133,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#00D4FF"
-                android:textSize="13sp"
+                android:textSize="11sp"
                 android:fontFamily="sans-serif-medium"
+                android:singleLine="true"
                 android:text="" />
 
             <TextView
@@ -199,11 +143,47 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#8899BB"
-                android:textSize="11sp"
+                android:textSize="9sp"
                 android:fontFamily="sans-serif-light"
-                android:text="≈ $0.00" />
+                android:singleLine="true"
+                android:text="" />
         </LinearLayout>
-
     </LinearLayout>
 
-</RelativeLayout>
+    <!-- SPARKLINE -->
+    <ImageView
+        android:id="@+id/iv_sparkline"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:scaleType="fitXY"
+        android:contentDescription="Price chart" />
+
+    <!-- BOTTOM ROW: timestamp + settings -->
+    <LinearLayout
+        android:id="@+id/bottom_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="2dp">
+
+        <TextView
+            android:id="@+id/tv_last_updated"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="#5A5A88"
+            android:textSize="9sp"
+            android:fontFamily="sans-serif-light"
+            android:singleLine="true"
+            android:text="Updating…" />
+
+        <ImageView
+            android:id="@+id/btn_settings"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/widget_settings_icon"
+            android:contentDescription="Settings" />
+    </LinearLayout>
+
+</LinearLayout>

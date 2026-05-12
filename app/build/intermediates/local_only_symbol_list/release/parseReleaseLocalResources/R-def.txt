@@ -39,7 +39,6 @@ id btn_refresh
 id btn_settings
 id iv_sparkline
 id price_row
-id sparkline_container
 id tab_coin_1
 id tab_coin_2
 id tab_coin_3

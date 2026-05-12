@@ -414,6 +414,48 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Builds a plaintext snapshot of all observable runtime state — followed coins,
+     * per-coin cache slots, widget tabs, worker last-run, custom coin entities.
+     * Intended for the hidden debug card; output is paste-ready.
+     */
+    suspend fun diagnosticsDump(): String {
+        val s = _state.value
+        val sb = StringBuilder()
+        sb.appendLine("Coinflow diagnostics @ ${java.text.SimpleDateFormat("HH:mm:ss yyyy-MM-dd", java.util.Locale.US).format(java.util.Date())}")
+        sb.appendLine()
+        sb.appendLine("ACTIVE WIDGET COIN: ${s.coinId}")
+        sb.appendLine("FOLLOWED IDS:       ${s.followedCoinIds}")
+        sb.appendLine("WIDGET TAB IDS:     ${s.widgetCoinIds}")
+        sb.appendLine("REFRESH INTERVAL:   ${s.refreshIntervalMin} min")
+        sb.appendLine("THEME:              ${s.appTheme}")
+        sb.appendLine()
+        sb.appendLine("WORKER:")
+        sb.appendLine("  last run ms:  ${s.lastWorkerRunMs}")
+        sb.appendLine("  last error:   ${s.lastErrorMsg ?: "(none)"}")
+        sb.appendLine()
+        sb.appendLine("FOLLOWED SNAPSHOTS:")
+        if (s.followedSnapshots.isEmpty()) sb.appendLine("  (empty)")
+        s.followedSnapshots.forEach { snap ->
+            sb.appendLine("  ${snap.coin.id}  [${snap.coin.symbol}]")
+            sb.appendLine("    name:        ${snap.coin.displayName}")
+            sb.appendLine("    priceUsd:    ${snap.priceUsd}")
+            sb.appendLine("    change24h:   ${snap.change24hPct}")
+            sb.appendLine("    sparkline:   ${snap.sparkline.size} points")
+            sb.appendLine("    updatedMs:   ${snap.updatedMs}")
+            sb.appendLine("    walletAddr:  ${widgetPrefs.walletAddressFor(snap.coin.id).first()}")
+        }
+        sb.appendLine()
+        sb.appendLine("CUSTOM COINS (${s.customCoins.size}):")
+        if (s.customCoins.isEmpty()) sb.appendLine("  (none)")
+        s.customCoins.forEach { c ->
+            sb.appendLine("  ${c.id}  [${c.symbol}]  -> ${c.displayName}")
+            sb.appendLine("    priceSource: ${c.priceSource}")
+            sb.appendLine("    walletConfig: ${c.walletConfig}")
+        }
+        return sb.toString()
+    }
+
     /** Refresh price + sparkline for every followed coin in parallel. */
     fun refreshAllFollowed() {
         if (_state.value.isRefreshingAll) return

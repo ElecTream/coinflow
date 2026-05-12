@@ -10,7 +10,9 @@ import com.leeam.cryptowidget.CoinflowApplication.Companion.ALERT_CHANNEL_ID
 import com.leeam.cryptowidget.R
 import com.leeam.cryptowidget.data.local.AlertRepository
 import com.leeam.cryptowidget.data.local.WidgetPreferences
+import com.leeam.cryptowidget.data.model.CoinRegistry
 import com.leeam.cryptowidget.data.model.WidgetData
+import com.leeam.cryptowidget.data.repository.CoinRepository
 import com.leeam.cryptowidget.data.repository.CryptoRepository
 import com.leeam.cryptowidget.notifications.AlertNotifier
 import com.leeam.cryptowidget.ui.theme.toThemeColors
@@ -25,6 +27,7 @@ class PriceUpdateWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
     private val cryptoRepository: CryptoRepository,
+    private val coinRepository: CoinRepository,
     private val widgetPreferences: WidgetPreferences,
     private val alertRepository: AlertRepository,
     private val alertNotifier: AlertNotifier
@@ -55,6 +58,9 @@ class PriceUpdateWorker @AssistedInject constructor(
             customAccentArgb    = widgetPreferences.customAccentArgb.first(),
             customSecondaryArgb = widgetPreferences.customSecondaryArgb.first()
         )
+        val coinLookup = (widgetCoinIds + activeCoinId).distinct().associateWith {
+            coinRepository.coinById(it) ?: CoinRegistry.byId(it)
+        }
 
         // Widget coins refresh at user interval; background coins at 4× (min 60 min)
         val widgetThresholdMs     = intervalMin * 60_000L
@@ -87,7 +93,8 @@ class PriceUpdateWorker @AssistedInject constructor(
                         WidgetUpdater.updateAllWidgets(
                             applicationContext, data, chartStyle, themeColors,
                             widgetCoinIds = widgetCoinIds,
-                            activeCoinId  = coinId
+                            activeCoinId  = coinId,
+                            coinLookup    = coinLookup
                         )
                     }
 
@@ -99,7 +106,14 @@ class PriceUpdateWorker @AssistedInject constructor(
                     lastError = e.message
                     if (coinId == activeCoinId) {
                         val errorData = WidgetData(coinId = coinId, errorMessage = e.message ?: "Fetch failed")
-                        try { WidgetUpdater.updateAllWidgets(applicationContext, errorData) } catch (_: Exception) {}
+                        try {
+                            WidgetUpdater.updateAllWidgets(
+                                applicationContext, errorData, chartStyle, themeColors,
+                                widgetCoinIds = widgetCoinIds,
+                                activeCoinId  = coinId,
+                                coinLookup    = coinLookup
+                            )
+                        } catch (_: Exception) {}
                     }
                 }
             )

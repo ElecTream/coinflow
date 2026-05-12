@@ -14,8 +14,10 @@ import androidx.work.WorkManager
 import com.leeam.cryptowidget.R
 import com.leeam.cryptowidget.data.local.AlertRepository
 import com.leeam.cryptowidget.data.local.WidgetPreferences
+import com.leeam.cryptowidget.data.model.CoinDefinition
 import com.leeam.cryptowidget.data.model.CoinRegistry
 import com.leeam.cryptowidget.data.model.WidgetData
+import com.leeam.cryptowidget.data.repository.CoinRepository
 import com.leeam.cryptowidget.data.repository.CryptoRepository
 import com.leeam.cryptowidget.notifications.AlertNotifier
 import com.leeam.cryptowidget.ui.theme.toThemeColors
@@ -36,9 +38,14 @@ import kotlinx.coroutines.launch
 interface CoinflowWidgetEntryPoint {
     fun widgetPreferences(): WidgetPreferences
     fun cryptoRepository(): CryptoRepository
+    fun coinRepository(): CoinRepository
     fun alertRepository(): AlertRepository
     fun alertNotifier(): AlertNotifier
 }
+
+/** Resolve a coin id to its [CoinDefinition], checking custom coins before built-ins. */
+private suspend fun CoinRepository.resolveCoin(id: String): CoinDefinition =
+    coinById(id) ?: CoinRegistry.byId(id)
 
 class CoinflowWidgetProvider : AppWidgetProvider() {
 
@@ -93,7 +100,9 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
      */
     private fun switchActiveCoin(context: Context, coinId: String) {
         CoroutineScope(Dispatchers.IO).launch {
-            val prefs = entryPoint(context).widgetPreferences()
+            val ep    = entryPoint(context)
+            val prefs = ep.widgetPreferences()
+            val coins = ep.coinRepository()
 
             prefs.setCoinId(coinId)
 
@@ -109,7 +118,8 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
                 customSecondaryArgb = prefs.customSecondaryArgb.first()
             )
             val widgetCoinIds = prefs.widgetCoinIds.first()
-            val coin          = CoinRegistry.byId(coinId)
+            val coinLookup    = buildCoinLookup(coins, widgetCoinIds + coinId)
+            val coin          = coinLookup[coinId] ?: CoinRegistry.byId(coinId)
 
             val data = WidgetData(
                 coinId              = coinId,
@@ -136,12 +146,18 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
                 val views = WidgetUpdater.buildRemoteViews(
                     context, data, w, h, style, theme,
                     widgetCoinIds = widgetCoinIds,
-                    activeCoinId  = coinId
+                    activeCoinId  = coinId,
+                    coinLookup    = coinLookup
                 )
                 manager.updateAppWidget(widgetId, views)
             }
         }
     }
+
+    private suspend fun buildCoinLookup(
+        coins: CoinRepository,
+        ids: List<String>
+    ): Map<String, CoinDefinition> = ids.distinct().associateWith { coins.resolveCoin(it) }
 
     private fun showCachedOrLoading(
         context: Context,
@@ -149,7 +165,9 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
         ids: IntArray
     ) {
         CoroutineScope(Dispatchers.IO).launch {
-            val prefs = entryPoint(context).widgetPreferences()
+            val ep    = entryPoint(context)
+            val prefs = ep.widgetPreferences()
+            val coins = ep.coinRepository()
 
             val storedCoinId  = prefs.coinId.first()
             val widgetCoinIds = prefs.widgetCoinIds.first()
@@ -186,7 +204,8 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
                 customAccentArgb    = prefs.customAccentArgb.first(),
                 customSecondaryArgb = prefs.customSecondaryArgb.first()
             )
-            val coin          = CoinRegistry.byId(coinId)
+            val coinLookup    = buildCoinLookup(coins, widgetCoinIds + coinId)
+            val coin          = coinLookup[coinId] ?: CoinRegistry.byId(coinId)
 
             val cached = WidgetData(
                 coinId              = coinId,
@@ -202,7 +221,8 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
             WidgetUpdater.updateAllWidgets(
                 context, cached, style, theme,
                 widgetCoinIds = widgetCoinIds,
-                activeCoinId  = coinId
+                activeCoinId  = coinId,
+                coinLookup    = coinLookup
             )
         }
     }
@@ -212,6 +232,7 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
             val ep       = entryPoint(context)
             val prefs    = ep.widgetPreferences()
             val repo     = ep.cryptoRepository()
+            val coins    = ep.coinRepository()
             val alerts   = ep.alertRepository()
             val notifier = ep.alertNotifier()
 
@@ -223,11 +244,17 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
                 customSecondaryArgb = prefs.customSecondaryArgb.first()
             )
             val widgetCoinIds = prefs.widgetCoinIds.first()
+            val coinLookup    = buildCoinLookup(coins, widgetCoinIds + coinId)
 
             val result = repo.fetchWidgetData(coinId, wallet)
             val data   = result.getOrElse { e ->
                 val errorData = WidgetData(coinId = coinId, errorMessage = e.message ?: "Fetch failed")
-                WidgetUpdater.updateAllWidgets(context, errorData)
+                WidgetUpdater.updateAllWidgets(
+                    context, errorData, style, theme,
+                    widgetCoinIds = widgetCoinIds,
+                    activeCoinId  = coinId,
+                    coinLookup    = coinLookup
+                )
                 prefs.recordWorkerResult(e.message)
                 return@launch
             }
@@ -235,7 +262,8 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
             WidgetUpdater.updateAllWidgets(
                 context, data, style, theme,
                 widgetCoinIds = widgetCoinIds,
-                activeCoinId  = coinId
+                activeCoinId  = coinId,
+                coinLookup    = coinLookup
             )
             prefs.cacheCoinData(
                 coinId              = coinId,

@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.RemoteViews
 import com.leeam.cryptowidget.R
 import com.leeam.cryptowidget.data.local.ChartStyle
+import com.leeam.cryptowidget.data.model.CoinDefinition
 import com.leeam.cryptowidget.data.model.CoinRegistry
 import com.leeam.cryptowidget.data.model.WidgetData
 import com.leeam.cryptowidget.ui.chart.ChartDetailActivity
@@ -31,7 +32,8 @@ object WidgetUpdater {
         chartStyle: ChartStyle = ChartStyle.LINE,
         themeColors: ThemeColors = CyberColors,
         widgetCoinIds: List<String> = listOf(data.coinId),
-        activeCoinId: String = data.coinId
+        activeCoinId: String = data.coinId,
+        coinLookup: Map<String, CoinDefinition> = emptyMap()
     ) {
         val manager = AppWidgetManager.getInstance(context)
         val ids = manager.getAppWidgetIds(
@@ -50,7 +52,8 @@ object WidgetUpdater {
             val views = buildRemoteViews(
                 context, data, widthPx, heightPx, chartStyle, themeColors,
                 widgetCoinIds = widgetCoinIds,
-                activeCoinId  = activeCoinId
+                activeCoinId  = activeCoinId,
+                coinLookup    = coinLookup
             )
             manager.updateAppWidget(widgetId, views)
         }
@@ -79,9 +82,13 @@ object WidgetUpdater {
         chartStyle: ChartStyle = ChartStyle.LINE,
         themeColors: ThemeColors = CyberColors,
         widgetCoinIds: List<String> = listOf(data.coinId),
-        activeCoinId: String = data.coinId
+        activeCoinId: String = data.coinId,
+        coinLookup: Map<String, CoinDefinition> = emptyMap()
     ): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget_layout)
+
+        fun resolveCoin(id: String): CoinDefinition =
+            coinLookup[id] ?: CoinRegistry.byId(id)
 
         // ── Coin tabs ─────────────────────────────────────────────────────────
         val tabIds = listOf(
@@ -93,7 +100,7 @@ object WidgetUpdater {
         tabIds.forEachIndexed { index, tabId ->
             if (index < widgetCoinIds.size) {
                 val tabCoinId = widgetCoinIds[index]
-                val tabCoin   = CoinRegistry.byId(tabCoinId)
+                val tabCoin   = resolveCoin(tabCoinId)
                 val isActive  = tabCoinId == activeCoinId
                 val tabColor  = if (isActive) themeColors.accentArgb else 0xFF5A6A7A.toInt()
 

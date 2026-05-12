@@ -1,7 +1,11 @@
 package com.leeam.cryptowidget.ui.screens
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.*
@@ -22,9 +26,12 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.leeam.cryptowidget.data.model.CoinRegistry
@@ -48,6 +55,7 @@ fun HomeScreen(
     navController: NavController
 ) {
     val state by vm.state.collectAsStateWithLifecycle()
+    var debugVisible by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -66,7 +74,18 @@ fun HomeScreen(
                 .padding(top = 20.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            HomeHeader()
+            HomeHeader(onLongPress = { debugVisible = !debugVisible })
+
+            AnimatedVisibility(
+                visible = debugVisible,
+                enter   = expandVertically() + fadeIn(),
+                exit    = shrinkVertically() + fadeOut()
+            ) {
+                DebugSection(
+                    vm        = vm,
+                    onDismiss = { debugVisible = false }
+                )
+            }
 
             // ── Live multi-coin tracker ─────────────────────────────────────
             LiveTrackerSection(
@@ -114,9 +133,16 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun HomeHeader() {
-    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+private fun HomeHeader(onLongPress: () -> Unit) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+        modifier = Modifier.combinedClickable(
+            onClick     = {},
+            onLongClick = onLongPress
+        )
+    ) {
         Text(
             "Coinflow",
             color      = TextPrimary,
@@ -129,6 +155,115 @@ private fun HomeHeader() {
             color    = TextSecondary,
             fontSize = 13.sp
         )
+    }
+}
+
+// ── Hidden debug section (long-press header to reveal) ─────────────────────
+
+@Composable
+private fun DebugSection(vm: SettingsViewModel, onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    val scope   = rememberCoroutineScope()
+    val accent  = LocalThemeColors.current.accent
+    var dump by remember { mutableStateOf("Loading diagnostics…") }
+    var lastCopiedAt by remember { mutableStateOf(0L) }
+
+    // Build the dump whenever the section becomes visible, and after every refresh.
+    LaunchedEffect(Unit) {
+        dump = vm.diagnosticsDump()
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(BgDark.copy(alpha = 0.92f))
+            .border(1.dp, accent.copy(alpha = 0.55f), RoundedCornerShape(14.dp))
+            .padding(14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "DEBUG  ·  internal",
+                color = accent,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.5.sp
+            )
+            Spacer(Modifier.weight(1f))
+            TextButton(
+                onClick = onDismiss,
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+            ) {
+                Text("Hide", color = TextSecondary, fontSize = 11.sp)
+            }
+        }
+
+        // Scrollable mono dump
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 320.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Surface)
+                .border(1.dp, CardBorder, RoundedCornerShape(8.dp))
+                .padding(10.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Text(
+                dump,
+                color = TextPrimary,
+                fontSize = 10.sp,
+                fontFamily = FontFamily.Monospace,
+                lineHeight = 14.sp
+            )
+        }
+
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(
+                onClick = {
+                    scope.launch { dump = vm.diagnosticsDump() }
+                },
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = accent),
+                border = BorderStroke(1.dp, accent),
+                shape  = RoundedCornerShape(10.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Reload", fontSize = 11.sp, fontWeight = FontWeight.Medium)
+            }
+            OutlinedButton(
+                onClick = {
+                    val cm = context.getSystemService(ClipboardManager::class.java)
+                    cm?.setPrimaryClip(ClipData.newPlainText("Coinflow diagnostics", dump))
+                    lastCopiedAt = System.currentTimeMillis()
+                },
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = accent),
+                border = BorderStroke(1.dp, accent),
+                shape  = RoundedCornerShape(10.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    if (System.currentTimeMillis() - lastCopiedAt < 2000L) "Copied!" else "Copy",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    vm.refreshAllFollowed()
+                    scope.launch { dump = vm.diagnosticsDump() }
+                },
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = ColorUp),
+                border = BorderStroke(1.dp, ColorUp.copy(alpha = 0.7f)),
+                shape  = RoundedCornerShape(10.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Force refresh", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = ColorUp)
+            }
+        }
     }
 }
 
@@ -182,6 +317,7 @@ private fun LiveTrackerSection(
 private fun LiveCoinRow(snap: CoinSnapshot, onClick: () -> Unit) {
     val themeColors = LocalThemeColors.current
     val hasPrice    = snap.priceUsd > 0.0
+    val isFetching  = !hasPrice && snap.updatedMs == 0L
     val isUp        = snap.change24hPct >= 0.0
     val changeColor = if (isUp) ColorUp else ColorDown
     val arrow       = if (isUp) "▲" else "▼"
@@ -253,17 +389,27 @@ private fun LiveCoinRow(snap: CoinSnapshot, onClick: () -> Unit) {
         // Price + change
         Column(horizontalAlignment = Alignment.End) {
             Text(
-                if (hasPrice) CoinFormatter.formatPrice(snap.priceUsd) else "—",
-                color = TextPrimary,
+                when {
+                    hasPrice   -> CoinFormatter.formatPrice(snap.priceUsd)
+                    isFetching -> "Fetching…"
+                    else       -> "—"
+                },
+                color = if (isFetching) themeColors.accent else TextPrimary,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1
             )
             Spacer(Modifier.height(2.dp))
             Text(
-                if (hasPrice) "$arrow ${String.format(Locale.US, "%.2f", abs(snap.change24hPct))}%"
-                else "—",
-                color    = if (hasPrice) changeColor else TextSecondary,
+                when {
+                    hasPrice   -> "$arrow ${String.format(Locale.US, "%.2f", abs(snap.change24hPct))}%"
+                    isFetching -> "Pulling live data"
+                    else       -> "—"
+                },
+                color    = when {
+                    hasPrice -> changeColor
+                    else     -> TextSecondary
+                },
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
                 maxLines = 1

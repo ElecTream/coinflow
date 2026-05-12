@@ -9,9 +9,11 @@ import android.view.View
 import android.widget.RemoteViews
 import com.leeam.cryptowidget.R
 import com.leeam.cryptowidget.data.local.ChartStyle
+import com.leeam.cryptowidget.data.local.DebugLog
 import com.leeam.cryptowidget.data.model.CoinDefinition
 import com.leeam.cryptowidget.data.model.CoinRegistry
 import com.leeam.cryptowidget.data.model.WidgetData
+import dagger.hilt.android.EntryPointAccessors
 import com.leeam.cryptowidget.ui.chart.ChartDetailActivity
 import com.leeam.cryptowidget.ui.settings.SettingsActivity
 import com.leeam.cryptowidget.ui.theme.CyberColors
@@ -26,6 +28,16 @@ import kotlin.math.abs
 
 object WidgetUpdater {
 
+    private const val MAX_SPARKLINE_WIDTH_PX  = 600
+    private const val MAX_SPARKLINE_HEIGHT_PX = 80
+
+    private fun debugLog(context: Context): DebugLog? = runCatching {
+        EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            CoinflowWidgetEntryPoint::class.java
+        ).debugLog()
+    }.getOrNull()
+
     fun updateAllWidgets(
         context: Context,
         data: WidgetData,
@@ -39,16 +51,37 @@ object WidgetUpdater {
         val ids = manager.getAppWidgetIds(
             ComponentName(context, CoinflowWidgetProvider::class.java)
         )
-        if (ids.isEmpty()) return
+        val log = debugLog(context)
+        if (ids.isEmpty()) {
+            log?.warn("WidgetUpdater", "updateAllWidgets called with zero installed widgets")
+            return
+        }
+
+        log?.info(
+            "WidgetUpdater",
+            "rendering ids=${ids.toList()} active=$activeCoinId tabs=$widgetCoinIds " +
+                "symbol=${data.symbol} price=${data.priceUsd} err=${data.errorMessage}"
+        )
 
         for (widgetId in ids) {
             try {
                 val options  = manager.getAppWidgetOptions(widgetId)
                 val minW     = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180)
                 val minH     = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110)
+                val maxW     = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, 180)
+                val maxH     = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 110)
                 val density  = context.resources.displayMetrics.density
-                val widthPx  = (minW  * density).toInt().coerceAtLeast(200)
-                val heightPx = ((minH * density) * 0.30f).toInt().coerceAtLeast(40)
+                // Cap the sparkline bitmap so a single RemoteViews parcel never gets close to the
+                // binder transaction limit (~1MB hard, much smaller in practice). The sparkline is
+                // displayed scaled (fitXY) so the source resolution can be modest without looking
+                // bad. 600x80 → ~190KB ARGB_8888.
+                val widthPx  = (minW  * density).toInt().coerceIn(200, MAX_SPARKLINE_WIDTH_PX)
+                val heightPx = ((minH * density) * 0.30f).toInt().coerceIn(40, MAX_SPARKLINE_HEIGHT_PX)
+
+                log?.info(
+                    "WidgetUpdater",
+                    "id=$widgetId dp=(${minW}x${minH}..${maxW}x${maxH}) density=$density bmp=${widthPx}x${heightPx}"
+                )
 
                 val views = buildRemoteViews(
                     context, data, widthPx, heightPx, chartStyle, themeColors,
@@ -57,10 +90,9 @@ object WidgetUpdater {
                     coinLookup    = coinLookup
                 )
                 manager.updateAppWidget(widgetId, views)
+                log?.info("WidgetUpdater", "updateAppWidget OK id=$widgetId")
             } catch (e: Exception) {
-                // If render fails, fall back to a minimal text-only view so the launcher
-                // doesn't show "Problem loading widget". The exception detail is captured
-                // by the caller's outer try/catch (which logs to DebugLog).
+                log?.error("WidgetUpdater", "render failed id=$widgetId", e)
                 runCatching {
                     val fallback = RemoteViews(context.packageName, R.layout.widget_loading)
                     manager.updateAppWidget(widgetId, fallback)

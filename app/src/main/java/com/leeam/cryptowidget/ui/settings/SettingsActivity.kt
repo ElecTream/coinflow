@@ -117,5 +117,9 @@ private fun CoinflowNavHost(
         composable(Screen.ADD_COIN) {
             AddCustomCoinScreen(onBack = { navController.popBackStack() })
         }
+
+        composable(Screen.DEBUG) {
+            DebugScreen(vm = vm, onBack = { navController.popBackStack() })
+        }
     }
 }

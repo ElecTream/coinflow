@@ -6,13 +6,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leeam.cryptowidget.data.local.WidgetPreferences
 import com.leeam.cryptowidget.data.model.CoinRegistry
+import com.leeam.cryptowidget.data.repository.CoinRepository
 import com.leeam.cryptowidget.widget.CoinflowWidgetProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,29 +31,37 @@ data class ChartDetailUiState(
 @HiltViewModel
 class ChartDetailViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val prefs: WidgetPreferences
+    private val prefs: WidgetPreferences,
+    private val coinRepository: CoinRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ChartDetailUiState())
     val state: StateFlow<ChartDetailUiState> = _state.asStateFlow()
 
-    init {
-        viewModelScope.launch {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val activeCoinDataFlow = prefs.coinId.flatMapLatest { coinId ->
+        if (coinId.isBlank()) flowOf(ChartDetailUiState()) else {
             combine(
-                prefs.coinId,
-                prefs.cachedPriceUsd,
-                prefs.cachedChangePct,
-                prefs.cachedSparkline,
-                prefs.cachedSparklineTimestamps
-            ) { coinId, price, change, sparkline, timestamps ->
+                prefs.priceUsdFor(coinId),
+                prefs.changePctFor(coinId),
+                prefs.sparklineFor(coinId),
+                prefs.sparklineTsFor(coinId)
+            ) { price, change, sparkline, timestamps ->
+                val coin = coinRepository.coinById(coinId) ?: CoinRegistry.byId(coinId)
                 ChartDetailUiState(
-                    symbol       = CoinRegistry.byId(coinId).symbol,
+                    symbol       = coin.symbol,
                     priceUsd     = price,
                     change24hPct = change,
                     prices       = sparkline,
                     timestamps   = timestamps
                 )
-            }.collect { _state.value = it }
+            }
+        }
+    }
+
+    init {
+        viewModelScope.launch {
+            activeCoinDataFlow.collect { _state.value = it }
         }
     }
 

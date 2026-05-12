@@ -2,6 +2,7 @@ package com.leeam.cryptowidget.ui.settings;
 
 import android.content.Context;
 import com.leeam.cryptowidget.data.local.AlertRepository;
+import com.leeam.cryptowidget.data.local.DebugLog;
 import com.leeam.cryptowidget.data.local.WidgetPreferences;
 import com.leeam.cryptowidget.data.repository.CoinRepository;
 import com.leeam.cryptowidget.data.repository.CryptoRepository;
@@ -42,23 +43,26 @@ public final class SettingsViewModel_Factory implements Factory<SettingsViewMode
 
   private final Provider<WorkScheduler> workSchedulerProvider;
 
+  private final Provider<DebugLog> debugLogProvider;
+
   private SettingsViewModel_Factory(Provider<Context> contextProvider,
       Provider<WidgetPreferences> widgetPrefsProvider,
       Provider<CryptoRepository> cryptoRepositoryProvider,
       Provider<AlertRepository> alertRepositoryProvider,
       Provider<CoinRepository> coinRepositoryProvider,
-      Provider<WorkScheduler> workSchedulerProvider) {
+      Provider<WorkScheduler> workSchedulerProvider, Provider<DebugLog> debugLogProvider) {
     this.contextProvider = contextProvider;
     this.widgetPrefsProvider = widgetPrefsProvider;
     this.cryptoRepositoryProvider = cryptoRepositoryProvider;
     this.alertRepositoryProvider = alertRepositoryProvider;
     this.coinRepositoryProvider = coinRepositoryProvider;
     this.workSchedulerProvider = workSchedulerProvider;
+    this.debugLogProvider = debugLogProvider;
   }
 
   @Override
   public SettingsViewModel get() {
-    return newInstance(contextProvider.get(), widgetPrefsProvider.get(), cryptoRepositoryProvider.get(), alertRepositoryProvider.get(), coinRepositoryProvider.get(), workSchedulerProvider.get());
+    return newInstance(contextProvider.get(), widgetPrefsProvider.get(), cryptoRepositoryProvider.get(), alertRepositoryProvider.get(), coinRepositoryProvider.get(), workSchedulerProvider.get(), debugLogProvider.get());
   }
 
   public static SettingsViewModel_Factory create(Provider<Context> contextProvider,
@@ -66,13 +70,13 @@ public final class SettingsViewModel_Factory implements Factory<SettingsViewMode
       Provider<CryptoRepository> cryptoRepositoryProvider,
       Provider<AlertRepository> alertRepositoryProvider,
       Provider<CoinRepository> coinRepositoryProvider,
-      Provider<WorkScheduler> workSchedulerProvider) {
-    return new SettingsViewModel_Factory(contextProvider, widgetPrefsProvider, cryptoRepositoryProvider, alertRepositoryProvider, coinRepositoryProvider, workSchedulerProvider);
+      Provider<WorkScheduler> workSchedulerProvider, Provider<DebugLog> debugLogProvider) {
+    return new SettingsViewModel_Factory(contextProvider, widgetPrefsProvider, cryptoRepositoryProvider, alertRepositoryProvider, coinRepositoryProvider, workSchedulerProvider, debugLogProvider);
   }
 
   public static SettingsViewModel newInstance(Context context, WidgetPreferences widgetPrefs,
       CryptoRepository cryptoRepository, AlertRepository alertRepository,
-      CoinRepository coinRepository, WorkScheduler workScheduler) {
-    return new SettingsViewModel(context, widgetPrefs, cryptoRepository, alertRepository, coinRepository, workScheduler);
+      CoinRepository coinRepository, WorkScheduler workScheduler, DebugLog debugLog) {
+    return new SettingsViewModel(context, widgetPrefs, cryptoRepository, alertRepository, coinRepository, workScheduler, debugLog);
   }
 }

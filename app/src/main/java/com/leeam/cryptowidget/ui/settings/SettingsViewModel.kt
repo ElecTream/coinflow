@@ -10,6 +10,8 @@ import com.leeam.cryptowidget.data.local.AlertMode
 import com.leeam.cryptowidget.data.local.AlertRepository
 import com.leeam.cryptowidget.data.local.AppTheme
 import com.leeam.cryptowidget.data.local.ChartStyle
+import com.leeam.cryptowidget.data.local.DebugEntry
+import com.leeam.cryptowidget.data.local.DebugLog
 import com.leeam.cryptowidget.data.local.WidgetPreferences
 import com.leeam.cryptowidget.data.model.CoinDefinition
 import com.leeam.cryptowidget.data.model.CoinRegistry
@@ -75,11 +77,14 @@ class SettingsViewModel @Inject constructor(
     private val cryptoRepository: CryptoRepository,
     private val alertRepository: AlertRepository,
     private val coinRepository: CoinRepository,
-    private val workScheduler: WorkScheduler
+    private val workScheduler: WorkScheduler,
+    private val debugLog: DebugLog
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SettingsUiState())
     val state: StateFlow<SettingsUiState> = _state.asStateFlow()
+
+    val debugEntries: StateFlow<List<DebugEntry>> = debugLog.entries
 
     init {
         loadPreferences()
@@ -178,9 +183,13 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /** Resolves a coin id to its real [CoinDefinition], checking custom coins before built-ins. */
+    private suspend fun resolveCoin(coinId: String): CoinDefinition =
+        coinRepository.coinById(coinId) ?: CoinRegistry.byId(coinId)
+
     /** Returns a human-readable error for the wallet address, or null if it looks OK. */
-    private fun validateWalletAddress(coinId: String, address: String): String? {
-        val coin = CoinRegistry.byId(coinId)
+    private suspend fun validateWalletAddress(coinId: String, address: String): String? {
+        val coin = resolveCoin(coinId)
         return when (coin.walletConfig) {
             is WalletConfig.Xrpl        -> validateXrplAddress(address)
             is WalletConfig.Bitcoin     -> if (Regex("^(1|3|bc1)[a-zA-HJ-NP-Z0-9]{25,62}$").matches(address)) null else "Invalid Bitcoin address"
@@ -207,17 +216,17 @@ class SettingsViewModel @Inject constructor(
             _state.update { it.copy(walletTestResult = "Enter a wallet address first") }
             return
         }
-        val formatError = validateWalletAddress(coinId, address)
-        if (formatError != null) {
-            _state.update { it.copy(walletTestResult = "Bad address: $formatError") }
-            return
-        }
         viewModelScope.launch {
+            val formatError = validateWalletAddress(coinId, address)
+            if (formatError != null) {
+                _state.update { it.copy(walletTestResult = "Bad address: $formatError") }
+                return@launch
+            }
             _state.update { it.copy(walletTestLoading = true, walletTestResult = null) }
             cryptoRepository.fetchWalletBalance(coinId, address).fold(
                 onSuccess = { bal ->
                     val price = _state.value.livePrice ?: 0.0
-                    val symbol = CoinRegistry.byId(coinId).symbol
+                    val symbol = resolveCoin(coinId).symbol
                     _state.update {
                         it.copy(
                             walletTestLoading = false,
@@ -263,8 +272,8 @@ class SettingsViewModel @Inject constructor(
             return
         }
         val coinId = _state.value.coinId
-        val symbol = CoinRegistry.byId(coinId).symbol
         viewModelScope.launch {
+            val symbol = resolveCoin(coinId).symbol
             alertRepository.addAlert(
                 coinId = coinId,
                 symbol = symbol,
@@ -454,6 +463,27 @@ class SettingsViewModel @Inject constructor(
             sb.appendLine("    walletConfig: ${c.walletConfig}")
         }
         return sb.toString()
+    }
+
+    /** Clear the persisted debug-log buffer. */
+    fun clearDebugLog() = debugLog.clear()
+
+    /**
+     * Wipe all per-coin cached values (price, change, balance, sparkline, lastFetched,
+     * lastFetchError) for every followed coin, then trigger an immediate refresh so the
+     * tracker repopulates. Useful for chasing down stale-cache bugs.
+     */
+    fun resetAllCoinCache() = viewModelScope.launch {
+        debugLog.info("ViewModel.resetCache", "clearing all coin caches")
+        val ids = _state.value.followedCoinIds + _state.value.coinId
+        ids.distinct().forEach { id ->
+            widgetPrefs.cacheCoinData(
+                coinId = id, priceUsd = 0.0, changePct = 0.0,
+                balance = 0.0, sparkline = emptyList(), sparklineTimestamps = emptyList()
+            )
+            widgetPrefs.setLastFetchError(id, null)
+        }
+        workScheduler.triggerImmediateRefresh()
     }
 
     /** Refresh price + sparkline for every followed coin in parallel. */

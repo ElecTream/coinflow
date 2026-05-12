@@ -50,6 +50,9 @@ class WidgetPreferences @Inject constructor(
         val CUSTOM_ACCENT_ARGB    = intPreferencesKey("custom_accent_argb")
         val CUSTOM_SECONDARY_ARGB = intPreferencesKey("custom_secondary_argb")
 
+        // ── Debug log (newline-separated TSV: time\tlevel\tsource\tmessage) ─────
+        val DEBUG_LOG = stringPreferencesKey("debug_log")
+
         // ── Per-coin dynamic keys ───────────────────────────────────────────────
         fun walletAddressFor(coinId: String)  = stringPreferencesKey("wallet_address_$coinId")
         fun priceUsdFor(coinId: String)       = doublePreferencesKey("price_usd_$coinId")
@@ -59,6 +62,7 @@ class WidgetPreferences @Inject constructor(
         fun sparklineFor(coinId: String)      = stringPreferencesKey("sparkline_$coinId")
         fun sparklineTsFor(coinId: String)    = stringPreferencesKey("sparkline_ts_$coinId")
         fun lastFetchedMsFor(coinId: String)  = longPreferencesKey("last_fetched_$coinId")
+        fun lastFetchErrorFor(coinId: String) = stringPreferencesKey("last_fetch_error_$coinId")
     }
 
     // ── Single-coin compat ──────────────────────────────────────────────────────
@@ -234,6 +238,49 @@ class WidgetPreferences @Inject constructor(
     fun lastFetchedMsFor(coinId: String): Flow<Long> = ds.data
         .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
         .map { it[Keys.lastFetchedMsFor(coinId)] ?: 0L }
+
+    fun lastFetchErrorFor(coinId: String): Flow<String?> = ds.data
+        .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
+        .map { it[Keys.lastFetchErrorFor(coinId)] }
+
+    suspend fun setLastFetchError(coinId: String, error: String?) = ds.edit { prefs ->
+        if (error == null) prefs.remove(Keys.lastFetchErrorFor(coinId))
+        else prefs[Keys.lastFetchErrorFor(coinId)] = error
+    }
+
+    // ── Debug log ──────────────────────────────────────────────────────────────
+
+    /** Loads the persisted debug-log entries (newest-last). */
+    val debugLog: Flow<List<com.leeam.cryptowidget.data.local.DebugEntry>> = ds.data
+        .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
+        .map { prefs -> deserializeDebugLog(prefs[Keys.DEBUG_LOG]) }
+
+    suspend fun persistDebugLog(entries: List<com.leeam.cryptowidget.data.local.DebugEntry>) =
+        ds.edit { it[Keys.DEBUG_LOG] = serializeDebugLog(entries) }
+
+    private fun serializeDebugLog(entries: List<com.leeam.cryptowidget.data.local.DebugEntry>): String =
+        entries.joinToString("\n") { entry ->
+            // tab-separated; replace embedded tabs/newlines in message so the split is unambiguous
+            val safeMessage = entry.message.replace('\t', ' ').replace('\n', ' ')
+            val safeSource  = entry.source.replace('\t', ' ').replace('\n', ' ')
+            "${entry.timeMs}\t${entry.level.name}\t${safeSource}\t${safeMessage}"
+        }
+
+    private fun deserializeDebugLog(raw: String?): List<com.leeam.cryptowidget.data.local.DebugEntry> {
+        if (raw.isNullOrBlank()) return emptyList()
+        return raw.split('\n').mapNotNull { line ->
+            val parts = line.split('\t', limit = 4)
+            if (parts.size != 4) return@mapNotNull null
+            runCatching {
+                com.leeam.cryptowidget.data.local.DebugEntry(
+                    timeMs  = parts[0].toLong(),
+                    level   = com.leeam.cryptowidget.data.local.DebugLevel.valueOf(parts[1]),
+                    source  = parts[2],
+                    message = parts[3]
+                )
+            }.getOrNull()
+        }
+    }
 
     // ── Setters ─────────────────────────────────────────────────────────────────
 

@@ -13,6 +13,7 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import com.leeam.cryptowidget.R
 import com.leeam.cryptowidget.data.local.AlertRepository
+import com.leeam.cryptowidget.data.local.DebugLog
 import com.leeam.cryptowidget.data.local.WidgetPreferences
 import com.leeam.cryptowidget.data.model.CoinDefinition
 import com.leeam.cryptowidget.data.model.CoinRegistry
@@ -41,6 +42,7 @@ interface CoinflowWidgetEntryPoint {
     fun coinRepository(): CoinRepository
     fun alertRepository(): AlertRepository
     fun alertNotifier(): AlertNotifier
+    fun debugLog(): DebugLog
 }
 
 /** Resolve a coin id to its [CoinDefinition], checking custom coins before built-ins. */
@@ -66,21 +68,33 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-        showCachedOrLoading(context, appWidgetManager, appWidgetIds)
-        enqueueRefresh(context)
+        runCatching {
+            entryPoint(context).debugLog()
+                .info("Widget.onUpdate", "ids=${appWidgetIds.toList()}")
+            showCachedOrLoading(context, appWidgetManager, appWidgetIds)
+            enqueueRefresh(context)
+        }.onFailure { e ->
+            tryLog(context, "Widget.onUpdate", "uncaught", e)
+        }
     }
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        when (intent.action) {
-            "com.leeam.cryptowidget.ACTION_REFRESH" -> {
-                showRefreshSpinner(context)
-                fetchDirectly(context)
+        runCatching {
+            when (intent.action) {
+                "com.leeam.cryptowidget.ACTION_REFRESH" -> {
+                    entryPoint(context).debugLog().info("Widget.onReceive", "ACTION_REFRESH")
+                    showRefreshSpinner(context)
+                    fetchDirectly(context)
+                }
+                ACTION_SELECT_COIN -> {
+                    val coinId = intent.getStringExtra(EXTRA_COIN_ID) ?: return
+                    entryPoint(context).debugLog().info("Widget.onReceive", "ACTION_SELECT_COIN coinId=$coinId")
+                    switchActiveCoin(context, coinId)
+                }
             }
-            ACTION_SELECT_COIN -> {
-                val coinId = intent.getStringExtra(EXTRA_COIN_ID) ?: return
-                switchActiveCoin(context, coinId)
-            }
+        }.onFailure { e ->
+            tryLog(context, "Widget.onReceive", "uncaught action=${intent.action}", e)
         }
     }
 
@@ -90,8 +104,19 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
         appWidgetId: Int,
         newOptions: Bundle
     ) {
-        showCachedOrLoading(context, appWidgetManager, intArrayOf(appWidgetId))
-        enqueueRefresh(context)
+        runCatching {
+            entryPoint(context).debugLog()
+                .info("Widget.onOptionsChanged", "id=$appWidgetId")
+            showCachedOrLoading(context, appWidgetManager, intArrayOf(appWidgetId))
+            enqueueRefresh(context)
+        }.onFailure { e ->
+            tryLog(context, "Widget.onOptionsChanged", "uncaught id=$appWidgetId", e)
+        }
+    }
+
+    /** Best-effort log to DebugLog; never throws even if the entry point itself fails. */
+    private fun tryLog(context: Context, source: String, message: String, t: Throwable) {
+        runCatching { entryPoint(context).debugLog().error(source, message, t) }
     }
 
     /**
@@ -100,6 +125,7 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
      */
     private fun switchActiveCoin(context: Context, coinId: String) {
         CoroutineScope(Dispatchers.IO).launch {
+            try {
             val ep    = entryPoint(context)
             val prefs = ep.widgetPreferences()
             val coins = ep.coinRepository()
@@ -151,6 +177,9 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
                 )
                 manager.updateAppWidget(widgetId, views)
             }
+            } catch (e: Exception) {
+                tryLog(context, "Widget.switchActiveCoin", "failed coinId=$coinId", e)
+            }
         }
     }
 
@@ -165,6 +194,7 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
         ids: IntArray
     ) {
         CoroutineScope(Dispatchers.IO).launch {
+            try {
             val ep    = entryPoint(context)
             val prefs = ep.widgetPreferences()
             val coins = ep.coinRepository()
@@ -224,17 +254,22 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
                 activeCoinId  = coinId,
                 coinLookup    = coinLookup
             )
+            } catch (e: Exception) {
+                tryLog(context, "Widget.showCachedOrLoading", "failed", e)
+            }
         }
     }
 
     private fun fetchDirectly(context: Context) {
         CoroutineScope(Dispatchers.IO).launch {
+            try {
             val ep       = entryPoint(context)
             val prefs    = ep.widgetPreferences()
             val repo     = ep.cryptoRepository()
             val coins    = ep.coinRepository()
             val alerts   = ep.alertRepository()
             val notifier = ep.alertNotifier()
+            val log      = ep.debugLog()
 
             val coinId        = prefs.coinId.first()
             val wallet        = prefs.walletAddressFor(coinId).first()
@@ -248,6 +283,8 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
 
             val result = repo.fetchWidgetData(coinId, wallet)
             val data   = result.getOrElse { e ->
+                log.error("Widget.fetchDirectly", "fetchWidgetData failed coinId=$coinId", e)
+                prefs.setLastFetchError(coinId, e.message ?: "Fetch failed")
                 val errorData = WidgetData(coinId = coinId, errorMessage = e.message ?: "Fetch failed")
                 WidgetUpdater.updateAllWidgets(
                     context, errorData, style, theme,
@@ -258,6 +295,7 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
                 prefs.recordWorkerResult(e.message)
                 return@launch
             }
+            prefs.setLastFetchError(coinId, null)
 
             WidgetUpdater.updateAllWidgets(
                 context, data, style, theme,
@@ -277,6 +315,10 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
                 notifier.fireAlertNotification(alert, data.priceUsd)
             }
             prefs.recordWorkerResult(null)
+            log.info("Widget.fetchDirectly", "ok coinId=$coinId price=${data.priceUsd}")
+            } catch (e: Exception) {
+                tryLog(context, "Widget.fetchDirectly", "failed", e)
+            }
         }
     }
 

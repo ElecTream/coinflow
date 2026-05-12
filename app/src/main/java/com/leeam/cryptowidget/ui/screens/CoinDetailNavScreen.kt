@@ -47,7 +47,8 @@ fun CoinDetailNavScreen(
         vm.onCoinChange(coinId)
     }
 
-    val coin = CoinRegistry.byId(coinId)
+    // Resolve coin: check custom coins first (in state), fall back to built-in registry.
+    val coin = state.customCoins.firstOrNull { it.id == coinId } ?: CoinRegistry.byId(coinId)
     val snackbar = remember { SnackbarHostState() }
 
     LaunchedEffect(state.saveSuccess, state.saveError) {

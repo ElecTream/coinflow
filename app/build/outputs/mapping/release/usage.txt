@@ -11030,7 +11030,6 @@ androidx.compose.runtime.EffectsKt:
     private static final java.lang.String LaunchedEffectNoParamError
     public static final void DisposableEffect(java.lang.Object,java.lang.Object,java.lang.Object,kotlin.jvm.functions.Function1,androidx.compose.runtime.Composer,int)
     public static final void DisposableEffect(kotlin.jvm.functions.Function1,androidx.compose.runtime.Composer,int)
-    public static final void LaunchedEffect(java.lang.Object,java.lang.Object,java.lang.Object,kotlin.jvm.functions.Function2,androidx.compose.runtime.Composer,int)
     public static final void LaunchedEffect(kotlin.jvm.functions.Function2,androidx.compose.runtime.Composer,int)
     public static final kotlinx.coroutines.CoroutineScope rememberCoroutineScope(kotlin.jvm.functions.Function0,androidx.compose.runtime.Composer,int,int)
 androidx.compose.runtime.ExpectKt$ThreadLocal$1
@@ -40330,7 +40329,6 @@ kotlin.collections.CollectionsKt___CollectionsKt:
     public static final int count(java.lang.Iterable)
     public static final int count(java.lang.Iterable,kotlin.jvm.functions.Function1)
     private static final int count(java.util.Collection)
-    public static final java.util.List distinct(java.lang.Iterable)
     public static final java.util.List distinctBy(java.lang.Iterable,kotlin.jvm.functions.Function1)
     public static final java.util.List dropLastWhile(java.util.List,kotlin.jvm.functions.Function1)
     public static final java.util.List dropWhile(java.lang.Iterable,kotlin.jvm.functions.Function1)
@@ -52802,8 +52800,6 @@ androidx.compose.material3.DividerDefaults
 androidx.compose.material3.DividerKt$HorizontalDivider$1$1:
     public final void invoke$27()
 androidx.compose.material3.DividerKt$HorizontalDivider$2:
-    public final synthetic int $$changed
-    public final synthetic int $$default
     public final void invoke$2()
 androidx.compose.material3.FabPlacement:
     static void <clinit>()
@@ -64269,6 +64265,8 @@ com.leeam.cryptowidget.data.local.CustomCoinDao_Impl$$InternalSyntheticLambda$1$
     public final synthetic java.lang.String f$0
 com.leeam.cryptowidget.data.local.CustomCoinEntity:
     static void <clinit>()
+com.leeam.cryptowidget.data.local.DebugEntry:
+    static void <clinit>()
 com.leeam.cryptowidget.data.local.WidgetPreferences:
     static void <clinit>()
 com.leeam.cryptowidget.data.model.CoinDefinition:
@@ -64329,9 +64327,9 @@ com.leeam.cryptowidget.ui.settings.CoinSnapshot:
     static void <clinit>()
 com.leeam.cryptowidget.ui.settings.SettingsActivity$$InternalSyntheticLambda$1$58377d136202ccd02d2bdc986d2fb4bda33cd7cb8ca10789f008eedb0a7fd651$0:
     public final void onActivityResult(java.lang.Object)
-com.leeam.cryptowidget.ui.settings.SettingsActivityKt$$InternalSyntheticLambda$1$8103edb706abea4a30230d305b112c8c5bb73df3c38c831e7f96b9c0e8d643a9$2
+com.leeam.cryptowidget.ui.settings.SettingsActivityKt$$InternalSyntheticLambda$1$1d2bdcd55d73253ee01d96f9d21ceee2ffdc98ef3016e2e715eb4175eb63cae7$2
 com.leeam.cryptowidget.ui.settings.SettingsActivityKt:
-    public static synthetic kotlin.Unit $r8$lambda$Ly88LO_vrN4IAYAuCYr2sTdNNkc(androidx.navigation.NavArgumentBuilder)
+    public static synthetic kotlin.Unit $r8$lambda$STtas0K8YT8K28D4ovjOP4f1H4E(androidx.navigation.NavArgumentBuilder)
 com.leeam.cryptowidget.ui.settings.SettingsUiState:
     static void <clinit>()
 com.leeam.cryptowidget.ui.settings.SettingsViewModel:
@@ -64382,7 +64380,7 @@ kotlin.Result$Companion
 kotlin.Result:
     public static final kotlin.Result$Companion Companion
     static void <clinit>()
-    public static synthetic java.lang.Object unbox-impl()
+    public final synthetic java.lang.Object unbox-impl()
 kotlin.SafePublicationLazyImpl$$InternalSyntheticBackportWithForwarding$1$c8bcab98836025e86a32ae434ea49a122413c117ff16708b4fda560764723aa2$0
 kotlin.SafePublicationLazyImpl$Companion
 kotlin.SafePublicationLazyImpl:
@@ -64490,7 +64488,6 @@ kotlin.collections.ArraysKt:
     public static java.lang.Object getOrNull(java.lang.Object[],int)
     public static final void toCollection(java.lang.Object[],java.util.LinkedHashSet)
     public static java.util.List toList(float[])
-    public static java.util.List toList(int[])
     public static java.util.List toList(long[])
     public static java.util.List toList(boolean[])
     public static java.util.ArrayList toMutableList(java.lang.Object[])
@@ -64513,8 +64510,10 @@ kotlin.collections.ArraysKt___ArraysKt
 kotlin.collections.ArraysUtilJVM
 kotlin.collections.CollectionsKt:
     public static boolean contains(java.lang.Iterable,java.lang.Object)
+    public static java.util.List distinct(java.util.List)
     public static java.lang.Object singleOrNull(java.util.List)
     public static float[] toFloatArray(java.util.List)
+    public static final java.util.Set toMutableSet(java.lang.Iterable)
 kotlin.collections.CollectionsKt__CollectionsJVMKt
 kotlin.collections.CollectionsKt__CollectionsKt:
     public static java.util.List emptyList()
@@ -64797,10 +64796,8 @@ kotlin.text.Charsets:
     public static java.nio.charset.Charset UTF32_BE()
     public static java.nio.charset.Charset UTF32_LE()
 kotlin.text.DelimitedRangesSequence$iterator$1:
-    public int counter
     public static kotlin.ranges.IntRange next()
 kotlin.text.DelimitedRangesSequence:
-    public final int limit
     public final int startIndex
 kotlin.text.HexFormat$BytesHexFormat$Companion
 kotlin.text.HexFormat$BytesHexFormat:
@@ -64857,7 +64854,6 @@ kotlin.text.StringsKt__IndentKt:
 kotlin.text.StringsKt__StringNumberConversionsKt
 kotlin.text.StringsKt__StringsJVMKt:
     public static synthetic boolean endsWith$default(java.lang.String,java.lang.String)
-    public static java.lang.String replace$default(java.lang.String,char,char)
     public static synthetic boolean startsWith$default(java.lang.String,java.lang.String)
     public static synthetic boolean startsWith$default(java.lang.String,java.lang.String,int)
 kotlin.text.StringsKt__StringsKt$$InternalSyntheticLambda$1$4732cf1072db78dbb5452db37a054ef6089859b432242fd75ccd4b77b2979264$0:
@@ -64867,7 +64863,6 @@ kotlin.text.StringsKt__StringsKt$$InternalSyntheticLambda$1$502501cddd73bb162d6c
 kotlin.text.StringsKt__StringsKt:
     public static final int getLastIndex(java.lang.CharSequence)
     public static synthetic int indexOf$StringsKt__StringsKt$default(java.lang.CharSequence,java.lang.String,int,int,boolean)
-    public static final void requireNonNegativeLimit()
     public static final java.lang.String substring(java.lang.CharSequence,kotlin.ranges.IntRange)
     public static java.lang.String substringAfter(java.lang.String,char,java.lang.String)
 kotlin.text.StringsKt___StringsKt
@@ -65275,9 +65270,7 @@ kotlinx.coroutines.flow.FlowKt:
     public static final kotlinx.coroutines.flow.ReadonlyStateFlow asStateFlow(kotlinx.coroutines.flow.StateFlowImpl)
     public static final java.lang.Object collect(kotlinx.coroutines.flow.Flow,kotlin.coroutines.jvm.internal.SuspendLambda)
     public static final kotlinx.coroutines.flow.FlowKt__ZipKt$combine$$inlined$combineUnsafe$FlowKt__ZipKt$2 combine(kotlinx.coroutines.flow.Flow,kotlinx.coroutines.flow.Flow,kotlinx.coroutines.flow.Flow,kotlinx.coroutines.flow.Flow,kotlin.jvm.functions.Function5)
-    public static final kotlinx.coroutines.flow.FlowKt__ZipKt$combine$$inlined$combineUnsafe$FlowKt__ZipKt$3 combine(kotlinx.coroutines.flow.Flow,kotlinx.coroutines.flow.Flow,kotlinx.coroutines.flow.Flow,kotlinx.coroutines.flow.Flow,kotlinx.coroutines.flow.Flow,kotlin.jvm.functions.Function6)
     public static final kotlinx.coroutines.flow.Flow conflate(kotlinx.coroutines.flow.Flow)
-    public static final java.lang.Object emitAll(kotlinx.coroutines.flow.FlowCollector,kotlinx.coroutines.flow.Flow,kotlin.coroutines.jvm.internal.SuspendLambda)
     public static final void ensureActive(kotlinx.coroutines.flow.FlowCollector)
     public static final kotlinx.coroutines.flow.ReadonlyStateFlow stateIn(kotlinx.coroutines.flow.Flow,kotlinx.coroutines.CoroutineScope,kotlinx.coroutines.flow.SharingStarted,java.io.Serializable)
 kotlinx.coroutines.flow.FlowKt__BuildersKt

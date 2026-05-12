@@ -16,8 +16,8 @@
         }
       ],
       "attributes": [],
-      "versionCode": 10203,
-      "versionName": "1.2.3",
+      "versionCode": 10205,
+      "versionName": "1.2.5",
       "outputFile": "shrunk-resources-binary-format-armeabi-v7a-release.ap_"
     },
     {
@@ -29,8 +29,8 @@
         }
       ],
       "attributes": [],
-      "versionCode": 10203,
-      "versionName": "1.2.3",
+      "versionCode": 10205,
+      "versionName": "1.2.5",
       "outputFile": "shrunk-resources-binary-format-x86_64-release.ap_"
     },
     {
@@ -42,8 +42,8 @@
         }
       ],
       "attributes": [],
-      "versionCode": 10203,
-      "versionName": "1.2.3",
+      "versionCode": 10205,
+      "versionName": "1.2.5",
       "outputFile": "shrunk-resources-binary-format-arm64-v8a-release.ap_"
     }
   ],

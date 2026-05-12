@@ -6,6 +6,7 @@ object Screen {
     const val APPEARANCE     = "appearance"
     const val WIDGET_SETTINGS = "widget_settings"
     const val ADD_COIN        = "add_coin"
+    const val DEBUG           = "debug"
 
     // Parameterized
     const val COIN_DETAIL     = "coin_detail/{coinId}"

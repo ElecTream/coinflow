@@ -9,6 +9,7 @@ import androidx.work.WorkerParameters
 import com.leeam.cryptowidget.CoinflowApplication.Companion.ALERT_CHANNEL_ID
 import com.leeam.cryptowidget.R
 import com.leeam.cryptowidget.data.local.AlertRepository
+import com.leeam.cryptowidget.data.local.DebugLog
 import com.leeam.cryptowidget.data.local.WidgetPreferences
 import com.leeam.cryptowidget.data.model.CoinRegistry
 import com.leeam.cryptowidget.data.model.WidgetData
@@ -30,7 +31,8 @@ class PriceUpdateWorker @AssistedInject constructor(
     private val coinRepository: CoinRepository,
     private val widgetPreferences: WidgetPreferences,
     private val alertRepository: AlertRepository,
-    private val alertNotifier: AlertNotifier
+    private val alertNotifier: AlertNotifier,
+    private val debugLog: DebugLog
 ) : CoroutineWorker(context, workerParams) {
 
     companion object {
@@ -49,6 +51,13 @@ class PriceUpdateWorker @AssistedInject constructor(
     }
 
     override suspend fun doWork(): Result {
+        debugLog.info("Worker.doWork", "started")
+        return runCatching { doWorkInner() }
+            .onFailure { debugLog.error("Worker.doWork", "uncaught failure", it) }
+            .getOrElse { Result.retry() }
+    }
+
+    private suspend fun doWorkInner(): Result {
         val intervalMin     = widgetPreferences.refreshIntervalMin.first()
         val activeCoinId    = widgetPreferences.coinId.first()
         val widgetCoinIds   = widgetPreferences.widgetCoinIds.first()
@@ -88,14 +97,20 @@ class PriceUpdateWorker @AssistedInject constructor(
                         sparkline           = data.sparklinePrices,
                         sparklineTimestamps = data.sparklineTimestamps
                     )
+                    widgetPreferences.setLastFetchError(coinId, null)
+                    debugLog.info("Worker.fetch", "ok $coinId price=${data.priceUsd}")
 
                     if (coinId == activeCoinId) {
-                        WidgetUpdater.updateAllWidgets(
-                            applicationContext, data, chartStyle, themeColors,
-                            widgetCoinIds = widgetCoinIds,
-                            activeCoinId  = coinId,
-                            coinLookup    = coinLookup
-                        )
+                        try {
+                            WidgetUpdater.updateAllWidgets(
+                                applicationContext, data, chartStyle, themeColors,
+                                widgetCoinIds = widgetCoinIds,
+                                activeCoinId  = coinId,
+                                coinLookup    = coinLookup
+                            )
+                        } catch (e: Exception) {
+                            debugLog.error("Worker.render", "failed for $coinId", e)
+                        }
                     }
 
                     alertRepository.checkAndFireAlerts(coinId, data.priceUsd) { alert ->
@@ -104,6 +119,8 @@ class PriceUpdateWorker @AssistedInject constructor(
                 },
                 onFailure = { e ->
                     lastError = e.message
+                    widgetPreferences.setLastFetchError(coinId, e.message ?: "Fetch failed")
+                    debugLog.error("Worker.fetch", "failed $coinId", e)
                     if (coinId == activeCoinId) {
                         val errorData = WidgetData(coinId = coinId, errorMessage = e.message ?: "Fetch failed")
                         try {
@@ -113,7 +130,9 @@ class PriceUpdateWorker @AssistedInject constructor(
                                 activeCoinId  = coinId,
                                 coinLookup    = coinLookup
                             )
-                        } catch (_: Exception) {}
+                        } catch (renderError: Exception) {
+                            debugLog.error("Worker.render", "error-render failed $coinId", renderError)
+                        }
                     }
                 }
             )

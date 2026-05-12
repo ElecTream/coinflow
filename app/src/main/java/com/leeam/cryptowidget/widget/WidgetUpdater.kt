@@ -42,20 +42,31 @@ object WidgetUpdater {
         if (ids.isEmpty()) return
 
         for (widgetId in ids) {
-            val options  = manager.getAppWidgetOptions(widgetId)
-            val minW     = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180)
-            val minH     = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110)
-            val density  = context.resources.displayMetrics.density
-            val widthPx  = (minW  * density).toInt().coerceAtLeast(200)
-            val heightPx = ((minH * density) * 0.30f).toInt().coerceAtLeast(40)
+            try {
+                val options  = manager.getAppWidgetOptions(widgetId)
+                val minW     = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180)
+                val minH     = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110)
+                val density  = context.resources.displayMetrics.density
+                val widthPx  = (minW  * density).toInt().coerceAtLeast(200)
+                val heightPx = ((minH * density) * 0.30f).toInt().coerceAtLeast(40)
 
-            val views = buildRemoteViews(
-                context, data, widthPx, heightPx, chartStyle, themeColors,
-                widgetCoinIds = widgetCoinIds,
-                activeCoinId  = activeCoinId,
-                coinLookup    = coinLookup
-            )
-            manager.updateAppWidget(widgetId, views)
+                val views = buildRemoteViews(
+                    context, data, widthPx, heightPx, chartStyle, themeColors,
+                    widgetCoinIds = widgetCoinIds,
+                    activeCoinId  = activeCoinId,
+                    coinLookup    = coinLookup
+                )
+                manager.updateAppWidget(widgetId, views)
+            } catch (e: Exception) {
+                // If render fails, fall back to a minimal text-only view so the launcher
+                // doesn't show "Problem loading widget". The exception detail is captured
+                // by the caller's outer try/catch (which logs to DebugLog).
+                runCatching {
+                    val fallback = RemoteViews(context.packageName, R.layout.widget_loading)
+                    manager.updateAppWidget(widgetId, fallback)
+                }
+                throw e
+            }
         }
 
         // Price flash: highlight the price text green/red briefly, then reset to white

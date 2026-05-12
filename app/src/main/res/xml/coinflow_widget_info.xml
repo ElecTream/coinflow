@@ -9,7 +9,7 @@
     android:targetCellWidth="3"
     android:targetCellHeight="2"
     android:updatePeriodMillis="0"
-    android:initialLayout="@layout/widget_layout"
+    android:initialLayout="@layout/widget_loading"
     android:previewLayout="@layout/widget_layout"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"

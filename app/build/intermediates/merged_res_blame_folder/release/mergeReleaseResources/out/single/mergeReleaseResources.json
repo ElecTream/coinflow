@@ -80,6 +80,10 @@
         "source": "C:\\Users\\leeam\\.gradle\\daemon\\9.3.1\\com.leeam.cryptowidget.app-main-75:\\mipmap-xxhdpi\\ic_launcher_round.png"
     },
     {
+        "merged": "C:\\Users\\leeam\\.gradle\\daemon\\9.3.1\\com.leeam.cryptowidget.app-release-74:\\layout_widget_empty.xml.flat",
+        "source": "C:\\Users\\leeam\\.gradle\\daemon\\9.3.1\\com.leeam.cryptowidget.app-main-75:\\layout\\widget_empty.xml"
+    },
+    {
         "merged": "C:\\Users\\leeam\\.gradle\\daemon\\9.3.1\\com.leeam.cryptowidget.app-release-74:\\xml_coinflow_widget_info.xml.flat",
         "source": "C:\\Users\\leeam\\.gradle\\daemon\\9.3.1\\com.leeam.cryptowidget.app-main-75:\\xml\\coinflow_widget_info.xml"
     },
@@ -100,16 +104,16 @@
         "source": "C:\\Users\\leeam\\.gradle\\daemon\\9.3.1\\com.leeam.cryptowidget.app-main-75:\\drawable\\ic_refresh_frame_135.xml"
     },
     {
-        "merged": "com.leeam.cryptowidget.app-release-74:/layout_widget_empty.xml.flat",
-        "source": "com.leeam.cryptowidget.app-main-75:/layout/widget_empty.xml"
-    },
-    {
         "merged": "C:\\Users\\leeam\\.gradle\\daemon\\9.3.1\\com.leeam.cryptowidget.app-release-74:\\drawable_ic_arrow_down.xml.flat",
         "source": "C:\\Users\\leeam\\.gradle\\daemon\\9.3.1\\com.leeam.cryptowidget.app-main-75:\\drawable\\ic_arrow_down.xml"
     },
     {
         "merged": "C:\\Users\\leeam\\.gradle\\daemon\\9.3.1\\com.leeam.cryptowidget.app-release-74:\\drawable_widget_price_glow.xml.flat",
         "source": "C:\\Users\\leeam\\.gradle\\daemon\\9.3.1\\com.leeam.cryptowidget.app-main-75:\\drawable\\widget_price_glow.xml"
+    },
+    {
+        "merged": "com.leeam.cryptowidget.app-release-74:/xml_coinflow_widget_info.xml.flat",
+        "source": "com.leeam.cryptowidget.app-main-75:/xml/coinflow_widget_info.xml"
     },
     {
         "merged": "C:\\Users\\leeam\\.gradle\\daemon\\9.3.1\\com.leeam.cryptowidget.app-release-74:\\drawable_ic_refresh_frame_90.xml.flat",

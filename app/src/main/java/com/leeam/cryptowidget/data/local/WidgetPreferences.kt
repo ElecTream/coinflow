@@ -368,6 +368,14 @@ class WidgetPreferences @Inject constructor(
     internal suspend fun editPrefs(block: (MutablePreferences) -> Unit) = ds.edit(block)
 
     /**
+     * One-shot read of the entire preferences snapshot. Used by the widget receiver's
+     * goAsync coroutine to minimize the number of independent ds.data subscriptions
+     * inside the broadcast's time budget.
+     */
+    internal suspend fun snapshotPrefs(): Preferences =
+        ds.data.catch { if (it is IOException) emit(emptyPreferences()) else throw it }.first()
+
+    /**
      * Snapshot the per-coin cache into a [WidgetData] suitable for the renderer.
      * Returns a `WidgetData` with the coin's symbol resolved via [com.leeam.cryptowidget.data.model.CoinRegistry];
      * never throws (missing keys read as zero/empty). For a fresh, never-fetched coin this

@@ -16,8 +16,8 @@
         }
       ],
       "attributes": [],
-      "versionCode": 10210,
-      "versionName": "1.2.10",
+      "versionCode": 10211,
+      "versionName": "1.2.11",
       "outputFile": "resources-armeabi-v7a-release-optimize.ap_"
     },
     {
@@ -29,8 +29,8 @@
         }
       ],
       "attributes": [],
-      "versionCode": 10210,
-      "versionName": "1.2.10",
+      "versionCode": 10211,
+      "versionName": "1.2.11",
       "outputFile": "resources-x86_64-release-optimize.ap_"
     },
     {
@@ -42,8 +42,8 @@
         }
       ],
       "attributes": [],
-      "versionCode": 10210,
-      "versionName": "1.2.10",
+      "versionCode": 10211,
+      "versionName": "1.2.11",
       "outputFile": "resources-arm64-v8a-release-optimize.ap_"
     }
   ],

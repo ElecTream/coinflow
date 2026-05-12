@@ -64339,6 +64339,8 @@ com.leeam.cryptowidget.ui.settings.WidgetConfigActivity:
     static void <clinit>()
 com.leeam.cryptowidget.ui.theme.ThemeColors:
     static void <clinit>()
+com.leeam.cryptowidget.widget.WidgetPrefsSnapshot:
+    static void <clinit>()
 com.leeam.cryptowidget.worker.WorkScheduler:
     static void <clinit>()
 dagger.hilt.android.internal.managers.ViewComponentManager$FragmentContextWrapper$$InternalSyntheticThrowCCEIfNotNull$198$97e097ff13f446f19dbd711a9e69543cca0eb93f664316c13e97f98afcfb5a69$0
@@ -64377,7 +64379,7 @@ kotlin.Result$Companion
 kotlin.Result:
     public static final kotlin.Result$Companion Companion
     static void <clinit>()
-    public final synthetic java.lang.Object unbox-impl()
+    public static synthetic java.lang.Object unbox-impl()
 kotlin.SafePublicationLazyImpl$$InternalSyntheticBackportWithForwarding$1$c8bcab98836025e86a32ae434ea49a122413c117ff16708b4fda560764723aa2$0
 kotlin.SafePublicationLazyImpl$Companion
 kotlin.SafePublicationLazyImpl:
@@ -64509,7 +64511,7 @@ kotlin.collections.CollectionsKt:
     public static boolean contains(java.lang.Iterable,java.lang.Object)
     public static java.lang.Object singleOrNull(java.util.List)
     public static float[] toFloatArray(java.util.List)
-    public static final java.util.Set toMutableSet(java.lang.Iterable)
+    public static final java.util.Set toMutableSet(java.util.List)
 kotlin.collections.CollectionsKt__CollectionsJVMKt
 kotlin.collections.CollectionsKt__CollectionsKt:
     public static java.util.List emptyList()
@@ -65139,9 +65141,9 @@ kotlinx.coroutines.ThreadLocalEventLoop:
     public static void resetEventLoop$kotlinx_coroutines_core()
     public static void setEventLoop$kotlinx_coroutines_core()
 kotlinx.coroutines.TimeoutKt$$InternalSyntheticThrowCCEIfNotNull$24$f0399a9ca7cd85118e7b66127d6edbba6a9f1f11cc54851b6ec006b66d45b729$0
-kotlinx.coroutines.TimeoutKt$withTimeoutOrNull$1
-kotlinx.coroutines.TimeoutKt:
-    public static final java.lang.Object withTimeoutOrNull(long,androidx.compose.ui.text.font.AsyncFontListLoader$loadWithTimeoutOrNull$2,kotlin.coroutines.jvm.internal.ContinuationImpl)
+kotlinx.coroutines.TimeoutKt$withTimeoutOrNull$1:
+    public long J$0
+    public kotlin.coroutines.jvm.internal.SuspendLambda L$0
 kotlinx.coroutines.Unconfined:
     public static final kotlinx.coroutines.Unconfined INSTANCE
     static void <clinit>()

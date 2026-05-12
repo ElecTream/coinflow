@@ -7,12 +7,15 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.RemoteViews
+import androidx.datastore.preferences.core.Preferences
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import com.leeam.cryptowidget.R
 import com.leeam.cryptowidget.data.local.AlertRepository
+import com.leeam.cryptowidget.data.local.AppTheme
+import com.leeam.cryptowidget.data.local.ChartStyle
 import com.leeam.cryptowidget.data.local.DebugLog
 import com.leeam.cryptowidget.data.local.WidgetPreferences
 import com.leeam.cryptowidget.data.model.CoinDefinition
@@ -30,9 +33,10 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 @EntryPoint
 @InstallIn(SingletonComponent::class)
@@ -45,15 +49,31 @@ interface CoinflowWidgetEntryPoint {
     fun debugLog(): DebugLog
 }
 
-/** Resolve a coin id to its [CoinDefinition], checking custom coins before built-ins. */
-private suspend fun CoinRepository.resolveCoin(id: String): CoinDefinition =
-    coinById(id) ?: CoinRegistry.byId(id)
-
+/**
+ * The widget receiver. Critical lifecycle note:
+ *
+ * `AppWidgetProvider` extends `BroadcastReceiver`. The OS only guarantees the process
+ * is alive while [onReceive] is on the stack — once it returns, Android is free to kill
+ * the process, taking with it any in-flight `CoroutineScope(Dispatchers.IO).launch`
+ * blocks that haven't completed.
+ *
+ * For a freshly installed app with no foreground component, this happens almost every
+ * time. The symptom is the framework's `initialLayout` showing "Loading…" forever and
+ * never being replaced with the real RemoteViews.
+ *
+ * The fix is [goAsync]: it returns a [PendingResult] that keeps the process pinned
+ * until [PendingResult.finish] is called (up to ~10s). All async work runs inside a
+ * single coroutine that calls finish() in its `finally` block.
+ */
 class CoinflowWidgetProvider : AppWidgetProvider() {
 
     companion object {
         const val ACTION_SELECT_COIN = "com.leeam.cryptowidget.ACTION_SELECT_COIN"
+        const val ACTION_REFRESH     = "com.leeam.cryptowidget.ACTION_REFRESH"
         const val EXTRA_COIN_ID      = "extra_coin_id"
+
+        /** ~10s budget on most Android versions; we cap below to leave headroom. */
+        private const val GO_ASYNC_BUDGET_MS = 8_000L
 
         @Volatile var spinJob: Job? = null
 
@@ -63,269 +83,285 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    override fun onUpdate(
-        context: Context,
-        appWidgetManager: AppWidgetManager,
-        appWidgetIds: IntArray
-    ) {
-        runCatching {
-            entryPoint(context).debugLog()
-                .info("Widget.onUpdate", "ids=${appWidgetIds.toList()}")
-            showCachedOrLoading(context, appWidgetManager, appWidgetIds)
-            // Worker enqueue is conditional on followedCoinIds being non-empty —
-            // see [maybeEnqueueRefresh]. We can't read DataStore synchronously here,
-            // so showCachedOrLoading's coroutine handles the kick-off after it knows.
-        }.onFailure { e ->
-            tryLog(context, "Widget.onUpdate", "uncaught", e)
-        }
-    }
-
     override fun onReceive(context: Context, intent: Intent) {
-        super.onReceive(context, intent)
-        runCatching {
-            when (intent.action) {
-                "com.leeam.cryptowidget.ACTION_REFRESH" -> {
-                    entryPoint(context).debugLog().info("Widget.onReceive", "ACTION_REFRESH")
-                    showRefreshSpinner(context)
-                    fetchDirectly(context)
-                }
-                ACTION_SELECT_COIN -> {
-                    val coinId = intent.getStringExtra(EXTRA_COIN_ID) ?: return
-                    entryPoint(context).debugLog().info("Widget.onReceive", "ACTION_SELECT_COIN coinId=$coinId")
-                    switchActiveCoin(context, coinId)
-                }
+        val action = intent.action
+        val log    = runCatching { entryPoint(context).debugLog() }.getOrNull()
+        log?.info("Widget.onReceive", "action=$action")
+
+        // Let the framework dispatch onEnabled / onDeleted / onDisabled etc. for any
+        // action we don't handle ourselves. Note: we do NOT call super for the actions
+        // below — we drive them off the explicit cases so our goAsync coroutine owns
+        // the entire pipeline and Android can't deliver a duplicate onUpdate alongside.
+        when (action) {
+            AppWidgetManager.ACTION_APPWIDGET_UPDATE,
+            AppWidgetManager.ACTION_APPWIDGET_ENABLED,
+            AppWidgetManager.ACTION_APPWIDGET_OPTIONS_CHANGED,
+            ACTION_REFRESH,
+            ACTION_SELECT_COIN -> Unit  // handled below
+            else -> {
+                super.onReceive(context, intent)
+                return
             }
-        }.onFailure { e ->
-            tryLog(context, "Widget.onReceive", "uncaught action=${intent.action}", e)
         }
-    }
 
-    override fun onAppWidgetOptionsChanged(
-        context: Context,
-        appWidgetManager: AppWidgetManager,
-        appWidgetId: Int,
-        newOptions: Bundle
-    ) {
-        runCatching {
-            entryPoint(context).debugLog()
-                .info("Widget.onOptionsChanged", "id=$appWidgetId")
-            showCachedOrLoading(context, appWidgetManager, intArrayOf(appWidgetId))
-        }.onFailure { e ->
-            tryLog(context, "Widget.onOptionsChanged", "uncaught id=$appWidgetId", e)
-        }
-    }
-
-    /** Best-effort log to DebugLog; never throws even if the entry point itself fails. */
-    private fun tryLog(context: Context, source: String, message: String, t: Throwable) {
-        runCatching { entryPoint(context).debugLog().error(source, message, t) }
-    }
-
-    /**
-     * Switch active coin: persist the selection, then immediately re-render from cache.
-     * No network call needed — the price data is already in DataStore.
-     */
-    private fun switchActiveCoin(context: Context, coinId: String) {
-        CoroutineScope(Dispatchers.IO).launch {
+        val pending = goAsync()
+        val appContext = context.applicationContext
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
-                val ep    = entryPoint(context)
-                val prefs = ep.widgetPreferences()
-                val coins = ep.coinRepository()
-
-                prefs.setCoinId(coinId)
-
-                val theme = prefs.appTheme.first().toThemeColors(
-                    customAccentArgb    = prefs.customAccentArgb.first(),
-                    customSecondaryArgb = prefs.customSecondaryArgb.first()
-                )
-                val widgetCoinIds = prefs.widgetCoinIds.first()
-                val coinLookup    = buildCoinLookup(coins, widgetCoinIds + coinId)
-                val price         = prefs.priceUsdFor(coinId).first()
-
-                val manager = AppWidgetManager.getInstance(context)
-                val ids     = manager.getAppWidgetIds(ComponentName(context, CoinflowWidgetProvider::class.java))
-
-                // If this coin has never been fetched, render the skeleton with the new
-                // active tab highlighted and trigger an immediate fetch.
-                if (price <= 0.0) {
-                    val skeleton = WidgetUpdater.buildLoadingSkeletonRemoteViews(
-                        context, widgetCoinIds.ifEmpty { listOf(coinId) }, coinId, coinLookup, theme
-                    )
-                    ids.forEach { manager.updateAppWidget(it, skeleton) }
-                    enqueueRefresh(context)
-                    return@launch
-                }
-
-                val change      = prefs.changePctFor(coinId).first()
-                val balance     = prefs.balanceFor(coinId).first()
-                val updatedMs   = prefs.updatedMsFor(coinId).first()
-                val sparkline   = prefs.sparklineFor(coinId).first()
-                val sparkTs     = prefs.sparklineTsFor(coinId).first()
-                val style       = prefs.chartStyle.first()
-                val coin        = coinLookup[coinId] ?: CoinRegistry.byId(coinId)
-
-                val data = WidgetData(
-                    coinId              = coinId,
-                    symbol              = coin.symbol,
-                    priceUsd            = price,
-                    change24hPct        = change,
-                    walletBalance       = balance,
-                    walletValueUsd      = balance * price,
-                    lastUpdatedMs       = updatedMs,
-                    sparklinePrices     = sparkline,
-                    sparklineTimestamps = sparkTs
-                )
-
-                val density = context.resources.displayMetrics.density
-                for (widgetId in ids) {
-                    val options = manager.getAppWidgetOptions(widgetId)
-                    val w = (options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180) * density)
-                        .toInt().coerceAtLeast(200)
-                    val h = (options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110) * density * 0.30f)
-                        .toInt().coerceAtLeast(40)
-                    val views = WidgetUpdater.buildRemoteViews(
-                        context, data, w, h, style, theme,
-                        widgetCoinIds = widgetCoinIds.ifEmpty { listOf(coinId) },
-                        activeCoinId  = coinId,
-                        coinLookup    = coinLookup
-                    )
-                    manager.updateAppWidget(widgetId, views)
-                }
+                withTimeoutOrNull(GO_ASYNC_BUDGET_MS) {
+                    when (action) {
+                        AppWidgetManager.ACTION_APPWIDGET_UPDATE,
+                        AppWidgetManager.ACTION_APPWIDGET_ENABLED -> {
+                            val ids = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)
+                                ?: allWidgetIds(appContext)
+                            renderFromCacheOrEmpty(appContext, ids, source = "onUpdate")
+                        }
+                        AppWidgetManager.ACTION_APPWIDGET_OPTIONS_CHANGED -> {
+                            val id = intent.getIntExtra(
+                                AppWidgetManager.EXTRA_APPWIDGET_ID,
+                                AppWidgetManager.INVALID_APPWIDGET_ID
+                            )
+                            val ids = if (id != AppWidgetManager.INVALID_APPWIDGET_ID)
+                                intArrayOf(id) else allWidgetIds(appContext)
+                            renderFromCacheOrEmpty(appContext, ids, source = "onOptionsChanged")
+                        }
+                        ACTION_REFRESH -> {
+                            showRefreshingText(appContext)
+                            fetchDirectly(appContext)
+                        }
+                        ACTION_SELECT_COIN -> {
+                            val coinId = intent.getStringExtra(EXTRA_COIN_ID).orEmpty()
+                            if (coinId.isNotEmpty()) {
+                                switchActiveCoin(appContext, coinId)
+                            }
+                        }
+                    }
+                } ?: log?.warn("Widget.onReceive", "timed out action=$action after ${GO_ASYNC_BUDGET_MS}ms")
             } catch (e: Exception) {
-                tryLog(context, "Widget.switchActiveCoin", "failed coinId=$coinId", e)
+                log?.error("Widget.onReceive", "uncaught action=$action", e)
+                // Best-effort fallback so the user never sees the misleading initial layout
+                // forever. Push the empty CTA — at minimum the body opens Settings.
+                runCatching {
+                    val ids = allWidgetIds(appContext)
+                    if (ids.isNotEmpty()) {
+                        val fallback = WidgetUpdater.buildEmptyRemoteViews(appContext)
+                        val mgr = AppWidgetManager.getInstance(appContext)
+                        ids.forEach { mgr.updateAppWidget(it, fallback) }
+                    }
+                }
+            } finally {
+                pending.finish()
             }
         }
     }
 
-    private suspend fun buildCoinLookup(
-        coins: CoinRepository,
-        ids: List<String>
-    ): Map<String, CoinDefinition> = ids.distinct().associateWith { coins.resolveCoin(it) }
+    private fun allWidgetIds(context: Context): IntArray =
+        AppWidgetManager.getInstance(context).getAppWidgetIds(
+            ComponentName(context, CoinflowWidgetProvider::class.java)
+        )
 
-    private fun showCachedOrLoading(
+    // ──────────────────────────────────────────────────────────────────────────
+    // Render: cache-first, empty-CTA fallback. Source of truth for what the user
+    // sees on every onUpdate / onOptionsChanged.
+    // ──────────────────────────────────────────────────────────────────────────
+
+    private suspend fun renderFromCacheOrEmpty(
         context: Context,
-        manager: AppWidgetManager,
-        ids: IntArray
+        ids: IntArray,
+        source: String
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val ep    = entryPoint(context)
-                val prefs = ep.widgetPreferences()
-                val coins = ep.coinRepository()
+        val ep    = entryPoint(context)
+        val log   = ep.debugLog()
+        val prefs = ep.widgetPreferences()
+        val coins = ep.coinRepository()
+        val manager = AppWidgetManager.getInstance(context)
 
-                val storedCoinId    = prefs.coinId.first()
-                val widgetCoinIds   = prefs.widgetCoinIds.first()
-                val followedCoinIds = prefs.followedCoinIds.first()
+        log.info("Widget.render", "$source ids=${ids.toList()}")
 
-                // (a) No coins picked yet — show the picker CTA.
-                if (storedCoinId.isEmpty() && widgetCoinIds.isEmpty() && followedCoinIds.isEmpty()) {
-                    val empty = WidgetUpdater.buildEmptyRemoteViews(context)
-                    ids.forEach { manager.updateAppWidget(it, empty) }
-                    return@launch
-                }
+        if (ids.isEmpty()) {
+            log.warn("Widget.render", "$source: no widget ids — nothing to render")
+            return
+        }
 
-                // From here on, the user has picked at least one coin. Schedule a refresh
-                // (worker will no-op gracefully if followedCoinIds is somehow empty).
-                enqueueRefresh(context)
+        val snapshot = ep.widgetPreferences().snapshot()
+        val storedCoinId    = snapshot.coinId
+        val widgetCoinIds   = snapshot.widgetCoinIds
+        val followedCoinIds = snapshot.followedCoinIds
 
-                // Resolve which coin to actually render. Prefer the stored active; otherwise
-                // fall back to the first widget tab / followed coin that has cached data.
-                val candidates = buildList {
-                    if (storedCoinId.isNotEmpty()) add(storedCoinId)
-                    widgetCoinIds.forEach { if (it !in this) add(it) }
-                    followedCoinIds.forEach { if (it !in this) add(it) }
-                }
-                val coinId = candidates.firstOrNull { prefs.priceUsdFor(it).first() > 0.0 }
-                    ?: candidates.firstOrNull()
-                    ?: ""
+        log.info("Widget.render",
+            "$source stored=$storedCoinId widget=$widgetCoinIds followed=$followedCoinIds")
 
-                // Edge case: lists are present but every entry is blank. Shouldn't happen,
-                // but show the CTA rather than crash on an empty resolve.
-                if (coinId.isEmpty()) {
-                    val empty = WidgetUpdater.buildEmptyRemoteViews(context)
-                    ids.forEach { manager.updateAppWidget(it, empty) }
-                    return@launch
-                }
+        // (a) No coins picked yet — show the picker CTA.
+        if (storedCoinId.isEmpty() && widgetCoinIds.isEmpty() && followedCoinIds.isEmpty()) {
+            val empty = WidgetUpdater.buildEmptyRemoteViews(context)
+            ids.forEach { manager.updateAppWidget(it, empty) }
+            log.info("Widget.render", "$source: empty CTA applied to ${ids.size} widgets")
+            return
+        }
 
-                val theme = prefs.appTheme.first().toThemeColors(
-                    customAccentArgb    = prefs.customAccentArgb.first(),
-                    customSecondaryArgb = prefs.customSecondaryArgb.first()
-                )
-                val coinLookup = buildCoinLookup(coins, widgetCoinIds + coinId)
-                val price      = prefs.priceUsdFor(coinId).first()
+        // The user has picked at least one coin — kick off a background refresh
+        // (worker no-ops if followed is empty for any reason).
+        enqueueRefresh(context)
 
-                // (b) Coins chosen but cache empty — render the skeleton with controls.
-                if (price <= 0.0) {
-                    val skeleton = WidgetUpdater.buildLoadingSkeletonRemoteViews(
-                        context, widgetCoinIds.ifEmpty { listOf(coinId) }, coinId, coinLookup, theme
-                    )
-                    ids.forEach { manager.updateAppWidget(it, skeleton) }
-                    return@launch
-                }
+        // Resolve the coin to render.
+        val candidates = buildList {
+            if (storedCoinId.isNotEmpty()) add(storedCoinId)
+            widgetCoinIds.forEach { if (it !in this) add(it) }
+            followedCoinIds.forEach { if (it !in this) add(it) }
+        }
+        val coinId = candidates.firstOrNull { snapshot.priceFor(it) > 0.0 }
+            ?: candidates.firstOrNull()
+            ?: ""
 
-                // Self-heal: if the rendered coin doesn't match the stored active coin,
-                // persist the switch so subsequent refreshes target it.
-                if (coinId != storedCoinId) prefs.setCoinId(coinId)
+        if (coinId.isEmpty()) {
+            val empty = WidgetUpdater.buildEmptyRemoteViews(context)
+            ids.forEach { manager.updateAppWidget(it, empty) }
+            log.warn("Widget.render", "$source: candidates resolved empty — applied CTA")
+            return
+        }
 
-                // (c) Cache has data — full render.
-                val change      = prefs.changePctFor(coinId).first()
-                val balance     = prefs.balanceFor(coinId).first()
-                val updatedMs   = prefs.updatedMsFor(coinId).first()
-                val sparkline   = prefs.sparklineFor(coinId).first()
-                val sparklineTs = prefs.sparklineTsFor(coinId).first()
-                val style       = prefs.chartStyle.first()
-                val coin        = coinLookup[coinId] ?: CoinRegistry.byId(coinId)
+        val theme = snapshot.theme()
+        val tabIds = widgetCoinIds.ifEmpty { listOf(coinId) }
+        val coinLookup = buildCoinLookup(coins, tabIds + coinId)
+        val price = snapshot.priceFor(coinId)
 
-                val cached = WidgetData(
-                    coinId              = coinId,
-                    symbol              = coin.symbol,
-                    priceUsd            = price,
-                    change24hPct        = change,
-                    walletBalance       = balance,
-                    walletValueUsd      = balance * price,
-                    lastUpdatedMs       = updatedMs,
-                    sparklinePrices     = sparkline,
-                    sparklineTimestamps = sparklineTs
-                )
+        // (b) Coins chosen but cache empty — render the skeleton with controls.
+        if (price <= 0.0) {
+            val skeleton = WidgetUpdater.buildLoadingSkeletonRemoteViews(
+                context, tabIds, coinId, coinLookup, theme
+            )
+            ids.forEach { manager.updateAppWidget(it, skeleton) }
+            log.info("Widget.render", "$source: skeleton applied (no cache yet) coin=$coinId")
+            return
+        }
+
+        // (c) Cache has data — full render.
+        if (coinId != storedCoinId) prefs.setCoinId(coinId)
+
+        val cached = WidgetData(
+            coinId              = coinId,
+            symbol              = (coinLookup[coinId] ?: CoinRegistry.byId(coinId)).symbol,
+            priceUsd            = price,
+            change24hPct        = snapshot.changeFor(coinId),
+            walletBalance       = snapshot.balanceFor(coinId),
+            walletValueUsd      = snapshot.balanceFor(coinId) * price,
+            lastUpdatedMs       = snapshot.updatedMsFor(coinId),
+            sparklinePrices     = snapshot.sparklineFor(coinId),
+            sparklineTimestamps = snapshot.sparklineTsFor(coinId)
+        )
+        WidgetUpdater.updateAllWidgets(
+            context, cached, snapshot.chartStyle, theme,
+            widgetCoinIds = tabIds,
+            activeCoinId  = coinId,
+            coinLookup    = coinLookup
+        )
+        log.info("Widget.render", "$source: full render coin=$coinId price=$price")
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Tab tap handler.
+    // ──────────────────────────────────────────────────────────────────────────
+
+    private suspend fun switchActiveCoin(context: Context, coinId: String) {
+        val ep    = entryPoint(context)
+        val log   = ep.debugLog()
+        val prefs = ep.widgetPreferences()
+        val coins = ep.coinRepository()
+
+        log.info("Widget.switchActiveCoin", "to=$coinId")
+        prefs.setCoinId(coinId)
+
+        val snapshot      = prefs.snapshot()
+        val theme         = snapshot.theme()
+        val widgetCoinIds = snapshot.widgetCoinIds.ifEmpty { listOf(coinId) }
+        val coinLookup    = buildCoinLookup(coins, widgetCoinIds + coinId)
+        val price         = snapshot.priceFor(coinId)
+        val manager       = AppWidgetManager.getInstance(context)
+        val ids           = allWidgetIds(context)
+
+        if (price <= 0.0) {
+            val skeleton = WidgetUpdater.buildLoadingSkeletonRemoteViews(
+                context, widgetCoinIds, coinId, coinLookup, theme
+            )
+            ids.forEach { manager.updateAppWidget(it, skeleton) }
+            enqueueRefresh(context)
+            log.info("Widget.switchActiveCoin", "$coinId not cached — skeleton + enqueue")
+            return
+        }
+
+        val data = WidgetData(
+            coinId              = coinId,
+            symbol              = (coinLookup[coinId] ?: CoinRegistry.byId(coinId)).symbol,
+            priceUsd            = price,
+            change24hPct        = snapshot.changeFor(coinId),
+            walletBalance       = snapshot.balanceFor(coinId),
+            walletValueUsd      = snapshot.balanceFor(coinId) * price,
+            lastUpdatedMs       = snapshot.updatedMsFor(coinId),
+            sparklinePrices     = snapshot.sparklineFor(coinId),
+            sparklineTimestamps = snapshot.sparklineTsFor(coinId)
+        )
+        WidgetUpdater.updateAllWidgets(
+            context, data, snapshot.chartStyle, theme,
+            widgetCoinIds = widgetCoinIds,
+            activeCoinId  = coinId,
+            coinLookup    = coinLookup
+        )
+        log.info("Widget.switchActiveCoin", "$coinId rendered from cache")
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Refresh button handler.
+    // ──────────────────────────────────────────────────────────────────────────
+
+    private suspend fun fetchDirectly(context: Context) {
+        val ep       = entryPoint(context)
+        val log      = ep.debugLog()
+        val prefs    = ep.widgetPreferences()
+        val repo     = ep.cryptoRepository()
+        val coins    = ep.coinRepository()
+        val alerts   = ep.alertRepository()
+        val notifier = ep.alertNotifier()
+
+        val coinId = prefs.coinId.first()
+        if (coinId.isEmpty()) {
+            log.info("Widget.fetchDirectly", "no active coin — nothing to fetch")
+            return
+        }
+
+        val snapshot      = prefs.snapshot()
+        val wallet        = prefs.walletAddressFor(coinId).first()
+        val style         = snapshot.chartStyle
+        val theme         = snapshot.theme()
+        val widgetCoinIds = snapshot.widgetCoinIds.ifEmpty { listOf(coinId) }
+        val coinLookup    = buildCoinLookup(coins, widgetCoinIds + coinId)
+
+        log.info("Widget.fetchDirectly", "coin=$coinId")
+        val result = repo.fetchWidgetData(coinId, wallet)
+        result.fold(
+            onSuccess = { data ->
+                prefs.setLastFetchError(coinId, null)
                 WidgetUpdater.updateAllWidgets(
-                    context, cached, style, theme,
-                    widgetCoinIds = widgetCoinIds.ifEmpty { listOf(coinId) },
+                    context, data, style, theme,
+                    widgetCoinIds = widgetCoinIds,
                     activeCoinId  = coinId,
                     coinLookup    = coinLookup
                 )
-            } catch (e: Exception) {
-                tryLog(context, "Widget.showCachedOrLoading", "failed", e)
-            }
-        }
-    }
-
-    private fun fetchDirectly(context: Context) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-            val ep       = entryPoint(context)
-            val prefs    = ep.widgetPreferences()
-            val repo     = ep.cryptoRepository()
-            val coins    = ep.coinRepository()
-            val alerts   = ep.alertRepository()
-            val notifier = ep.alertNotifier()
-            val log      = ep.debugLog()
-
-            val coinId = prefs.coinId.first()
-            if (coinId.isEmpty()) {
-                log.info("Widget.fetchDirectly", "no active coin — nothing to fetch")
-                return@launch
-            }
-            val wallet        = prefs.walletAddressFor(coinId).first()
-            val style         = prefs.chartStyle.first()
-            val theme         = prefs.appTheme.first().toThemeColors(
-                customAccentArgb    = prefs.customAccentArgb.first(),
-                customSecondaryArgb = prefs.customSecondaryArgb.first()
-            )
-            val widgetCoinIds = prefs.widgetCoinIds.first()
-            val coinLookup    = buildCoinLookup(coins, widgetCoinIds + coinId)
-
-            val result = repo.fetchWidgetData(coinId, wallet)
-            val data   = result.getOrElse { e ->
-                log.error("Widget.fetchDirectly", "fetchWidgetData failed coinId=$coinId", e)
+                prefs.cacheCoinData(
+                    coinId              = coinId,
+                    priceUsd            = data.priceUsd,
+                    changePct           = data.change24hPct,
+                    balance             = data.walletBalance,
+                    sparkline           = data.sparklinePrices,
+                    sparklineTimestamps = data.sparklineTimestamps
+                )
+                alerts.checkAndFireAlerts(coinId, data.priceUsd) { alert ->
+                    notifier.fireAlertNotification(alert, data.priceUsd)
+                }
+                prefs.recordWorkerResult(null)
+                log.info("Widget.fetchDirectly", "ok coin=$coinId price=${data.priceUsd}")
+            },
+            onFailure = { e ->
+                log.error("Widget.fetchDirectly", "failed coin=$coinId", e)
                 prefs.setLastFetchError(coinId, e.message ?: "Fetch failed")
                 val errorData = WidgetData(coinId = coinId, errorMessage = e.message ?: "Fetch failed")
                 WidgetUpdater.updateAllWidgets(
@@ -335,65 +371,46 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
                     coinLookup    = coinLookup
                 )
                 prefs.recordWorkerResult(e.message)
-                return@launch
             }
-            prefs.setLastFetchError(coinId, null)
-
-            WidgetUpdater.updateAllWidgets(
-                context, data, style, theme,
-                widgetCoinIds = widgetCoinIds,
-                activeCoinId  = coinId,
-                coinLookup    = coinLookup
-            )
-            prefs.cacheCoinData(
-                coinId              = coinId,
-                priceUsd            = data.priceUsd,
-                changePct           = data.change24hPct,
-                balance             = data.walletBalance,
-                sparkline           = data.sparklinePrices,
-                sparklineTimestamps = data.sparklineTimestamps
-            )
-            alerts.checkAndFireAlerts(coinId, data.priceUsd) { alert ->
-                notifier.fireAlertNotification(alert, data.priceUsd)
-            }
-            prefs.recordWorkerResult(null)
-            log.info("Widget.fetchDirectly", "ok coinId=$coinId price=${data.priceUsd}")
-            } catch (e: Exception) {
-                tryLog(context, "Widget.fetchDirectly", "failed", e)
-            }
-        }
+        )
     }
 
-    private fun showRefreshSpinner(context: Context) {
-        val manager = AppWidgetManager.getInstance(context)
-        val ids     = manager.getAppWidgetIds(ComponentName(context, CoinflowWidgetProvider::class.java))
+    /**
+     * Push a "Refreshing…" indicator immediately so the user gets feedback before
+     * the fetch coroutine even starts. Uses a full RemoteViews (not
+     * partiallyUpdateAppWidget — that's a no-op until a full update has landed,
+     * which on a fresh install hasn't happened yet).
+     */
+    private suspend fun showRefreshingText(context: Context) {
+        val ep      = entryPoint(context)
+        val prefs   = ep.widgetPreferences()
+        val coins   = ep.coinRepository()
+        val ids     = allWidgetIds(context)
         if (ids.isEmpty()) return
 
-        val textViews = RemoteViews(context.packageName, R.layout.widget_layout)
-        textViews.setTextViewText(R.id.tv_last_updated, "Refreshing…")
-        ids.forEach { manager.partiallyUpdateAppWidget(it, textViews) }
+        val coinId = prefs.coinId.first()
+        if (coinId.isEmpty()) return
 
-        val frames = listOf(
-            R.drawable.ic_refresh,
-            R.drawable.ic_refresh_frame_315,
-            R.drawable.ic_refresh_frame_270,
-            R.drawable.ic_refresh_frame_225,
-            R.drawable.ic_refresh_frame_180,
-            R.drawable.ic_refresh_frame_135,
-            R.drawable.ic_refresh_frame_90,
-            R.drawable.ic_refresh_frame_45
+        val snapshot      = prefs.snapshot()
+        val theme         = snapshot.theme()
+        val widgetCoinIds = snapshot.widgetCoinIds.ifEmpty { listOf(coinId) }
+        val coinLookup    = buildCoinLookup(coins, widgetCoinIds + coinId)
+        val skeleton      = WidgetUpdater.buildLoadingSkeletonRemoteViews(
+            context, widgetCoinIds, coinId, coinLookup, theme
         )
+        val manager = AppWidgetManager.getInstance(context)
+        ids.forEach { manager.updateAppWidget(it, skeleton) }
+    }
 
-        cancelSpinner()
-        spinJob = CoroutineScope(Dispatchers.IO).launch {
-            repeat(24) { tick ->
-                val frameViews = RemoteViews(context.packageName, R.layout.widget_layout)
-                frameViews.setImageViewResource(R.id.btn_refresh, frames[tick % 8])
-                frameViews.setInt(R.id.btn_refresh, "setImageAlpha", 180)
-                ids.forEach { manager.partiallyUpdateAppWidget(it, frameViews) }
-                delay(125)
-            }
-        }
+    // ──────────────────────────────────────────────────────────────────────────
+    // Helpers.
+    // ──────────────────────────────────────────────────────────────────────────
+
+    private suspend fun buildCoinLookup(
+        coins: CoinRepository,
+        ids: List<String>
+    ): Map<String, CoinDefinition> = ids.filter { it.isNotEmpty() }.distinct().associateWith {
+        coins.coinById(it) ?: CoinRegistry.byId(it)
     }
 
     private fun enqueueRefresh(context: Context) {
@@ -409,4 +426,81 @@ class CoinflowWidgetProvider : AppWidgetProvider() {
 
     private fun entryPoint(context: Context): CoinflowWidgetEntryPoint =
         EntryPointAccessors.fromApplication(context.applicationContext, CoinflowWidgetEntryPoint::class.java)
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// DataStore snapshot: read the whole preferences object once instead of
+// subscribing to ds.data per-Flow per-key. Inside the broadcast's goAsync window
+// we have ~8s; this keeps us well under that even on cold start where the first
+// ds.data emission has to read from disk.
+// ──────────────────────────────────────────────────────────────────────────────
+
+internal class WidgetPrefsSnapshot(
+    private val prefs: Preferences
+) {
+    val coinId: String
+        get() = prefs[WidgetPreferences.Keys.COIN_ID] ?: ""
+    val widgetCoinIds: List<String>
+        get() = prefs[WidgetPreferences.Keys.WIDGET_COIN_IDS]
+            ?.split(",")?.filter { it.isNotBlank() }?.take(5) ?: emptyList()
+    val followedCoinIds: List<String>
+        get() = prefs[WidgetPreferences.Keys.FOLLOWED_COIN_IDS]
+            ?.split(",")?.filter { it.isNotBlank() } ?: emptyList()
+    val chartStyle: ChartStyle
+        get() = runCatching { ChartStyle.valueOf(prefs[WidgetPreferences.Keys.CHART_STYLE] ?: "AREA") }
+            .getOrDefault(ChartStyle.AREA)
+    private val appTheme: AppTheme
+        get() = runCatching { AppTheme.valueOf(prefs[WidgetPreferences.Keys.APP_THEME] ?: "CYBER") }
+            .getOrDefault(AppTheme.CYBER)
+    private val customAccentArgb: Int
+        get() = prefs[WidgetPreferences.Keys.CUSTOM_ACCENT_ARGB] ?: 0xFF00D4FF.toInt()
+    private val customSecondaryArgb: Int
+        get() = prefs[WidgetPreferences.Keys.CUSTOM_SECONDARY_ARGB] ?: 0xFF7B2FFF.toInt()
+
+    fun theme() = appTheme.toThemeColors(customAccentArgb, customSecondaryArgb)
+
+    fun priceFor(coinId: String): Double =
+        prefs[WidgetPreferences.Keys.priceUsdFor(coinId)]
+            ?: legacyDouble(coinId, WidgetPreferences.Keys.CACHED_PRICE_USD)
+
+    fun changeFor(coinId: String): Double =
+        prefs[WidgetPreferences.Keys.changePctFor(coinId)]
+            ?: legacyDouble(coinId, WidgetPreferences.Keys.CACHED_CHANGE_PCT)
+
+    fun balanceFor(coinId: String): Double =
+        prefs[WidgetPreferences.Keys.balanceFor(coinId)]
+            ?: legacyDouble(coinId, WidgetPreferences.Keys.CACHED_BALANCE)
+
+    fun updatedMsFor(coinId: String): Long =
+        prefs[WidgetPreferences.Keys.updatedMsFor(coinId)]
+            ?: legacyLong(coinId, WidgetPreferences.Keys.CACHED_UPDATED_MS)
+
+    fun sparklineFor(coinId: String): List<Double> {
+        val raw = prefs[WidgetPreferences.Keys.sparklineFor(coinId)]
+            ?: legacyString(coinId, WidgetPreferences.Keys.CACHED_SPARKLINE)
+        return raw?.split(",")?.mapNotNull { it.toDoubleOrNull() } ?: emptyList()
+    }
+
+    fun sparklineTsFor(coinId: String): List<Long> {
+        val raw = prefs[WidgetPreferences.Keys.sparklineTsFor(coinId)]
+            ?: legacyString(coinId, WidgetPreferences.Keys.CACHED_SPARKLINE_TS)
+        return raw?.split(",")?.mapNotNull { it.toLongOrNull() } ?: emptyList()
+    }
+
+    private fun isLegacyActive(coinId: String): Boolean =
+        coinId.isNotEmpty() && prefs[WidgetPreferences.Keys.COIN_ID] == coinId
+
+    private fun legacyDouble(coinId: String, key: Preferences.Key<Double>): Double =
+        if (isLegacyActive(coinId)) prefs[key] ?: 0.0 else 0.0
+    private fun legacyLong(coinId: String, key: Preferences.Key<Long>): Long =
+        if (isLegacyActive(coinId)) prefs[key] ?: 0L else 0L
+    private fun legacyString(coinId: String, key: Preferences.Key<String>): String? =
+        if (isLegacyActive(coinId)) prefs[key] else null
+}
+
+internal suspend fun WidgetPreferences.snapshot(): WidgetPrefsSnapshot {
+    // Access the underlying datastore through editPrefs by reading; alternatively expose
+    // dataFlow. Cheaper: bounce through editPrefs in read-only mode. But editPrefs writes,
+    // so we use ds.data.first() via a dedicated accessor.
+    return WidgetPrefsSnapshot(snapshotPrefs())
 }

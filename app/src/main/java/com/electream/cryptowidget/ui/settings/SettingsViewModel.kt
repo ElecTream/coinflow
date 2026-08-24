@@ -1,0 +1,540 @@
+package com.electream.cryptowidget.ui.settings
+
+import android.content.Context
+import android.content.Intent
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.electream.cryptowidget.data.local.AlertDirection
+import com.electream.cryptowidget.data.local.AlertEntity
+import com.electream.cryptowidget.data.local.AlertMode
+import com.electream.cryptowidget.data.local.AlertRepository
+import com.electream.cryptowidget.data.local.AppTheme
+import com.electream.cryptowidget.data.local.ChartStyle
+import com.electream.cryptowidget.data.local.DebugEntry
+import com.electream.cryptowidget.data.local.DebugLog
+import com.electream.cryptowidget.data.local.WidgetPreferences
+import com.electream.cryptowidget.data.model.CoinDefinition
+import com.electream.cryptowidget.data.model.CoinRegistry
+import com.electream.cryptowidget.data.model.WalletConfig
+import com.electream.cryptowidget.data.repository.CoinRepository
+import com.electream.cryptowidget.data.repository.CryptoRepository
+import com.electream.cryptowidget.ui.util.CoinFormatter
+import com.electream.cryptowidget.widget.CoinflowWidgetProvider
+import com.electream.cryptowidget.worker.WorkScheduler
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+data class CoinSnapshot(
+    val coin: CoinDefinition,
+    val priceUsd: Double,
+    val change24hPct: Double,
+    val sparkline: List<Double>,
+    val updatedMs: Long
+)
+
+data class SettingsUiState(
+    val livePrice: Double? = null,
+    val change24h: Double? = null,
+    val priceLoading: Boolean = true,
+    val priceError: String? = null,
+    val coinId: String = "",
+    val walletAddress: String = "",
+    val walletTestResult: String? = null,
+    val walletTestLoading: Boolean = false,
+    val refreshIntervalMin: Int = 15,
+    val showSparkline: Boolean = true,
+    val chartStyle: ChartStyle = ChartStyle.AREA,
+    val alerts: List<AlertEntity> = emptyList(),
+    val newAlertDirection: AlertDirection = AlertDirection.ABOVE,
+    val newAlertThreshold: String = "",
+    val newAlertMode: AlertMode = AlertMode.CROSSING,
+    val newAlertCooldownMin: Int = 60,
+    val appTheme: AppTheme = AppTheme.CYBER,
+    val saveSuccess: Boolean = false,
+    val saveError: String? = null,
+    val lastWorkerRunMs: Long = 0L,
+    val lastErrorMsg: String? = null,
+    val followedCoinIds: List<String> = emptyList(),
+    val widgetCoinIds: List<String>   = emptyList(),
+    val customAccentArgb: Int = 0xFF00D4FF.toInt(),
+    val customSecondaryArgb: Int = 0xFF7B2FFF.toInt(),
+    val followedSnapshots: List<CoinSnapshot> = emptyList(),
+    val isRefreshingAll: Boolean = false,
+    val customCoins: List<CoinDefinition> = emptyList()
+)
+
+@HiltViewModel
+class SettingsViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val widgetPrefs: WidgetPreferences,
+    private val cryptoRepository: CryptoRepository,
+    private val alertRepository: AlertRepository,
+    private val coinRepository: CoinRepository,
+    private val workScheduler: WorkScheduler,
+    private val debugLog: DebugLog
+) : ViewModel() {
+
+    private val _state = MutableStateFlow(SettingsUiState())
+    val state: StateFlow<SettingsUiState> = _state.asStateFlow()
+
+    val debugEntries: StateFlow<List<DebugEntry>> = debugLog.entries
+
+    init {
+        loadPreferences()
+        loadTheme()
+        fetchLivePrice()
+        collectAlerts()
+        collectDiagnostics()
+        collectMultiCoinPrefs()
+        collectCustomColors()
+        collectFollowedSnapshots()
+        collectCustomCoins()
+    }
+
+    private fun collectCustomCoins() = viewModelScope.launch {
+        coinRepository.allCoins().collect { all ->
+            val builtinIds = CoinRegistry.all.map { it.id }.toSet()
+            _state.update { it.copy(customCoins = all.filter { c -> c.id !in builtinIds }) }
+        }
+    }
+
+    /** Remove a user-added custom coin entirely; also clears it from followed and widget lists. */
+    fun deleteCustomCoin(coinId: String) = viewModelScope.launch {
+        val followed = widgetPrefs.followedCoinIds.first().filter { it != coinId }
+        val widgetTabs = widgetPrefs.widgetCoinIds.first().filter { it != coinId }
+        widgetPrefs.setFollowedCoinIds(followed)
+        widgetPrefs.setWidgetCoinIds(widgetTabs)
+        coinRepository.deleteCustomCoin(coinId)
+        // If the deleted coin was the active widget coin, fall back to the first remaining tab.
+        if (coinId == _state.value.coinId) {
+            // If we just deleted the last widget tab, clear the active coin entirely.
+            // The widget will render its "tap to choose coins" CTA.
+            widgetPrefs.setCoinId(widgetTabs.firstOrNull() ?: "")
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun loadPreferences() {
+        // Load coinId + other scalar prefs
+        viewModelScope.launch {
+            combine(
+                widgetPrefs.coinId,
+                widgetPrefs.refreshIntervalMin,
+                widgetPrefs.showSparkline,
+                widgetPrefs.chartStyle
+            ) { coinId, interval, sparkline, chart ->
+                _state.update {
+                    it.copy(
+                        coinId = coinId,
+                        refreshIntervalMin = interval,
+                        showSparkline = sparkline,
+                        chartStyle = chart
+                    )
+                }
+            }.collect()
+        }
+        // Reactively reload wallet address when coin changes
+        viewModelScope.launch {
+            widgetPrefs.coinId
+                .flatMapLatest { coinId -> widgetPrefs.walletAddressFor(coinId) }
+                .collect { wallet ->
+                    _state.update { it.copy(walletAddress = wallet, walletTestResult = null) }
+                }
+        }
+    }
+
+    private fun loadTheme() = viewModelScope.launch {
+        widgetPrefs.appTheme.collect { theme ->
+            _state.update { it.copy(appTheme = theme) }
+        }
+    }
+
+    fun fetchLivePrice() = viewModelScope.launch {
+        _state.update { it.copy(priceLoading = true, priceError = null) }
+        cryptoRepository.fetchWidgetData(_state.value.coinId, "").fold(
+            onSuccess = { data ->
+                _state.update {
+                    it.copy(
+                        livePrice = data.priceUsd,
+                        change24h = data.change24hPct,
+                        priceLoading = false
+                    )
+                }
+            },
+            onFailure = { err ->
+                _state.update {
+                    it.copy(priceLoading = false, priceError = err.message)
+                }
+            }
+        )
+    }
+
+    fun onCoinChange(coinId: String) {
+        viewModelScope.launch {
+            widgetPrefs.setCoinId(coinId)
+            // walletAddress auto-reloads via the flatMapLatest in loadPreferences()
+            fetchLivePrice()
+        }
+    }
+
+    /** Resolves a coin id to its real [CoinDefinition], checking custom coins before built-ins. */
+    private suspend fun resolveCoin(coinId: String): CoinDefinition =
+        coinRepository.coinById(coinId) ?: CoinRegistry.byId(coinId)
+
+    /** Returns a human-readable error for the wallet address, or null if it looks OK. */
+    private suspend fun validateWalletAddress(coinId: String, address: String): String? {
+        val coin = resolveCoin(coinId)
+        return when (coin.walletConfig) {
+            is WalletConfig.Xrpl        -> validateXrplAddress(address)
+            is WalletConfig.Bitcoin     -> if (Regex("^(1|3|bc1)[a-zA-HJ-NP-Z0-9]{25,62}$").matches(address)) null else "Invalid Bitcoin address"
+            is WalletConfig.Ethereum    -> if (Regex("^0x[0-9a-fA-F]{40}$").matches(address)) null else "Must be 0x + 40 hex chars"
+            is WalletConfig.Solana      -> if (Regex("^[1-9A-HJ-NP-Za-km-z]{32,44}$").matches(address)) null else "Invalid Solana address"
+            is WalletConfig.GenericRest -> if (address.isNotBlank()) null else "Address required"
+            is WalletConfig.None        -> null
+        }
+    }
+
+    private fun validateXrplAddress(address: String): String? {
+        if (!address.startsWith("r")) return "Must start with 'r'"
+        if (address.length < 25 || address.length > 34)
+            return "Length must be 25–34 chars (yours: ${address.length})"
+        val invalidChars = address.filter { it !in "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" }
+        if (invalidChars.isNotEmpty()) return "Invalid character(s): $invalidChars"
+        return null
+    }
+
+    fun testWallet() {
+        val address = _state.value.walletAddress.trim()
+        val coinId = _state.value.coinId
+        if (address.isBlank()) {
+            _state.update { it.copy(walletTestResult = "Enter a wallet address first") }
+            return
+        }
+        viewModelScope.launch {
+            val formatError = validateWalletAddress(coinId, address)
+            if (formatError != null) {
+                _state.update { it.copy(walletTestResult = "Bad address: $formatError") }
+                return@launch
+            }
+            _state.update { it.copy(walletTestLoading = true, walletTestResult = null) }
+            cryptoRepository.fetchWalletBalance(coinId, address).fold(
+                onSuccess = { bal ->
+                    val price = _state.value.livePrice ?: 0.0
+                    val symbol = resolveCoin(coinId).symbol
+                    _state.update {
+                        it.copy(
+                            walletTestLoading = false,
+                            walletTestResult = "OK  ${CoinFormatter.formatAmount(bal, price)} $symbol ≈ ${CoinFormatter.formatValueUsd(bal * price)}"
+                        )
+                    }
+                },
+                onFailure = { err ->
+                    _state.update {
+                        it.copy(
+                            walletTestLoading = false,
+                            walletTestResult = "Error: ${err.message}"
+                        )
+                    }
+                }
+            )
+        }
+    }
+
+    private fun collectAlerts() = viewModelScope.launch {
+        alertRepository.getAllAlerts().collect { alerts ->
+            _state.update { it.copy(alerts = alerts) }
+        }
+    }
+
+    private fun collectDiagnostics() {
+        viewModelScope.launch {
+            widgetPrefs.lastWorkerRunMs.collect { ms ->
+                _state.update { it.copy(lastWorkerRunMs = ms) }
+            }
+        }
+        viewModelScope.launch {
+            widgetPrefs.lastErrorMsg.collect { msg ->
+                _state.update { it.copy(lastErrorMsg = msg) }
+            }
+        }
+    }
+
+    fun addAlert() {
+        val threshold = _state.value.newAlertThreshold.toDoubleOrNull()
+        if (threshold == null || threshold <= 0) {
+            _state.update { it.copy(saveError = "Enter a valid price threshold") }
+            return
+        }
+        val coinId = _state.value.coinId
+        viewModelScope.launch {
+            val symbol = resolveCoin(coinId).symbol
+            alertRepository.addAlert(
+                coinId = coinId,
+                symbol = symbol,
+                direction = _state.value.newAlertDirection,
+                thresholdUsd = threshold,
+                alertMode = _state.value.newAlertMode,
+                cooldownMin = _state.value.newAlertCooldownMin
+            )
+            _state.update { it.copy(newAlertThreshold = "") }
+        }
+    }
+
+    fun deleteAlert(alert: AlertEntity) = viewModelScope.launch {
+        alertRepository.deleteAlert(alert)
+    }
+
+    fun toggleAlert(alert: AlertEntity, enabled: Boolean) = viewModelScope.launch {
+        alertRepository.setAlertEnabled(alert.id, enabled)
+    }
+
+    fun onWalletChange(v: String) = _state.update { it.copy(walletAddress = v, walletTestResult = null) }
+    fun onIntervalChange(v: Int) = _state.update { it.copy(refreshIntervalMin = v) }
+    fun onShowSparklineChange(v: Boolean) = _state.update { it.copy(showSparkline = v) }
+    fun onChartStyleChange(v: ChartStyle) = _state.update { it.copy(chartStyle = v) }
+    fun onNewAlertDirection(d: AlertDirection) = _state.update { it.copy(newAlertDirection = d) }
+    fun onNewAlertThreshold(v: String) = _state.update { it.copy(newAlertThreshold = v) }
+    fun onNewAlertMode(m: AlertMode) = _state.update { it.copy(newAlertMode = m) }
+    fun onNewAlertCooldown(min: Int) = _state.update { it.copy(newAlertCooldownMin = min) }
+    fun onThemeChange(theme: AppTheme) {
+        _state.update { it.copy(appTheme = theme) }
+        viewModelScope.launch { widgetPrefs.setAppTheme(theme) }
+    }
+
+    fun onCustomAccentChange(argb: Int) {
+        _state.update { it.copy(customAccentArgb = argb) }
+        viewModelScope.launch { widgetPrefs.setCustomAccentArgb(argb) }
+    }
+
+    fun onCustomSecondaryChange(argb: Int) {
+        _state.update { it.copy(customSecondaryArgb = argb) }
+        viewModelScope.launch { widgetPrefs.setCustomSecondaryArgb(argb) }
+    }
+
+    fun save() = viewModelScope.launch {
+        try {
+            val s = _state.value
+            widgetPrefs.setWalletAddress(s.coinId, s.walletAddress.trim())
+            widgetPrefs.setRefreshInterval(s.refreshIntervalMin)
+            widgetPrefs.setShowSparkline(s.showSparkline)
+            widgetPrefs.setChartStyle(s.chartStyle)
+            workScheduler.schedulePeriodicRefresh(s.refreshIntervalMin)
+            context.sendBroadcast(
+                Intent(context, CoinflowWidgetProvider::class.java).apply {
+                    action = "com.electream.cryptowidget.ACTION_REFRESH"
+                }
+            )
+            _state.update { it.copy(saveSuccess = true, saveError = null) }
+        } catch (e: Exception) {
+            _state.update { it.copy(saveError = e.message ?: "Save failed") }
+        }
+    }
+
+    fun clearFeedback() = _state.update { it.copy(saveSuccess = false, saveError = null) }
+
+    private fun collectMultiCoinPrefs() {
+        viewModelScope.launch {
+            widgetPrefs.followedCoinIds.collect { ids ->
+                _state.update { it.copy(followedCoinIds = ids) }
+            }
+        }
+        viewModelScope.launch {
+            widgetPrefs.widgetCoinIds.collect { ids ->
+                _state.update { it.copy(widgetCoinIds = ids) }
+            }
+        }
+    }
+
+    private fun collectCustomColors() {
+        viewModelScope.launch {
+            widgetPrefs.customAccentArgb.collect { argb ->
+                _state.update { it.copy(customAccentArgb = argb) }
+            }
+        }
+        viewModelScope.launch {
+            widgetPrefs.customSecondaryArgb.collect { argb ->
+                _state.update { it.copy(customSecondaryArgb = argb) }
+            }
+        }
+    }
+
+    /** Adds or removes a coin from the followed list. */
+    fun toggleFollow(coinId: String) = viewModelScope.launch {
+        val current = _state.value.followedCoinIds.toMutableList()
+        if (coinId in current) {
+            current.remove(coinId)
+            // Auto-remove from widget tabs too
+            val widgetIds = _state.value.widgetCoinIds.filter { it != coinId }
+            widgetPrefs.setWidgetCoinIds(widgetIds)
+            // If we just unfollowed the active widget coin, migrate to the next available.
+            if (coinId == _state.value.coinId) {
+                // If we just unfollowed the last coin, clear the active coin.
+                val fallback = widgetIds.firstOrNull() ?: current.firstOrNull() ?: ""
+                widgetPrefs.setCoinId(fallback)
+            }
+        } else {
+            current.add(coinId)
+        }
+        widgetPrefs.setFollowedCoinIds(current)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun collectFollowedSnapshots() = viewModelScope.launch {
+        val combined = combine(
+            widgetPrefs.followedCoinIds,
+            coinRepository.allCoins()
+        ) { ids, coins -> ids to coins }
+            .flatMapLatest { (ids, allCoins) ->
+                val byId = allCoins.associateBy { it.id }
+                val orderedCoins = ids.mapNotNull { id ->
+                    byId[id] ?: CoinRegistry.all.firstOrNull { it.id == id }
+                }
+                if (orderedCoins.isEmpty()) {
+                    flowOf(emptyList())
+                } else {
+                    val perCoinFlows = orderedCoins.map { coin ->
+                        combine(
+                            widgetPrefs.priceUsdFor(coin.id),
+                            widgetPrefs.changePctFor(coin.id),
+                            widgetPrefs.sparklineFor(coin.id),
+                            widgetPrefs.updatedMsFor(coin.id)
+                        ) { price, change, sparkline, updated ->
+                            CoinSnapshot(
+                                coin         = coin,
+                                priceUsd     = price,
+                                change24hPct = change,
+                                sparkline    = sparkline,
+                                updatedMs    = updated
+                            )
+                        }
+                    }
+                    combine(perCoinFlows) { it.toList() }
+                }
+            }
+        combined.collect { snapshots ->
+            _state.update { it.copy(followedSnapshots = snapshots) }
+        }
+    }
+
+    /**
+     * Builds a plaintext snapshot of all observable runtime state — followed coins,
+     * per-coin cache slots, widget tabs, worker last-run, custom coin entities.
+     * Intended for the hidden debug card; output is paste-ready.
+     */
+    suspend fun diagnosticsDump(): String {
+        val s = _state.value
+        val sb = StringBuilder()
+        sb.appendLine("Coinflow diagnostics @ ${java.text.SimpleDateFormat("HH:mm:ss yyyy-MM-dd", java.util.Locale.US).format(java.util.Date())}")
+        sb.appendLine()
+        sb.appendLine("ACTIVE WIDGET COIN: ${s.coinId}")
+        sb.appendLine("FOLLOWED IDS:       ${s.followedCoinIds}")
+        sb.appendLine("WIDGET TAB IDS:     ${s.widgetCoinIds}")
+        sb.appendLine("REFRESH INTERVAL:   ${s.refreshIntervalMin} min")
+        sb.appendLine("THEME:              ${s.appTheme}")
+        sb.appendLine()
+        sb.appendLine("WORKER:")
+        sb.appendLine("  last run ms:  ${s.lastWorkerRunMs}")
+        sb.appendLine("  last error:   ${s.lastErrorMsg ?: "(none)"}")
+        sb.appendLine()
+        sb.appendLine("FOLLOWED SNAPSHOTS:")
+        if (s.followedSnapshots.isEmpty()) sb.appendLine("  (empty)")
+        s.followedSnapshots.forEach { snap ->
+            sb.appendLine("  ${snap.coin.id}  [${snap.coin.symbol}]")
+            sb.appendLine("    name:        ${snap.coin.displayName}")
+            sb.appendLine("    priceUsd:    ${snap.priceUsd}")
+            sb.appendLine("    change24h:   ${snap.change24hPct}")
+            sb.appendLine("    sparkline:   ${snap.sparkline.size} points")
+            sb.appendLine("    updatedMs:   ${snap.updatedMs}")
+            sb.appendLine("    walletAddr:  ${widgetPrefs.walletAddressFor(snap.coin.id).first()}")
+        }
+        sb.appendLine()
+        sb.appendLine("CUSTOM COINS (${s.customCoins.size}):")
+        if (s.customCoins.isEmpty()) sb.appendLine("  (none)")
+        s.customCoins.forEach { c ->
+            sb.appendLine("  ${c.id}  [${c.symbol}]  -> ${c.displayName}")
+            sb.appendLine("    priceSource: ${c.priceSource}")
+            sb.appendLine("    walletConfig: ${c.walletConfig}")
+        }
+        return sb.toString()
+    }
+
+    /** Clear the persisted debug-log buffer. */
+    fun clearDebugLog() = debugLog.clear()
+
+    /**
+     * Wipe all per-coin cached values (price, change, balance, sparkline, lastFetched,
+     * lastFetchError) for every followed coin, then trigger an immediate refresh so the
+     * tracker repopulates. Useful for chasing down stale-cache bugs.
+     */
+    fun resetAllCoinCache() = viewModelScope.launch {
+        debugLog.info("ViewModel.resetCache", "clearing all coin caches")
+        val ids = _state.value.followedCoinIds + _state.value.coinId
+        ids.distinct().forEach { id ->
+            widgetPrefs.cacheCoinData(
+                coinId = id, priceUsd = 0.0, changePct = 0.0,
+                balance = 0.0, sparkline = emptyList(), sparklineTimestamps = emptyList()
+            )
+            widgetPrefs.setLastFetchError(id, null)
+        }
+        workScheduler.triggerImmediateRefresh()
+    }
+
+    /** Refresh price + sparkline for every followed coin in parallel. */
+    fun refreshAllFollowed() {
+        if (_state.value.isRefreshingAll) return
+        viewModelScope.launch {
+            _state.update { it.copy(isRefreshingAll = true) }
+            val snapshots = _state.value.followedSnapshots
+            if (snapshots.isEmpty()) {
+                _state.update { it.copy(isRefreshingAll = false) }
+                return@launch
+            }
+            try {
+                coroutineScope {
+                    snapshots.map { snap ->
+                        async {
+                            val wallet = widgetPrefs.walletAddressFor(snap.coin.id).first()
+                            cryptoRepository.fetchWidgetData(snap.coin.id, wallet).fold(
+                                onSuccess = { data ->
+                                    widgetPrefs.cacheCoinData(
+                                        coinId              = snap.coin.id,
+                                        priceUsd            = data.priceUsd,
+                                        changePct           = data.change24hPct,
+                                        balance             = data.walletBalance,
+                                        sparkline           = data.sparklinePrices,
+                                        sparklineTimestamps = data.sparklineTimestamps
+                                    )
+                                },
+                                onFailure = { /* swallowed per-coin */ }
+                            )
+                        }
+                    }.awaitAll()
+                }
+            } finally {
+                _state.update { it.copy(isRefreshingAll = false) }
+            }
+        }
+    }
+
+    /** Adds or removes a coin from the widget tab list (max 5, must be in followed list). */
+    fun toggleWidgetCoin(coinId: String) = viewModelScope.launch {
+        val current = _state.value.widgetCoinIds.toMutableList()
+        if (coinId in current) {
+            current.remove(coinId)
+            // If we removed the active coin, switch to the first remaining tab
+            if (coinId == _state.value.coinId && current.isNotEmpty()) {
+                widgetPrefs.setCoinId(current.first())
+            }
+        } else if (current.size < 5) {
+            current.add(coinId)
+        }
+        widgetPrefs.setWidgetCoinIds(current)
+    }
+}

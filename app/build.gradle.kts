@@ -20,11 +20,11 @@ plugins {
 }
 
 android {
-    namespace = "com.leeam.cryptowidget"
+    namespace = "com.electream.cryptowidget"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.leeam.cryptowidget"
+        applicationId = "com.electream.cryptowidget"
         minSdk = 26
         targetSdk = 35
         versionCode = appVersionCode

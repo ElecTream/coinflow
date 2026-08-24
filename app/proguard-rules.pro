@@ -3,8 +3,8 @@
 -dontnote kotlinx.serialization.AnnotationsKt
 -keepclassmembers class kotlinx.serialization.json.** { *** Companion; }
 -keepclasseswithmembers class **$$serializer { *; }
--keep,includedescriptorclasses class com.leeam.cryptowidget.**$$serializer { *; }
--keepclassmembers class com.leeam.cryptowidget.** {
+-keep,includedescriptorclasses class com.electream.cryptowidget.**$$serializer { *; }
+-keepclassmembers class com.electream.cryptowidget.** {
     *** Companion;
     kotlinx.serialization.KSerializer serializer(...);
 }
@@ -28,8 +28,8 @@
 -keep @dagger.hilt.android.HiltAndroidApp class * { *; }
 
 # Data models (serialized to DataStore/Room — must not be obfuscated)
--keep class com.leeam.cryptowidget.data.model.** { *; }
--keep class com.leeam.cryptowidget.data.local.** { *; }
+-keep class com.electream.cryptowidget.data.model.** { *; }
+-keep class com.electream.cryptowidget.data.local.** { *; }
 
 # WorkManager
 -keep class * extends androidx.work.Worker
@@ -39,4 +39,4 @@
 }
 
 # Keep all app classes safe
--keep class com.leeam.cryptowidget.** { *; }
+-keep class com.electream.cryptowidget.** { *; }

@@ -15,7 +15,7 @@ No test files exist yet — `./gradlew test` will run if tests are added.
 
 ## Architecture Overview
 
-**Coinflow** is a single-module Android app (`com.leeam.cryptowidget`) that tracks multiple cryptocurrencies and displays them as a home screen widget plus a companion Compose UI.
+**Coinflow** is a single-module Android app (`com.electream.cryptowidget`) that tracks multiple cryptocurrencies and displays them as a home screen widget plus a companion Compose UI.
 
 **Tech stack:** Hilt DI, WorkManager, Jetpack Compose, Room, DataStore, Retrofit, Kotlin Coroutines, Kotlin Serialization.
 
@@ -73,6 +73,6 @@ Validation runs at app startup: duplicate ids and malformed id strings throw `Il
 ## Configuration Notes
 
 - **minSdk 26**, **compileSdk/targetSdk 35**, **Kotlin 2.0.21**, **JDK 17**
-- Debug app ID is `com.leeam.cryptowidget.debug` (separate from release for side-by-side install)
+- Debug app ID is `com.electream.cryptowidget.debug` (separate from release for side-by-side install)
 - ProGuard rules in `app/proguard-rules.pro` preserve Kotlin Serialization, Retrofit, OkHttp, Room, Hilt, WorkManager, and all `data.model` classes
 - Widget minimum size: 180×110dp; supports resizing via `crypto_widget_info.xml`

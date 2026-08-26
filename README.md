@@ -2,7 +2,7 @@
 
 A polished Android home-screen widget and companion app for live multi-coin crypto price tracking.
 
-Package: `com.electream.cryptowidget` (debug: `com.electream.cryptowidget.debug`). Published by Electream.
+Package: `com.electream.cryptowidget` (debug: `com.electream.cryptowidget.debug`). Published by ElecTream.
 
 ## Features
 
